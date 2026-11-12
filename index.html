@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLEVISION ★ Rate Mr. Puzzles' Shows!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap');
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #0a0a0f; color: #fff; min-height: 100vh; overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 20%, #1a1a2e 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, #2d1b4e 0%, transparent 50%);
+  }
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; opacity:.06; z-index:999;
+    background-image: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%);
+    background-size: 3px 3px;
+  }
+  header { text-align:center; padding: 28px 16px 10px; }
+  .logo { font-family:'Bungee'; font-size: clamp(28px, 6vw, 58px); letter-spacing:2px; }
+  .logo span:nth-child(1){color:#00e5ff} .logo span:nth-child(2){color:#76ff03}
+  .logo span:nth-child(3){color:#ffeb3b} .logo span:nth-child(4){color:#ff4081}
+  .logo span:nth-child(5){color:#ff3d00} .logo span:nth-child(6){color:#40c4ff}
+  .tagline { opacity:.8; margin-top:6px; font-weight:700; letter-spacing:1px; }
+  .puzzlevision-bar { display:flex; height:14px; margin:18px auto 0; max-width:700px; border-radius:99px; overflow:hidden; border:2px solid #fff; }
+  .puzzlevision-bar div{flex:1}
+  main { max-width:1100px; margin:0 auto; padding:20px; display:grid; grid-template-columns: 400px 1fr; gap:24px; }
+  @media(max-width:900px){ main{grid-template-columns:1fr} }
+
+  .stage {
+    background:#15151f; border:3px solid #fff; border-radius:20px;
+    padding:20px; text-align:center; position:sticky; top:20px; align-self:start;
+    box-shadow: 0 0 40px rgba(255,255,255,.15);
+    transition: border-color .3s, box-shadow .3s, background .3s;
+  }
+  /* ---- SHOW-ACCURATE PUZZLEVISION TV BOX ---- */
+  .tv-top { position:relative; height:64px; margin-bottom:-8px; }
+  .antenna { position:absolute; bottom:14px; width:6px; }
+  .antenna.left { left:38%; height:56px; background:linear-gradient(#444,#222); transform:rotate(-8deg); border-radius:3px; }
+  .antenna.left::after { content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:12px; height:12px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #888, #222); border:2px solid #111; }
+  .antenna.right { right:36%; height:48px; background:linear-gradient(#444,#222); transform:rotate(10deg); border-radius:3px; }
+  .antenna.right::before { content:''; position:absolute; top:12px; left:-9px; width:14px; height:6px; background:#222; transform:rotate(38deg); border-radius:3px; }
+  .antenna.right::after { content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:12px; height:12px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #888, #222); border:2px solid #111; }
+  .bowler { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:64px; height:30px; }
+  .bowler .dome { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:40px; height:24px; background:radial-gradient(circle at 35% 30%, #3a3a3a, #0a0a0a); border-radius:20px 20px 4px 4px; border:2px solid #000; }
+  .bowler .brim { position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:64px; height:12px; background:linear-gradient(#2a2a2a,#000); border-radius:50%; border:2px solid #000; }
+  .tv-frame {
+    background:linear-gradient(180deg,#c6c6c4 0%,#b3b3b1 55%,#9a9a98 100%);
+    border-radius:16px; padding:14px 14px 10px; position:relative;
+    border:3px solid #2b2b2b;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.7), inset 0 -4px 8px rgba(0,0,0,.35), 0 10px 24px rgba(0,0,0,.5);
+  }
+  .tv-frame::after { /* right side shading like boxy CRT */
+    content:''; position:absolute; top:0; right:0; bottom:0; width:10px;
+    background:linear-gradient(90deg,transparent,rgba(0,0,0,.22)); border-radius:0 13px 13px 0; pointer-events:none;
+  }
+  .screw { position:absolute; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #777, #222); box-shadow:inset 0 0 2px #000; }
+  .screw::after { content:''; position:absolute; top:4px; left:1px; right:1px; height:2px; background:#111; transform:rotate(40deg); }
+  .screw.tl{top:6px;left:6px} .screw.tr{top:6px;right:6px} .screw.bl{bottom:6px;left:6px} .screw.br{bottom:6px;right:6px}
+  .tv-main { display:flex; gap:10px; }
+  .tv-screen-wrap { flex:1; }
+  .tv-side {
+    width:62px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:10px;
+    background:linear-gradient(180deg,#a8a8a6,#8f8f8d); border-radius:8px; padding:10px 6px;
+    border:2px solid rgba(0,0,0,.35); box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .knob { width:34px; height:34px; border-radius:50%; position:relative;
+    background:radial-gradient(circle at 35% 30%, #e2e2e2 0%, #8a8a8a 45%, #3a3a3a 100%);
+    border:2px solid #1c1c1c; box-shadow:0 2px 3px rgba(0,0,0,.5);
+  }
+  .knob::after { content:''; position:absolute; top:3px; left:50%; width:4px; height:11px; background:#111; border-radius:2px; transform:translateX(-50%) rotate(35deg); }
+  .knob.small { width:28px; height:28px; }
+  .side-vents, .side-speaker { width:100%; background:#7d7d7b; border-radius:4px; padding:5px 6px; border:1px solid rgba(0,0,0,.4); display:flex; flex-direction:column; gap:4px; }
+  .side-vents i { display:block; height:3px; background:#2c2c2c; border-radius:2px; }
+  .side-speaker i { display:block; height:4px; background:repeating-linear-gradient(90deg,#2c2c2c 0 4px, transparent 4px 6px); border-radius:2px; }
+  .tv-screen {
+    border-radius:12px; aspect-ratio: 4/3; position:relative; overflow:hidden;
+    background:#0a0a0a; border:4px solid #111;
+  }
+  .tv-screen svg { width:100%; height:100%; display:block; }
+  .scanlines {
+    position:absolute; inset:0; pointer-events:none; opacity:.25; z-index:5;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.6) 2px 3px);
+  }
+  .static-noise {
+    position:absolute; inset:0; opacity:.12; pointer-events:none; z-index:6;
+    background-image: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%);
+    background-size:6px 6px; animation: staticMove .3s steps(2) infinite;
+  }
+  @keyframes staticMove { 0%{transform:translate(0,0)} 50%{transform:translate(2px,-2px)} 100%{transform:translate(-2px,2px)} }
+  .alarm-overlay {
+    position:absolute; inset:0; z-index:7; pointer-events:none; opacity:0;
+    background: radial-gradient(circle, transparent 30%, rgba(255,0,0,.75) 100%);
+  }
+  .alarm-light {
+    position:absolute; top:8px; right:8px; z-index:8; width:18px; height:18px; border-radius:50%;
+    background:#330000; border:2px solid #000;
+  }
+
+  /* ---- MOOD THEMING : the whole UI follows the expression ---- */
+  @keyframes shake { 0%,100%{transform:translate(0,0) rotate(0)} 25%{transform:translate(-5px,3px) rotate(-1.2deg)} 75%{transform:translate(5px,-3px) rotate(1.2deg)} }
+  @keyframes hardShake { 0%,100%{transform:translate(0,0) rotate(0)} 20%{transform:translate(-9px,5px) rotate(-2deg)} 40%{transform:translate(8px,-6px) rotate(2deg)} 60%{transform:translate(-7px,-4px) rotate(-1.5deg)} 80%{transform:translate(7px,5px) rotate(1.5deg)} }
+  @keyframes alarmFlash {
+    0% { background-color:#1a0000; box-shadow: inset 0 0 60px rgba(255,0,0,.9), 0 0 30px rgba(255,0,0,.8); }
+    100% { background-color:#5a0000; box-shadow: inset 0 0 90px rgba(255,30,30,1), 0 0 60px rgba(255,0,0,1); }
+  }
+  @keyframes skullFlicker { 0%{filter:brightness(1)} 50%{filter:brightness(1.25) contrast(1.15)} 100%{filter:brightness(.92)} }
+  @keyframes alarmBlink { 0%{opacity:.25} 100%{opacity:1} }
+
+  /* the WHOLE TV head shakes (hat + antennae + box + face), not just the glass */
+  .tv-head { transform-origin:50% 100%; will-change:transform; }
+
+  /* default theme */
+  .stage { --accent:#00e5ff; --accent-rgb:0,229,255; --tint:#15151f; --speech-bg:#fff; --speech-ink:#111;
+    border-color:var(--accent);
+    background:var(--tint);
+    box-shadow:0 0 40px rgba(var(--accent-rgb),.30);
+    transition: background .3s, border-color .3s, box-shadow .3s;
+  }
+  .mood-label { color:var(--accent); transition:color .25s; }
+  .tv-screen { border-color:var(--accent); transition:border-color .25s; }
+  .speech { background:var(--speech-bg); color:var(--speech-ink); border:3px solid rgba(var(--accent-rgb),.55);
+    transition:background .25s, color .25s, border-color .25s; }
+  .speech::before { border-bottom-color:var(--speech-bg); }
+  .stars-big { color:var(--accent); text-shadow:0 0 12px rgba(var(--accent-rgb),.7); transition:color .25s; }
+  .meter-fill { background:linear-gradient(90deg, var(--accent), #fff); }
+
+  /* 1 star - FURIOUS: red alarm everywhere */
+  .stage.mood-furious { --accent:#ff0000; --accent-rgb:255,0,0; --tint:#120000; --speech-bg:#1c0000; --speech-ink:#ffdada;
+    border-color:#ff0000; animation:alarmFlash .8s steps(2) infinite; }
+  .stage.mood-furious .tv-head { animation:hardShake .35s infinite; }
+  .stage.mood-furious .tv-screen { background:#000; animation:skullFlicker 1.1s steps(2) infinite; }
+
+  /* 2 stars - ANGRY: hot orange */
+  .stage.mood-mad { --accent:#ff9100; --accent-rgb:255,145,0; --tint:#1b1206; --speech-bg:#2b1a05; --speech-ink:#ffdcae;
+    box-shadow:0 0 44px rgba(255,145,0,.45); }
+  .stage.mood-mad .tv-head { animation:shake .55s infinite; }
+
+  /* 3 stars low - SAD: cold blue */
+  .stage.mood-sad { --accent:#7fa9cf; --accent-rgb:127,169,207; --tint:#121820; --speech-bg:#1b2530; --speech-ink:#d8e6f2;
+    box-shadow:0 0 34px rgba(127,169,207,.30); }
+
+  /* 3 stars high - ANNOYED: dull grey */
+  .stage.mood-meh { --accent:#b9b9b9; --accent-rgb:185,185,185; --tint:#16161a; --speech-bg:#26262c; --speech-ink:#ececec;
+    box-shadow:0 0 30px rgba(185,185,185,.22); }
+  .stage.mood-meh .tv-head { animation:shake 1.6s infinite; }
+
+  /* 4 stars - PLEASED: cyan */
+  .stage.mood-happy { --accent:#00e5ff; --accent-rgb:0,229,255; --tint:#0e1a1e; --speech-bg:#f2fdff; --speech-ink:#062530;
+    box-shadow:0 0 44px rgba(0,229,255,.42); }
+
+  /* 4.6-4.85 - CRAZY: toxic lime, losing it */
+  .stage.mood-crazy { --accent:#76ff03; --accent-rgb:118,255,3; --tint:#121a07; --speech-bg:#eaffd6; --speech-ink:#14280a;
+    box-shadow:0 0 48px rgba(118,255,3,.5); }
+  .stage.mood-crazy .tv-head { animation:hardShake .5s infinite; }
+
+  /* 5 stars - PERFECTION INSANITY: full red alarm */
+  .stage.mood-insane { --accent:#ff0000; --accent-rgb:255,0,0; --tint:#1a0505; --speech-bg:#3a0000; --speech-ink:#fff;
+    border-color:#ff0000; animation:alarmFlash .7s steps(2) infinite; }
+  .stage.mood-insane .tv-head { animation:hardShake .4s infinite; }
+  .stage.mood-insane .alarm-overlay { opacity:1; animation:alarmBlink .7s steps(2) infinite; }
+  .stage.mood-insane .alarm-light { background:#ff0000; box-shadow:0 0 18px #ff0000; animation:alarmBlink .7s steps(2) infinite; }
+  .stage.mood-insane .meter-fill { background:linear-gradient(90deg,#600,#f00,#ff5252); }
+
+  /* page-wide red siren overlay for alarm moods */
+  body.alarm-on::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:9997;
+    background:radial-gradient(ellipse at center, transparent 35%, rgba(255,0,0,.32) 100%);
+    animation:alarmBlink .7s steps(2) infinite;
+  }
+
+  .brand-mini { font-family:Georgia, 'Times New Roman', serif; font-style:italic; font-weight:700; font-size:15px; letter-spacing:.5px; margin-top:8px; color:#1c1c1c; text-shadow:0 1px 0 rgba(255,255,255,.5); }
+  .character-img { width:100%; max-height:300px; object-fit:contain; margin-top:12px; filter: drop-shadow(0 10px 20px rgba(0,0,0,.6)); }
+  .mood-label { font-family:'Bungee'; margin:14px 0 6px; font-size:24px; min-height:32px; }
+  .speech { border-radius:14px; padding:14px 16px; font-weight:900; min-height:76px; position:relative; margin-top:10px;
+    font-size:15px; line-height:1.45; letter-spacing:.2px; cursor:pointer; }
+  .speech::before{content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%); border:10px solid transparent; border-bottom-color:var(--speech-bg); border-top:0; transition:border-bottom-color .25s;}
+  .caret { display:inline-block; width:9px; height:15px; background:currentColor; margin-left:4px; vertical-align:-2px;
+    animation:caretBlink .7s steps(2) infinite; }
+  @keyframes caretBlink { 0%{opacity:1} 50%{opacity:0} 100%{opacity:1} }
+  .avg-box { margin-top:12px; font-weight:900; }
+  .stars-big { font-size:32px; letter-spacing:4px; }
+  .meter { height:12px; background:#00000055; border-radius:99px; overflow:hidden; margin-top:8px; border:2px solid #ffffff33; }
+  .meter-fill { height:100%; width:0%; transition:width .5s cubic-bezier(.34,1.56,.64,1); }
+  .reset-btn { margin-top:12px; background:#fff; border:0; border-radius:99px; padding:10px 20px; font-weight:900; cursor:pointer; font-family:inherit; }
+  .reset-btn:hover{transform:scale(1.05)}
+
+  .shows { display:grid; gap:16px; }
+  .show-card { background:#1c1c28; border:2px solid #33334d; border-radius:16px; padding:16px; display:grid; grid-template-columns:110px 1fr; gap:14px; align-items:center; }
+  .show-card:hover{ border-color:#fff; }
+  .poster { width:110px; height:140px; border-radius:10px; display:flex; align-items:center; justify-content:center; border:3px solid #fff; font-family:Bungee; font-size:28px; line-height:1; text-align:center; }
+  .show-card h3{font-family:'Bungee'; font-size:18px; margin-bottom:4px}
+  .show-card p{opacity:.75; font-size:14px; margin-bottom:10px}
+  .star-row{display:flex; gap:4px}
+  .star-btn {
+    font-size:34px; line-height:1; background:none; border:0; cursor:pointer; transition:transform .1s;
+    color:#444; text-shadow:none;
+  }
+  .star-btn.lit{ color:gold; text-shadow:0 0 12px gold; }
+  .star-btn:hover{transform:scale(1.3) rotate(-8deg); color:gold;}
+  /* secret minus star - almost invisible until you go looking for it */
+  .minus-btn {
+    font-size:24px; letter-spacing:-1px; color:#7a2b2b; opacity:.10;
+    transition:opacity .25s, color .25s, transform .12s;
+  }
+  .star-row:hover .minus-btn { opacity:.42; }
+  .minus-btn:hover { opacity:1 !important; color:#ff2b2b; text-shadow:0 0 12px #f00; transform:scale(1.22) rotate(6deg); }
+  .minus-btn.lit { opacity:1; color:#ff2b2b; text-shadow:0 0 14px #f00; animation:minusPulse 1.4s ease-in-out infinite; }
+  @keyframes minusPulse { 0%,100%{text-shadow:0 0 10px #f00} 50%{text-shadow:0 0 22px #f00} }
+  .rating-text{font-weight:900; font-size:13px; margin-top:6px; opacity:.9}
+  footer{text-align:center; padding:30px; opacity:.6; font-size:13px}
+  .build-tag{ display:inline-block; margin-top:10px; padding:4px 14px; border:1px solid #00e5ff; border-radius:99px;
+    color:#00e5ff; font-family:'Consolas',monospace; font-size:11px; letter-spacing:2px; opacity:.95; }
+  .confetti-bit { position:fixed; top:-20px; width:12px; height:18px; pointer-events:none; z-index:1000; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+  /* ---------- ACCEPT ---------- */
+  .accept-btn {
+    margin-top:10px; width:100%; padding:14px 20px; border:0; border-radius:99px; cursor:pointer;
+    font-family:'Bungee'; font-size:20px; letter-spacing:3px; color:#fff;
+    background:linear-gradient(180deg,#e00000,#6a0000);
+    box-shadow:0 0 0 3px #fff, 0 8px 24px rgba(255,0,0,.45), inset 0 2px 0 rgba(255,255,255,.35);
+    animation: acceptPulse 2.2s ease-in-out infinite;
+    transition:transform .1s;
+  }
+  .accept-btn:hover { transform:translateY(-2px) scale(1.02); }
+  .accept-btn:active { transform:scale(.98); }
+  @keyframes acceptPulse {
+    0%,100% { box-shadow:0 0 0 3px #fff, 0 8px 24px rgba(255,0,0,.35), inset 0 2px 0 rgba(255,255,255,.35); }
+    50% { box-shadow:0 0 0 3px #fff, 0 8px 40px rgba(255,0,0,.85), inset 0 2px 0 rgba(255,255,255,.5); }
+  }
+  .accept-note { font-size:12px; opacity:.55; margin-top:8px; letter-spacing:.5px; }
+
+  /* ---------- 3D MAZE GAME ---------- */
+  .game { position:fixed; inset:0; z-index:10000; display:none; background:#000; overflow:hidden;
+    cursor:default; user-select:none; }
+  .game.on { display:block; }
+  #gameCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .game.playing, .game.playing #gameCanvas { cursor:none; }
+  .game-intro, .game-end, .game-intro *, .game-end * { cursor:default; }
+  .gi-start, .ge-btn, .gi-leave, .tvd-panel button { cursor:pointer; }
+  .tvd-panel { pointer-events:auto; }
+
+  .fx-scanlines { position:absolute; inset:0; pointer-events:none; z-index:3; opacity:.5; mix-blend-mode:overlay;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px); }
+  .fx-track { position:absolute; left:0; right:0; height:16%; pointer-events:none; z-index:4; opacity:.5;
+    background:linear-gradient(180deg, transparent, rgba(255,255,255,.10), transparent);
+    animation: track 7s linear infinite; }
+  @keyframes track { 0%{ top:-20% } 100%{ top:110% } }
+
+  .camhud { position:absolute; inset:0; pointer-events:none; z-index:6;
+    font-family:'Consolas',monospace; font-size:13px; letter-spacing:1.5px; color:#eaeaea;
+    text-shadow:0 0 6px rgba(0,0,0,.9); }
+  .camhud span { display:inline-block; }
+  .camhud-tl { position:absolute; top:16px; left:20px; display:flex; gap:16px; align-items:center; }
+  .camhud-tr { position:absolute; top:16px; right:20px; display:flex; gap:16px; }
+  .camhud-bl { position:absolute; bottom:16px; left:20px; }
+  .camhud-br { position:absolute; bottom:16px; right:20px; }
+  .rec { color:#ff3b3b; font-weight:700; }
+  .rec i { display:inline-block; width:10px; height:10px; border-radius:50%; background:#ff2222; margin-right:6px;
+    box-shadow:0 0 10px #ff2222; animation: recBlink 1s steps(2) infinite; }
+  @keyframes recBlink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+  .cam-cross { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:6;
+    color:rgba(255,255,255,.5); font-family:monospace; font-size:20px; pointer-events:none; }
+  .cam-frame { position:absolute; inset:0; pointer-events:none; z-index:5; border-radius:0;
+    box-shadow: inset 0 0 140px 40px rgba(0,0,0,.75); }
+  .cam-frame::before, .cam-frame::after { content:''; position:absolute; background:rgba(255,255,255,.5); }
+  .cam-frame::before { left:14px; top:14px; width:26px; height:2px; }
+  .cam-frame::after { left:14px; top:14px; width:2px; height:26px; }
+
+  .game-intro { position:absolute; inset:0; z-index:8; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; gap:12px;
+    background:radial-gradient(circle at center, rgba(40,0,0,.75), rgba(0,0,0,.96)); }
+  .gi-title { font-family:'Bungee'; font-size:clamp(14px,2.4vw,20px); letter-spacing:6px; color:#ff2a2a; opacity:.9; }
+  .gi-sub { font-family:'Bungee'; font-size:clamp(30px,7vw,68px); letter-spacing:4px; color:#fff;
+    text-shadow:0 0 30px rgba(255,0,0,.8); }
+  .gi-keys { font-family:'Consolas',monospace; font-size:13px; color:#cfcfcf; margin-top:6px; letter-spacing:1px; }
+  .gi-note { font-size:11px; color:#8a8a8a; margin-top:8px; letter-spacing:2px; }
+  .gi-start { margin-top:22px; font-family:'Bungee'; font-size:18px; letter-spacing:3px; color:#000; background:#fff;
+    padding:12px 30px; border-radius:99px; cursor:pointer; animation:pulse2 1.6s ease-in-out infinite; }
+  @keyframes pulse2 { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+  .gi-warn { font-family:'Consolas',monospace; font-size:12px; color:#ff6b6b; margin-top:10px; max-width:520px; line-height:1.5; white-space:pre-line; }
+  .gi-leave { margin-top:18px; font-family:'Consolas',monospace; font-size:12px; letter-spacing:2px;
+    color:#8a8a8a; cursor:pointer; text-decoration:underline; }
+  .gi-leave:hover { color:#fff; }
+
+  .game-end { position:absolute; inset:0; z-index:9; display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; text-align:center;
+    background:radial-gradient(circle at center, rgba(60,0,0,.85), rgba(0,0,0,.97)); }
+  .game-end.on { display:flex; }
+  .ge-title { font-family:'Bungee'; font-size:clamp(34px,8vw,76px); letter-spacing:4px; color:#ff1a1a;
+    text-shadow:0 0 40px rgba(255,0,0,.9); animation:glitchTitle .25s steps(2) infinite; }
+  @keyframes glitchTitle { 0%{transform:translate(0,0)} 33%{transform:translate(-2px,1px)} 66%{transform:translate(2px,-1px)} 100%{transform:translate(0,0)} }
+  .ge-text { font-family:'Consolas',monospace; color:#ddd; font-size:14px; max-width:560px; line-height:1.6; }
+  .ge-btn { font-family:'Bungee'; letter-spacing:2px; font-size:16px; padding:12px 28px; border-radius:99px;
+    border:2px solid #fff; background:#fff; color:#000; cursor:pointer; }
+  .ge-btn.alt { background:transparent; color:#fff; }
+  .ge-btn:hover { transform:scale(1.05); }
+
+  /* ---------- jumpscare flash ---------- */
+  .fx-flash { position:absolute; inset:0; z-index:60; pointer-events:none; opacity:0;
+    background:radial-gradient(circle at 50% 45%, #fff 0%, #ff2020 45%, #300 100%); }
+.fx-flash.on { animation: flashBang .45s ease-out forwards; }
+@keyframes flashBang { 0%{opacity:0} 30%{opacity:.55} 65%{opacity:.92} 100%{opacity:1} }
+
+  /* ---------- INSIDE THE TV DIMENSION ---------- */
+  .tv-dim { position:absolute; inset:0; z-index:70; display:none; overflow:hidden;
+    background:#05040a; }
+  .tv-dim.on { display:block; }
+  .tvd-bg { position:absolute; inset:-40%;
+    background:conic-gradient(from 0deg, #ffe600, #35e8dc, #7dff4f, #ff6ed1, #ff2222, #3b9bff, #ffe600);
+    filter:blur(60px) saturate(1.2); opacity:.55; animation: tvdSpin 14s linear infinite; }
+  @keyframes tvdSpin { to { transform: rotate(360deg); } }
+  .tvd-scan { position:absolute; inset:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.55) 0 2px, transparent 2px 4px),
+      radial-gradient(circle at center, transparent 30%, rgba(0,0,0,.85) 100%);
+    mix-blend-mode:multiply; }
+  .tvd-scan::after { content:''; position:absolute; inset:0; opacity:.18;
+    background-image:repeating-conic-gradient(#fff 0% 25%, #000 0% 50%);
+    background-size:4px 4px; animation: staticMove .3s steps(2) infinite; }
+
+  .tvd-face { position:absolute; left:50%; top:44%; transform:translate(-50%,-50%);
+    width:min(62vw, 620px); aspect-ratio:4/3; opacity:.92;
+    filter: contrast(1.15) saturate(1.1) drop-shadow(0 0 60px rgba(255,0,0,.6));
+    animation: tvdFloat 5s ease-in-out infinite; }
+  .tvd-face svg { width:100%; height:100%; display:block; }
+  @keyframes tvdFloat {
+    0%,100% { transform:translate(-50%,-50%) scale(1) rotate(-1deg); }
+    50% { transform:translate(-50%,-52%) scale(1.05) rotate(1.5deg); }
+  }
+
+  .tvd-panel { position:absolute; left:0; right:0; bottom:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;
+    padding:24px 20px 34px;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.85) 40%); }
+  .tvd-title { font-family:'Bungee'; font-size:clamp(20px,4.4vw,46px); letter-spacing:3px; color:#fff;
+    text-shadow:2px 0 #ff2222, -2px 0 #00e5ff, 0 0 40px rgba(255,0,0,.8);
+    animation: glitchTitle .22s steps(2) infinite; }
+  .tvd-sub { font-family:'Consolas',monospace; color:#e8e8e8; font-size:13px; max-width:620px; line-height:1.6; }
+  .tvd-count { font-family:'Consolas',monospace; color:#ff6b6b; font-size:12px; letter-spacing:2px; min-height:16px; }
+
+  /* ---------- ADWARE POPUP ---------- */
+  .adware {
+    position:fixed; right:22px; bottom:22px; width:300px; z-index:5000;
+    background:linear-gradient(180deg,#fff3a6,#ffd400);
+    border:4px solid #000; border-radius:10px; overflow:hidden;
+    box-shadow:0 0 0 4px #fff, 0 14px 44px rgba(0,0,0,.65);
+    transform:rotate(-2.5deg);
+    animation:adBob 2.4s ease-in-out infinite;
+  }
+  @keyframes adBob { 0%,100%{transform:rotate(-2.5deg) translateY(0)} 50%{transform:rotate(-1.4deg) translateY(-6px)} }
+  .ad-head { display:flex; align-items:center; gap:8px; background:#111; color:#ffd400;
+    font-family:'Bungee'; font-size:10px; letter-spacing:1.4px; padding:6px 8px; }
+  .ad-rec { width:8px; height:8px; border-radius:50%; background:#ff2222; animation:recBlink 1s steps(2) infinite; }
+  .ad-x { margin-left:auto; background:#333; color:#fff; border:0; width:20px; height:20px; border-radius:4px;
+    cursor:pointer; font-weight:900; line-height:1; font-size:14px; }
+  .ad-x:hover { background:#ff2222; }
+  .ad-mascot { height:150px; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle,#fff,#ffe066); }
+  .ad-mascot svg { height:142px; width:auto; filter:drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+  .ad-title { font-family:'Bungee'; font-size:15px; text-align:center; color:#1a1a1a; padding:8px 10px 0; }
+  .ad-sub { font-size:12px; text-align:center; color:#3a2a00; padding:4px 12px; line-height:1.35; }
+  .ad-row { display:flex; align-items:baseline; justify-content:center; gap:8px; padding:6px 0 0; }
+  .ad-price { font-family:'Bungee'; font-size:24px; color:#c00000; }
+  .ad-old { font-size:12px; color:#666; text-decoration:line-through; }
+  .ad-off { background:#c00000; color:#fff; font-size:11px; font-weight:900; padding:2px 6px; border-radius:4px; }
+  .ad-urgency { text-align:center; font-size:11px; color:#7a0000; font-weight:900; padding:4px; }
+  .ad-buy { display:block; width:calc(100% - 20px); margin:8px auto 6px; padding:12px; border:0; border-radius:6px;
+    background:linear-gradient(180deg,#ff3333,#a80000); color:#fff; font-family:'Bungee'; font-size:18px;
+    letter-spacing:2px; cursor:pointer; box-shadow:0 4px 0 #5a0000, 0 0 18px rgba(255,0,0,.6);
+    animation:buyPulse 1.1s ease-in-out infinite; }
+  @keyframes buyPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+  .ad-buy:active { transform:translateY(3px); box-shadow:0 1px 0 #5a0000; }
+  .ad-fine { font-size:9px; text-align:center; color:#6b5a00; padding:0 10px 8px; }
+  .adware.gone { animation:adGone .35s forwards; }
+  @keyframes adGone { to { opacity:0; transform:rotate(6deg) scale(.6) translateY(30px); } }
+  @media(max-width:520px){ .adware{ width:250px; right:10px; bottom:10px; } }
+
+  /* ---------- CORRUPTED SITE ---------- */
+  body.corrupted main { animation: corruptJitter .22s steps(2) infinite; }
+  body.corrupted header { animation: corruptJitter .31s steps(2) infinite reverse; }
+  @keyframes corruptJitter {
+    0%{transform:translate(0,0)} 25%{transform:translate(-2px,1px)}
+    50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,-2px)} 100%{transform:translate(0,0)}
+  }
+  body.corrupted .stage { animation: corruptStage 3s steps(6) infinite; }
+  @keyframes corruptStage {
+    0%,100%{ filter:none; transform:none; }
+    20%{ filter:hue-rotate(-30deg) saturate(1.6) contrast(1.2); transform:skewX(1deg); }
+    45%{ filter:invert(.08) hue-rotate(22deg); transform:skewX(-1.6deg); }
+    70%{ filter:saturate(2) contrast(1.35); }
+  }
+  body.corrupted .show-card { animation: corruptCard 4s steps(5) infinite; }
+  body.corrupted .show-card:nth-child(odd){ animation-delay:.7s; }
+  body.corrupted .show-card:nth-child(3n){ animation-delay:1.4s; }
+  @keyframes corruptCard {
+    0%,100%{ transform:rotate(0); filter:none; }
+    30%{ transform:rotate(-.6deg); filter:hue-rotate(-20deg) contrast(1.2); }
+    60%{ transform:rotate(.6deg); filter:hue-rotate(25deg) saturate(1.5); }
+  }
+  body.corrupted .logo span { animation: corruptLetter 1.6s steps(2) infinite; }
+  @keyframes corruptLetter { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+
+  .corrupt-layer { position:fixed; inset:0; z-index:4000; pointer-events:none; display:none; overflow:hidden; }
+  .corrupt-layer.on { display:block; }
+  .corrupt-layer::before { content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center, transparent 38%, rgba(96,0,0,.55) 100%);
+    animation:gooPulse 4s ease-in-out infinite; }
+  @keyframes gooPulse { 0%,100%{opacity:.75} 50%{opacity:1} }
+
+  .goo-blob { position:absolute;
+    background:radial-gradient(circle at 35% 30%, #a00000, #4a0000 62%, #260000 100%);
+    border-radius:50% 50% 46% 54% / 58% 42% 58% 42%;
+    box-shadow:0 0 34px rgba(130,0,0,.55), inset 0 0 22px rgba(0,0,0,.55);
+    animation:gooOoze 7s ease-in-out infinite; }
+  @keyframes gooOoze {
+    0%,100%{ transform:translateY(0) scale(1,1); }
+    50%{ transform:translateY(14px) scale(1.07,.94); }
+  }
+  .goo-drip { position:absolute; top:0; background:linear-gradient(180deg,#8a0000,#3a0000);
+    border-radius:0 0 45% 45%; animation:gooDrip 6s ease-in-out infinite; }
+  @keyframes gooDrip { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.16)} }
+
+  .ceye { position:absolute; animation:ceyeFloat 6s ease-in-out infinite; }
+  .ceye-blink { animation:eyeBlink 5.5s infinite; transform-origin:center; }
+  .ceye svg { width:100%; display:block; }
+  @keyframes ceyeFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes eyeBlink { 0%,92%,100%{transform:scaleY(1)} 96%{transform:scaleY(.08)} }
+
+  .corrupt-toast { position:fixed; left:50%; top:26px; transform:translateX(-50%);
+    z-index:4500; background:#1a0000; color:#ff8a8a; border:2px solid #7a0000; border-radius:8px;
+    padding:10px 18px; font-family:'Bungee'; font-size:13px; letter-spacing:1px; text-align:center;
+    box-shadow:0 0 30px rgba(160,0,0,.7); animation:toastIn .5s ease-out, toastOut .6s ease-in 5s forwards; }
+  @keyframes toastIn { from{opacity:0; transform:translate(-50%,-16px)} to{opacity:1; transform:translate(-50%,0)} }
+  @keyframes toastOut { to{opacity:0; transform:translate(-50%,-16px)} }
+  .tv-dim.shake .tvd-face { animation:tvdShake .25s steps(2) 4; }
+  .tv-dim.shake .tvd-bg { filter:blur(40px) saturate(1.8) brightness(1.25); }
+  @keyframes tvdShake {
+    0%{transform:translate(-50%,-50%) scale(1)}
+    25%{transform:translate(-52%,-49%) scale(1.06) rotate(-3deg)}
+    50%{transform:translate(-50%,-50%) scale(1.03) rotate(0deg)}
+    75%{transform:translate(-48%,-51%) scale(1.04) rotate(3deg)}
+    100%{transform:translate(-50%,-50%) scale(1)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>PUZZLE</span><span>VISION</span> <span>★</span> <span>RATE</span><span>-O-</span><span>RAMA</span></div>
+  <div class="tagline">MR. PUZZLES PRESENTS: JUDGE MY MAGNIFICENT SHOWS! 1 = DOOM, 5 = PERFECTION!</div>
+  <div class="puzzlevision-bar">
+    <div style="background:#ffeb00"></div><div style="background:#00e5ff"></div>
+    <div style="background:#76ff03"></div><div style="background:#ff4081"></div>
+    <div style="background:#ff3d00"></div><div style="background:#40c4ff"></div>
+  </div>
+</header>
+
+<main>
+  <section class="stage" id="stage">
+    <div class="tv-head" id="tvHead">
+      <div class="tv-top">
+        <div class="antenna left"></div>
+        <div class="antenna right"></div>
+        <div class="bowler"><div class="dome"></div><div class="brim"></div></div>
+      </div>
+      <div class="tv-frame">
+        <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
+        <div class="tv-main">
+          <div class="tv-screen-wrap">
+            <div class="tv-screen" id="tvScreen">
+              <div id="puzzlesFace" style="position:absolute; inset:0;"></div>
+              <div class="scanlines"></div>
+              <div class="static-noise"></div>
+              <div class="alarm-overlay"></div>
+              <div class="alarm-light"></div>
+            </div>
+          </div>
+          <div class="tv-side">
+            <div class="knob"></div>
+            <div class="knob small"></div>
+            <div class="side-vents"><i></i><i></i><i></i></div>
+            <div class="side-speaker"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="brand-mini">puzzlevision</div>
+      </div>
+    </div>
+    <img class="character-img" src="mr-puzzles.png" alt="Mr. Puzzles full body" onerror="this.style.display='none'">
+    <div class="mood-label" id="moodLabel">Awaiting Ratings...</div>
+    <div class="speech" id="speech" title="Click to skip typing"><span id="speechText"></span><span class="caret"></span></div>
+    <div class="avg-box">
+      <div class="stars-big" id="avgStars">☆☆☆☆☆</div>
+      <div id="avgText">Average: - (rate something!)</div>
+      <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">RESET RATINGS</button>
+    <button class="accept-btn" id="acceptBtn">ACCEPT</button>
+    <div class="accept-note">Accept his invitation and he will come for you...</div>
+  </section>
+
+  <section class="shows" id="shows"></section>
+</main>
+
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.0 &bull; polys + bodycam</div></footer>
+
+<!-- ================= ADWARE POPUP ================= -->
+<div class="adware" id="adware" role="dialog" aria-label="Advertisement">
+  <div class="ad-head">
+    <span class="ad-rec"></span> SPONSORED BY PUZZLEVISION
+    <button class="ad-x" id="adClose" aria-label="Close advertisement">&times;</button>
+  </div>
+  <div class="ad-mascot" id="adMascot"></div>
+  <div class="ad-title">TOTALLY NORMAL KEYBOARD</div>
+  <div class="ad-sub">Totally Normal keyboard that makes your videos P E R F E C T !</div>
+  <div class="ad-row">
+    <span class="ad-price">$19.99</span>
+    <span class="ad-old">$999.99</span>
+    <span class="ad-off">-98%</span>
+  </div>
+  <div class="ad-urgency">HURRY! Only <b id="adStock">3</b> left &nbsp; <span id="adTimer">09:59</span></div>
+  <button class="ad-buy" id="adBuy">BUY NOW</button>
+  <div class="ad-fine">By clicking BUY you agree to everything and nothing.</div>
+</div>
+
+<!-- ================= CORRUPTION LAYER ================= -->
+<div class="corrupt-layer" id="corruptLayer" aria-hidden="true"></div>
+
+<!-- ================= 3D MAZE HUNT ================= -->
+<div class="game" id="game">
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="fx-scanlines"></div>
+  <div class="fx-track"></div>
+
+  <div class="camhud">
+    <div class="camhud-tl">
+      <span class="rec"><i></i>REC</span>
+      <span id="camClock">00:00:00</span>
+    </div>
+    <div class="camhud-tr">
+      <span id="camBatt">BATT 87%</span>
+      <span>CAM 01</span>
+    </div>
+    <div class="camhud-bl">
+      <span id="camMode">NIGHT VISION OFF</span>
+    </div>
+    <div class="camhud-br">
+      <span id="camDist">SIGNAL --</span>
+    </div>
+  </div>
+  <div class="cam-cross">+</div>
+  <div class="cam-frame"></div>
+
+  <div class="game-intro" id="gameIntro">
+    <div class="gi-title">PUZZLEVISION PRESENTS</div>
+    <div class="gi-sub" id="giSub">THE MAZE</div>
+    <div class="gi-keys">
+      <b>W A S D</b> move &nbsp;·&nbsp; <b>MOUSE</b> look &nbsp;·&nbsp; <b>SHIFT</b> run &nbsp;·&nbsp; <b>ESC</b> quit
+      <div class="gi-note">desktop + mouse required &middot; click once to lock the mouse</div>
+    </div>
+    <div class="gi-start" id="giStart">CLICK TO ENTER</div>
+    <div class="gi-warn" id="giWarn"></div>
+    <div class="gi-leave" id="giLeave">&larr; LEAVE</div>
+  </div>
+
+  <div class="game-end" id="gameEnd">
+    <div class="ge-title" id="geTitle">CAUGHT</div>
+    <div class="ge-text" id="geText"></div>
+    <button class="ge-btn" id="geRetry">TRY AGAIN</button>
+    <button class="ge-btn alt" id="geExit">BACK</button>
+  </div>
+
+  <div class="fx-flash" id="fxFlash"></div>
+
+  <div class="tv-dim" id="tvDim">
+    <div class="tvd-bg"></div>
+    <div class="tvd-scan"></div>
+    <div class="tvd-face" id="tvdFace"></div>
+    <div class="tvd-panel">
+      <div class="tvd-title">YOU ARE IN PUZZLEVISION</div>
+      <div class="tvd-sub">He grabbed you. The glass swallowed you whole. This is his dimension now — no doors, no sky, just static and colours forever.</div>
+      <button class="ge-btn" id="tvdStruggle">STRUGGLE</button>
+      <div class="tvd-count" id="tvdCount"></div>
+      <button class="ge-btn alt" id="tvdRetry" style="display:none">TRY AGAIN</button>
+      <button class="ge-btn alt" id="tvdBack" style="display:none">BACK</button>
+    </div>
+  </div>
+</div>
+
+<script src="three.min.js"></script>
+<script>
+const SHOWS = [
+  { title: "1. Puzzlevision Debut", desc: "Mr. Puzzles traps SMG4 & crew in his TV studio for ratings. Classic!", code:"PV", color:"#00e5ff" },
+  { title: "2. Mysterious Room / Puzzle Park", desc: "Escape-room chaos! Mario breaks everything. As intended?", code:"PP", color:"#76ff03" },
+  { title: "3. War of the Fat Italians 2024", desc: "Puzzles hosts the ultimate Mario vs SMG4 showdown!", code:"WI", color:"#ffeb3b" },
+  { title: "4. Let's Go Out With A Bang! (MOVIE)", desc: "The full Puzzlevision Movie! Explosions! Drama! 5 stars?!", code:"BOOM", color:"#ff4081" },
+  { title: "5. The Carnival of Chaos", desc: "MY carnival! Round and round you go!", code:"FUN", color:"#ff3d00" },
+  { title: "6. Puzzle's Revenge Finale", desc: "The grand finale! Did Puzzles finally get his 5-star ending?", code:"5★", color:"#40c4ff" },
+];
+
+const ratings = {};
+const showsEl = document.getElementById('shows');
+const faceEl = document.getElementById('puzzlesFace');
+
+SHOWS.forEach((s,i)=>{
+  const card = document.createElement('div');
+  card.className='show-card';
+  card.innerHTML =
+    '<div class="poster" style="background:'+s.color+'22; border-color:'+s.color+'; color:'+s.color+'">'+s.code+'</div>' +
+    '<div><h3>'+s.title+'</h3><p>'+s.desc+'</p>' +
+    '<div class="star-row" id="row-'+i+'">' +
+      [1,2,3,4,5].map(n=>'<button class="star-btn" data-show="'+i+'" data-star="'+n+'" aria-label="Rate '+n+' stars">★</button>').join('') +
+      '<button class="star-btn minus-btn" data-show="'+i+'" data-star="-1" aria-label="Secret minus star" title="???">−★</button>' +
+    '</div><div class="rating-text" id="text-'+i+'">Not rated yet — Puzzles is watching...</div></div>';
+  showsEl.appendChild(card);
+});
+
+/* ============ MR. PUZZLES TV FACES (SVG, no emojis) ============ */
+// All faces share the same CRT base + color bars, only eyes/brows/mouth change.
+// Reference: your "MR. PUZZLES FACE EXPRESSIONS" sheet + realistic horror stills for 5-star.
+
+/* ================= PERFECTED FACE ENGINE =================
+   Rules that keep it pixel-clean:
+   - color bars are full-bleed (0..400) so no background gaps read as dead lines
+   - smile is made by masking ABOVE one curve with skin color (no clipPath, no stale ids)
+   - eyes = light fill + one crisp outline (no offset "ghost" copies)
+   - brows are drawn AFTER eyes so their tips visibly touch the eye outline
+   - no in-SVG scanlines/grain (CSS overlay handles CRT texture)
+   ========================================================= */
+const PALETTE = ["#ffe600","#35e8dc","#7dff4f","#ff6ed1","#ff2222","#3b9bff"];
+const INK = "#141414";
+const SKIN = "#e9e6d3";
+const EYEW = "#f7f4e8";
+let __svgUid = 0;
+function barsFlat(y, torn){
+  y = y||172;
+  const xs = [0,67,133,200,267,333], w=[67,66,67,67,66,67];
+  let s='';
+  xs.forEach((x,i)=>{ s+='<rect x="'+x+'" y="'+y+'" width="'+(w[i]+0.6)+'" height="'+(262-y)+'" fill="'+PALETTE[i]+'"/>'; });
+  s+='<rect x="0" y="'+(y-3)+'" width="400" height="6" fill="'+INK+'"/>';
+  [67,133,200,267,333].forEach(x=>{
+    s+='<rect x="'+(x-1.5)+'" y="'+y+'" width="3" height="'+(262-y)+'" fill="'+INK+'"/>';
+  });
+  if(torn){
+    s+='<path d="M126 '+y+' L137 '+(y-10)+' L143 '+y+' Z" fill="'+INK+'"/>'+
+       '<path d="M195 '+y+' L207 '+(y-12)+' L213 '+y+' Z" fill="'+INK+'"/>'+
+       '<path d="M261 '+y+' L271 '+(y-9)+' L277 '+y+' Z" fill="'+INK+'"/>';
+  }
+  return s;
+}
+function barsSmile(){
+  const xs = [0,67,133,200,267,333], w=[67,66,67,67,66,67];
+  let s='';
+  xs.forEach((x,i)=>{ s+='<rect x="'+x+'" y="126" width="'+(w[i]+0.6)+'" height="136" fill="'+PALETTE[i]+'"/>'; });
+  [67,133,200,267,333].forEach(x=>{
+    s+='<rect x="'+(x-1.5)+'" y="126" width="3" height="136" fill="'+INK+'"/>';
+  });
+  // mask everything above the smile curve back to skin -> perfect alignment, no clipPath
+  s+='<path d="M0 143 Q200 292 400 141 L400 -4 L0 -4 Z" fill="'+SKIN+'"/>';
+  s+='<path d="M0 143 Q200 292 400 141" stroke="'+INK+'" stroke-width="8" fill="none" stroke-linecap="round"/>';
+  return s;
+}
+function eye(cx,cy,rx,ry,opt){
+  opt = opt || {};
+  const tilt = opt.tilt || 0;
+  let g = '<g transform="rotate('+tilt+' '+cx+' '+cy+')">';
+  g += '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="'+(opt.fill||EYEW)+'"/>';
+  if(opt.pupil){
+    const px = cx + (opt.px||0), py = cy + (opt.py||0);
+    g += '<ellipse cx="'+px+'" cy="'+py+'" rx="'+opt.pupil[0]+'" ry="'+opt.pupil[1]+'" fill="'+INK+'"/>';
+    if(opt.glint !== false){
+      g += '<circle cx="'+(px-opt.pupil[0]*0.42)+'" cy="'+(py-opt.pupil[1]*0.5)+'" r="'+(opt.pupil[0]*0.36)+'" fill="#fff" opacity=".92"/>';
+    }
+  }
+  if(opt.ring){
+    g += '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+opt.ring+'" ry="'+(opt.ring*1.1)+'" fill="none" stroke="'+INK+'" stroke-width="3"/>';
+  }
+  g += '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="none" stroke="'+INK+'" stroke-width="6" stroke-linejoin="round"/>';
+  g += '</g>';
+  return g;
+}
+// skin patch that hides the top of an eye to make a lid; edge is stroked as the lid line
+function lid(pts, edge){
+  return '<path d="'+pts+'" fill="'+SKIN+'"/>' +
+         '<path d="'+edge+'" stroke="'+INK+'" stroke-width="6" stroke-linecap="round" fill="none"/>';
+}
+function baseSVG(inner, bg){
+  const uid = 'v'+(__svgUid++);
+  return ''+
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" shape-rendering="geometricPrecision">'+
+    '<defs>'+
+      '<radialGradient id="'+uid+'" cx="50%" cy="42%" r="80%">'+
+        '<stop offset="0%" stop-color="white" stop-opacity=".14"/>'+
+        '<stop offset="68%" stop-color="black" stop-opacity="0"/>'+
+        '<stop offset="100%" stop-color="black" stop-opacity=".38"/>'+
+      '</radialGradient>'+
+    '</defs>'+
+    '<rect x="0" y="0" width="400" height="260" fill="'+(bg||'#e9e6d3')+'"/>'+
+    inner +
+    '<rect x="0" y="0" width="400" height="260" fill="url(#'+uid+')" pointer-events="none"/>'+
+  '</svg>';
+}
+
+const FACES = {
+  idle: function(){
+    // DEFAULT / PLEASED - exact match to your reference sheet:
+    // big left oval, smaller right oval, wide tapered crescent brow, sharp shard brow
+    // that touches the small eye (the arrow in your image pointed at that join)
+    return baseSVG(
+      barsSmile()+
+      eye(140,104,37,49)+
+      eye(252,106,28,39)+
+      // wide crescent brow, bold through the middle, tapered at both ends
+      '<path d="M90 58 Q136 12 190 42 Q146 36 118 42 Q100 48 90 58 Z" fill="'+INK+'"/>'+
+      // shard brow: bold wedge with a spike that clearly pierces the small eye
+      '<path d="M272 44 L284 52 L258 62 L252 80 L242 74 L246 62 Z" fill="'+INK+'"/>'
+    );
+  },
+  furious: function(){
+    // SKULL - your new pic: pure black void, glowing white ring eyes, bloody teeth maw
+    return ''+
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">'+
+      '<defs>'+
+        '<radialGradient id="bloodGlow" cx="50%" cy="60%" r="65%">'+
+          '<stop offset="0%" stop-color="#ff0000" stop-opacity=".9"/>'+
+          '<stop offset="45%" stop-color="#a00000" stop-opacity=".55"/>'+
+          '<stop offset="100%" stop-color="black" stop-opacity="0"/>'+
+        '</radialGradient>'+
+      '<filter id="blurB" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>'+
+      '<filter id="blurS" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>'+
+      '</defs>'+
+      '<rect x="0" y="0" width="400" height="260" fill="black"/>'+
+      // red aura behind mouth
+      '<ellipse cx="200" cy="178" rx="140" ry="88" fill="url(#bloodGlow)"/>'+
+      // cheek blood smears
+      '<ellipse cx="85" cy="130" rx="28" ry="18" fill="#c00000" opacity=".55" filter="url(#blurB)"/>'+
+      '<ellipse cx="315" cy="130" rx="30" ry="20" fill="#c00000" opacity=".55" filter="url(#blurB)"/>'+
+      '<ellipse cx="200" cy="232" rx="90" ry="28" fill="#ff2a2a" opacity=".55" filter="url(#blurB)"/>'+
+      // glowing white ring eyes
+      '<g>'+
+        '<ellipse cx="125" cy="62" rx="20" ry="20" fill="white" opacity=".35" filter="url(#blurB)"/>'+
+        '<ellipse cx="275" cy="62" rx="20" ry="20" fill="white" opacity=".35" filter="url(#blurB)"/>'+
+        '<ellipse cx="125" cy="62" rx="13" ry="14" fill="white"/>'+
+        '<ellipse cx="275" cy="62" rx="13" ry="14" fill="white"/>'+
+        '<ellipse cx="125" cy="62" rx="7" ry="8.5" fill="black"/>'+
+        '<ellipse cx="275" cy="62" rx="7" ry="8.5" fill="black"/>'+
+        '<circle cx="125" cy="62" r="2" fill="white" opacity=".9"/>'+
+        '<circle cx="275" cy="62" r="2" fill="white" opacity=".9"/>'+
+      '</g>'+
+      // tiny red nose glow
+      '<ellipse cx="200" cy="125" rx="10" ry="6" fill="#ff0000" filter="url(#blurS)"/>'+
+      '<ellipse cx="200" cy="125" rx="4" ry="2.5" fill="#ff6666"/>'+
+      // huge maw - deep black hole, wider and meaner
+      '<path d="M104 152 Q200 134 296 152 Q293 214 200 230 Q107 214 104 152" fill="#040404" stroke="#160000" stroke-width="3"/>'+
+      // dark throat behind the teeth
+      '<ellipse cx="200" cy="192" rx="86" ry="30" fill="#1a0000" opacity=".9"/>'+
+      // top teeth - big irregular slabs, overlapped so no black dead gaps
+      '<g stroke="#1b1b1b" stroke-width="1.2">'+
+        '<rect x="122" y="156" width="26" height="30" rx="6" fill="#efe9d8"/>'+
+        '<rect x="146" y="152" width="32" height="40" rx="7" fill="#ffffff"/>'+
+        '<rect x="176" y="150" width="34" height="45" rx="7" fill="#ffffff"/>'+
+        '<rect x="208" y="151" width="32" height="43" rx="7" fill="#fbf7ea"/>'+
+        '<rect x="238" y="155" width="28" height="34" rx="6" fill="#e6dfcd"/>'+
+        '<rect x="264" y="160" width="20" height="26" rx="5" fill="#d8cfb8"/>'+
+      '</g>'+
+      // bottom teeth - smaller, yellowed, irregular
+      '<g stroke="#2a2a2a" stroke-width="1.1">'+
+        '<rect x="128" y="200" width="20" height="17" rx="4" fill="#cfc4a8"/>'+
+        '<rect x="146" y="202" width="22" height="22" rx="4" fill="#e2d8bd"/>'+
+        '<rect x="166" y="203" width="22" height="24" rx="4" fill="#e2d8bd"/>'+
+        '<rect x="186" y="204" width="22" height="25" rx="4" fill="#e8dec5"/>'+
+        '<rect x="206" y="204" width="22" height="25" rx="4" fill="#e2d8bd"/>'+
+        '<rect x="226" y="203" width="22" height="23" rx="4" fill="#d8cfb8"/>'+
+        '<rect x="246" y="201" width="20" height="19" rx="4" fill="#c9bfa5"/>'+
+      '</g>'+
+      // bite shadow line between the jaws
+      '<path d="M116 197 Q200 189 284 196" stroke="#250000" stroke-width="4" fill="none" opacity=".85"/>'+
+      // blood drips over teeth
+      '<path d="M148 155 L152 174 L156 155 M204 150 L208 172 L212 150 M250 154 L253 172 L257 154" fill="none" stroke="#b80000" stroke-width="3.2" stroke-linecap="round" opacity=".9"/>'+
+      '<path d="M104 164 Q90 188 101 205 Q118 192 118 170" fill="#cc0000" opacity=".8" filter="url(#blurS)"/>'+
+      '<path d="M296 164 Q310 188 299 205 Q282 192 282 170" fill="#cc0000" opacity=".8" filter="url(#blurS)"/>'+
+    '</svg>';
+  },
+  angry: function(){
+    // ANGRY - heavy angled lids pressing down toward the nose, glaring sideways
+    return baseSVG(
+      barsFlat(176)+
+      eye(132,124,47,37,{pupil:[13,19],px:-8})+eye(268,124,47,37,{pupil:[13,19],px:-8})+
+      // angled lids: outer high, inner low (classic furious squint) - brow sits right on the lid
+      lid('M82 68 L184 68 L184 118 L82 94 Z','M82 94 L184 118')+
+      lid('M318 68 L216 68 L216 118 L318 94 Z','M318 94 L216 118')+
+      // thick tapered brows merged into the lid line (no floating gap)
+      '<path d="M48 78 L186 110 L182 120 L46 88 Z" fill="'+INK+'"/>'+
+      '<path d="M352 78 L214 110 L218 120 L354 88 Z" fill="'+INK+'"/>'
+    );
+  },
+  annoyed: function(){
+    // ANNOYED - flat heavy brow left, lightning shard right, half-lidded eyes looking away
+    return baseSVG(
+      barsFlat(170)+
+      eye(142,108,42,46,{pupil:[9,15],px:-12})+eye(260,110,31,35,{pupil:[8,11],px:-9})+
+      // flat lids
+      lid('M98 58 L188 58 L188 102 L98 98 Z','M98 98 L188 102')+
+      lid('M292 66 L226 66 L226 106 L292 103 Z','M292 103 L226 106')+
+      // flat bar brow sitting close to the lid
+      '<path d="M90 74 L212 84 L210 95 L88 85 Z" fill="'+INK+'"/>'+
+      // lightning shard brow, solid, spike piercing the small eye
+      '<path d="M274 56 L286 64 L262 72 L256 88 L246 82 L250 72 Z" fill="'+INK+'"/>'+
+      // annoyance ticks
+      '<g stroke="'+INK+'" stroke-width="3.2" stroke-linecap="round" opacity=".9">'+
+        '<path d="M60 110 h18 M58 121 h18 M60 132 h16 M322 110 h18 M324 121 h18 M322 132 h16"/>'+
+      '</g>'
+    );
+  },
+  crazy: function(){
+    // CRAZY BULGE - huge left eye cropped at top, small hypnotic right eye, torn bars
+    return baseSVG(
+      barsFlat(160,true)+
+      eye(124,84,62,60,{pupil:[16,22],px:-6,tilt:-4})+
+      '<circle cx="116" cy="104" r="3" fill="#ff3333" opacity=".9"/>'+
+      // small right eye with concentric rings
+      eye(269,88,34,36,{fill:'#fbf8ec'})+
+      '<ellipse cx="269" cy="92" rx="20" ry="21" fill="#bfe9ff" stroke="'+INK+'" stroke-width="3"/>'+
+      '<ellipse cx="267" cy="94" rx="10" ry="13" fill="'+INK+'"/>'+
+      '<circle cx="261" cy="86" r="3.5" fill="#fff"/>'+
+      // tired bags under the big eye
+      '<path d="M70 138 Q125 152 180 137" stroke="'+INK+'" stroke-width="4" fill="none" opacity=".55" stroke-linecap="round"/>'
+    );
+  },
+  sad: function(){
+    // CRYING - your reference: scrunched dark brows, huge pleading eyes, thick cyan tears
+    const waveTop = 'M0 180 C48 162 74 190 118 174 C154 160 172 192 206 178 C246 162 272 190 314 174 C352 162 378 180 400 170';
+    const DARK = '#2b2b2b', TEAR = '#37d4e2', TEAR_HI = '#a9f2f7';
+    let s = '';
+
+    // ---- wavy puzzle bars ----
+    const cols = ['#d9c22a','#3fd0c8','#86d84f','#d24b9a','#b82020','#2a3fc4'];
+    for(let i = 0; i < 6; i++){
+      s += '<rect x="'+(i*67)+'" y="150" width="68" height="112" fill="'+cols[i]+'"/>';
+    }
+    for(let i = 1; i < 6; i++){
+      s += '<rect x="'+(i*67-1.5)+'" y="150" width="3" height="112" fill="'+INK+'"/>';
+    }
+    s += '<path d="'+waveTop+' L400 -4 L0 -4 Z" fill="'+SKIN+'"/>';
+    s += '<path d="'+waveTop+'" stroke="'+INK+'" stroke-width="7" fill="none" stroke-linecap="round"/>';
+
+    // ---- scrunched heavy brow / lids ----
+    s += '<path d="M76 98 Q114 34 210 54 Q208 68 190 72 Q160 62 132 74 Q102 84 76 98 Z" fill="'+DARK+'"/>';
+    s += '<path d="M234 100 Q262 44 330 58 Q342 66 318 76 Q292 74 268 86 Q247 94 234 100 Z" fill="'+DARK+'"/>';
+    // central scowl bridge + furrow wrinkles
+    s += '<path d="M196 78 Q213 52 231 78 L227 110 L201 110 Z" fill="'+INK+'"/>';
+    s += '<g stroke="'+INK+'" stroke-width="3" stroke-linecap="round">'+
+         '<path d="M199 80 V130 M207 74 V136 M215 72 V138 M223 74 V136 M231 80 V130"/>'+
+         '</g>';
+
+    // ---- LEFT EYE (huge, shocked) ----
+    s += '<ellipse cx="148" cy="118" rx="60" ry="54" fill="'+EYEW+'" stroke="'+INK+'" stroke-width="8"/>';
+    s += '<circle cx="148" cy="124" r="9.5" fill="#0d0d0d"/>';
+    s += '<path d="M96 142 Q148 196 204 138 Q150 172 96 142 Z" fill="#b3aea4" opacity=".9"/>';
+
+    // ---- RIGHT EYE (cyan iris) ----
+    s += '<ellipse cx="282" cy="116" rx="42" ry="40" fill="'+EYEW+'" stroke="'+INK+'" stroke-width="6"/>';
+    s += '<circle cx="286" cy="118" r="23" fill="#5fd6d1" stroke="'+INK+'" stroke-width="2.5"/>';
+    s += '<circle cx="286" cy="118" r="9" fill="#0d0d0d"/>';
+    s += '<circle cx="276" cy="108" r="3.5" fill="#ffffff"/>';
+    s += '<path d="M250 138 Q282 172 312 136 Q282 156 250 138 Z" fill="#b3aea4" opacity=".9"/>';
+
+    // ---- TEARS: thick cyan streams pouring down the screen ----
+    const streams = [
+      'M92 150 C83 178 101 206 90 252',
+      'M197 154 C208 186 187 214 199 254',
+      'M244 150 C234 180 253 210 242 254',
+      'M322 154 C333 184 315 214 328 254'
+    ];
+    const blobs = [
+      [92,150,18,14],[197,154,16,13],[244,150,17,14],[322,154,15,12]
+    ];
+    // soft under-rim so tears look like they well up from the lower lid
+    streams.forEach(function(d){
+      s += '<path d="'+d+'" stroke="'+TEAR+'" stroke-width="15" fill="none" stroke-linecap="round"/>';
+    });
+    blobs.forEach(function(b){
+      s += '<ellipse cx="'+b[0]+'" cy="'+b[1]+'" rx="'+b[2]+'" ry="'+b[3]+'" fill="'+TEAR+'"/>';
+    });
+    // glossy highlights
+    streams.forEach(function(d, i){
+      s += '<path d="'+d+'" stroke="'+TEAR_HI+'" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8" transform="translate('+(i%2?2:-2)+',0)"/>';
+    });
+    blobs.forEach(function(b){
+      s += '<ellipse cx="'+(b[0]-b[2]*0.3)+'" cy="'+(b[1]-b[3]*0.35)+'" rx="'+(b[2]*0.32)+'" ry="'+(b[3]*0.3)+'" fill="#e6fdff" opacity=".85"/>';
+    });
+    // droplets
+    [[86,214],[205,226],[236,222],[330,224],[96,250],[326,250]].forEach(function(p){
+      s += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="'+TEAR+'"/>';
+    });
+    return baseSVG(s);
+  },
+  disappointed: function(){
+    // DISAPPOINTED - not crying, just let down: drooping brows, heavy hooded eyes
+    // looking away, sagging frown built out of the color bars, a grey sigh
+    const frown = 'M0 198 Q200 156 400 198';
+    let s = '';
+    const cols = ['#d8c22a','#3cc9bc','#86d84f','#d24b9a','#b82020','#2a3fc4'];
+    for(let i = 0; i < 6; i++) s += '<rect x="'+(i*67)+'" y="150" width="68" height="112" fill="'+cols[i]+'"/>';
+    for(let i = 1; i < 6; i++) s += '<rect x="'+(i*67-1.5)+'" y="150" width="3" height="112" fill="'+INK+'"/>';
+    s += '<path d="'+frown+' L400 -4 L0 -4 Z" fill="'+SKIN+'"/>';
+    s += '<path d="'+frown+'" stroke="'+INK+'" stroke-width="7" fill="none" stroke-linecap="round"/>';
+
+    // hooded eyes, pupils slid down and away
+    s += eye(140,104,40,46,{pupil:[9,14],px:-7,py:11});
+    s += eye(262,108,32,37,{pupil:[7,11],px:-6,py:10});
+    s += lid('M96 58 L186 58 L186 102 L96 96 Z','M96 96 L186 102');
+    s += lid('M298 64 L224 64 L224 106 L298 102 Z','M298 102 L224 106');
+
+    // brows that sag at the OUTER ends (the let-down look)
+    s += '<path d="M84 62 Q122 50 178 68 Q140 60 116 62 Q98 63 84 62 Z" fill="'+INK+'"/>';
+    s += '<path d="M316 64 Q278 52 222 70 Q260 62 284 64 Q303 65 316 64 Z" fill="'+INK+'"/>';
+
+    // under-eye bags
+    s += '<path d="M104 150 Q140 158 176 150 M232 148 Q260 155 290 147" stroke="'+INK+'" stroke-width="3" fill="none" opacity=".45" stroke-linecap="round"/>';
+
+    // a little grey sigh drifting off to the side
+    s += '<g fill="#9a9a9a" opacity=".45">'+
+         '<ellipse cx="318" cy="160" rx="11" ry="6"/>'+
+         '<ellipse cx="338" cy="154" rx="8" ry="5"/>'+
+         '<ellipse cx="354" cy="150" rx="5" ry="3.5"/>'+
+         '</g>';
+    return baseSVG(s);
+  },
+  insane: function(){
+    // PERFECTION INSANITY - detailed: branching cracks, sunken bloodshot eyes with
+    // wet shine, gum line, irregular fangs, bottom teeth, drool strands, lip gloss
+    let s = '';
+    // --- base + red bleed ---
+    s += '<rect x="0" y="0" width="400" height="260" fill="#c2bbac"/>';
+    s += '<rect x="0" y="0" width="400" height="260" fill="#9a0000" opacity=".15"/>';
+    s += '<ellipse cx="200" cy="150" rx="235" ry="165" fill="#6a0000" opacity=".22"/>';
+
+    // --- branching cracks ---
+    s += '<g stroke="#0a0a0a" stroke-width="5" fill="none" opacity=".92" stroke-linecap="round" stroke-linejoin="round">'+
+         '<path d="M0 0 L58 38 L44 78 L96 120 L82 152"/>'+
+         '<path d="M58 38 L106 26"/>'+
+         '<path d="M44 78 L18 96"/>'+
+         '<path d="M400 0 L342 46 L356 92 L318 128 L332 162"/>'+
+         '<path d="M342 46 L298 32"/>'+
+         '<path d="M356 92 L384 114"/>'+
+         '<path d="M0 260 L64 216 L52 180"/>'+
+         '<path d="M400 260 L334 212 L346 176"/>'+
+         '</g>';
+    s += '<g stroke="#000" stroke-width="2" fill="none" opacity=".5">'+
+         '<path d="M96 120 L120 134 M44 78 L62 108 M318 128 L294 142 M356 92 L338 120"/>'+
+         '</g>';
+
+    // --- sunken socket shadows ---
+    s += '<ellipse cx="112" cy="104" rx="80" ry="68" fill="#2a0a0a" opacity=".5"/>';
+    s += '<ellipse cx="288" cy="100" rx="76" ry="78" fill="#2a0a0a" opacity=".5"/>';
+
+    // --- LEFT EYE: sunken, bloodshot ---
+    s += '<ellipse cx="112" cy="104" rx="66" ry="56" fill="#080808"/>';
+    s += '<ellipse cx="112" cy="106" rx="57" ry="47" fill="#e8ddcc"/>';
+    s += '<ellipse cx="112" cy="106" rx="57" ry="47" fill="#a00000" opacity=".18"/>';
+    s += '<g stroke="#8a0000" stroke-width="2" fill="none" opacity=".8">'+
+         '<path d="M56 96 Q86 104 100 110 M56 116 Q86 114 100 112 M58 132 Q88 128 102 120"/>'+
+         '<path d="M170 88 Q146 100 132 108 M172 116 Q150 114 134 114 M170 132 Q148 126 134 120"/>'+
+         '</g>';
+    s += '<g stroke="#c00000" stroke-width="1.2" fill="none" opacity=".55">'+
+         '<path d="M66 104 Q90 108 104 112 M70 124 Q92 120 104 116"/>'+
+         '</g>';
+    s += '<ellipse cx="104" cy="110" rx="28" ry="32" fill="#1a0505"/>';
+    s += '<ellipse cx="104" cy="110" rx="15" ry="19" fill="#000"/>';
+    s += '<ellipse cx="92" cy="96" rx="8" ry="6" fill="#fff" opacity=".9" transform="rotate(-20 92 96)"/>';
+    s += '<circle cx="88" cy="92" r="3" fill="#fff"/>';
+    s += '<ellipse cx="120" cy="130" rx="6" ry="3" fill="#fff" opacity=".3"/>';
+
+    // --- RIGHT EYE: bulging, larger, wet ---
+    s += '<ellipse cx="288" cy="98" rx="62" ry="64" fill="#080808"/>';
+    s += '<ellipse cx="290" cy="101" rx="53" ry="55" fill="#f2e8d8"/>';
+    s += '<ellipse cx="290" cy="101" rx="53" ry="55" fill="#a00000" opacity=".14"/>';
+    s += '<ellipse cx="290" cy="101" rx="53" ry="55" fill="none" stroke="#6a0000" stroke-width="5" opacity=".55"/>';
+    s += '<g stroke="#8a0000" stroke-width="2.5" fill="none" opacity=".85">'+
+         '<path d="M240 78 Q268 92 282 104 M336 82 Q312 96 298 108 M236 126 Q266 120 282 114 M338 128 Q312 124 298 118"/>'+
+         '</g>';
+    s += '<g stroke="#c00000" stroke-width="1.3" fill="none" opacity=".55">'+
+         '<path d="M246 96 Q272 102 286 108 M246 116 Q272 114 286 112"/>'+
+         '</g>';
+    s += '<ellipse cx="296" cy="110" rx="30" ry="34" fill="#2a0000"/>';
+    s += '<ellipse cx="296" cy="110" rx="16" ry="21" fill="#000"/>';
+    s += '<ellipse cx="308" cy="92" rx="11" ry="9" fill="#fff" opacity=".95" transform="rotate(18 308 92)"/>';
+    s += '<circle cx="312" cy="88" r="4" fill="#fff"/>';
+    s += '<ellipse cx="282" cy="136" rx="7" ry="3.5" fill="#fff" opacity=".3"/>';
+
+    // --- GRIN ---
+    s += '<ellipse cx="200" cy="196" rx="136" ry="58" fill="#2a0000"/>';
+    s += '<path d="M70 180 Q200 146 330 178 Q326 228 200 252 Q74 228 70 180" fill="#a80000" stroke="#2e0000" stroke-width="5"/>';
+    // gums
+    s += '<path d="M84 186 Q200 164 316 184 L310 198 Q200 178 90 198 Z" fill="#6a0000"/>';
+    // top teeth (irregular, varying tone)
+    s += '<g stroke="#2e2e2e" stroke-width="1.4">'+
+         '<rect x="94" y="188" width="24" height="27" rx="5" fill="#f6f1e2"/>'+
+         '<rect x="116" y="184" width="30" height="33" rx="6" fill="#fffdf6"/>'+
+         '<rect x="144" y="182" width="30" height="36" rx="6" fill="#f2ecdc"/>'+
+         '<rect x="172" y="181" width="32" height="38" rx="6" fill="#fffdf6"/>'+
+         '<rect x="202" y="181" width="32" height="38" rx="6" fill="#e9e2cf"/>'+
+         '<rect x="232" y="183" width="30" height="35" rx="6" fill="#fffdf6"/>'+
+         '<rect x="260" y="186" width="26" height="30" rx="5" fill="#e2dac6"/>'+
+         '<rect x="284" y="189" width="20" height="26" rx="4" fill="#d6ccb4"/>'+
+         '</g>';
+    // chipped tooth
+    s += '<path d="M176 181 L192 181 L192 196 L188 206 L184 196 L180 204 L176 196 Z" fill="#3a2a1a" opacity=".55"/>';
+    // fangs
+    s += '<path d="M144 182 L149 201 L155 182 Z" fill="#e8e0cc"/>'+
+         '<path d="M242 183 L247 202 L253 183 Z" fill="#e8e0cc"/>';
+    // shadow across the upper teeth (inside the mouth)
+    s += '<path d="M86 180 Q200 162 314 180 L310 196 Q200 178 90 196 Z" fill="#000" opacity=".35"/>';
+    // bottom teeth
+    s += '<g stroke="#4a4a4a" stroke-width="1" fill="#cfc4a9">'+
+         '<rect x="120" y="222" width="20" height="17" rx="4"/>'+
+         '<rect x="140" y="224" width="22" height="21" rx="4" fill="#d9cfb6"/>'+
+         '<rect x="162" y="225" width="22" height="23" rx="4" fill="#d9cfb6"/>'+
+         '<rect x="184" y="226" width="22" height="24" rx="4" fill="#e2d7bd"/>'+
+         '<rect x="206" y="226" width="22" height="24" rx="4" fill="#d9cfb6"/>'+
+         '<rect x="228" y="224" width="22" height="22" rx="4"/>'+
+         '<rect x="250" y="221" width="20" height="18" rx="4"/>'+
+         '</g>';
+    // drool strands
+    s += '<g stroke="#ded6c6" stroke-width="3" fill="none" opacity=".55" stroke-linecap="round">'+
+         '<path d="M150 210 Q155 226 148 240"/>'+
+         '<path d="M250 212 Q245 228 252 244"/>'+
+         '</g>';
+    // lip gloss
+    s += '<path d="M90 196 Q200 176 310 195" stroke="#ff9a9a" stroke-width="2.5" fill="none" opacity=".45"/>';
+    return baseSVG(s, '#c9c4b2');
+  }
+};
+
+function setFace(mood){
+  if(mood==='furious') faceEl.innerHTML = FACES.furious();
+  else if(mood==='angry') faceEl.innerHTML = FACES.angry();
+  else if(mood==='annoyed') faceEl.innerHTML = FACES.annoyed();
+  else if(mood==='disappointed') faceEl.innerHTML = FACES.disappointed();
+  else if(mood==='sad') faceEl.innerHTML = FACES.sad();
+  else if(mood==='crazy') faceEl.innerHTML = FACES.crazy();
+  else if(mood==='happy') faceEl.innerHTML = FACES.idle();
+  else if(mood==='insane') faceEl.innerHTML = FACES.insane();
+  else faceEl.innerHTML = FACES.idle();
+}
+
+/* ============ RATING LOGIC ============ */
+const hoverStar = {};   // show -> star currently hovered
+
+function paintRow(show){
+  const cur = (show in hoverStar) ? hoverStar[show] : (ratings[show] || 0);
+  document.querySelectorAll('#row-'+show+' .star-btn').forEach(function(b){
+    const v = +b.dataset.star;
+    const on = (v === -1) ? (cur === -1) : (cur >= 1 && v <= cur);
+    b.classList.toggle('lit', on);
+    b.setAttribute('aria-pressed', (v === (ratings[show] || 0)) ? 'true' : 'false');
+  });
+}
+
+document.querySelectorAll('.star-btn').forEach(function(btn){
+  const show = +btn.dataset.show;
+  const star = +btn.dataset.star;
+
+  btn.addEventListener('click', function(){
+    ratings[show] = star;
+    delete hoverStar[show];
+    paintRow(show);
+    const texts = {
+      1:"1 STAR?! TREASON!",
+      2:"2 STARS... Disappointing.",
+      3:"3 STARS. Hmm. Acceptable.",
+      4:"4 STARS! Splendid!",
+      5:"5 STARS!! MAGNIFICENT!",
+      '-1':"...minus a star? You think my show is WORSE than nothing? That... that actually hurts."
+    };
+    document.getElementById('text-'+show).textContent = texts[String(star)];
+    playBlip(star);
+    updateMood();
+  });
+
+  btn.addEventListener('mouseenter', function(){
+    hoverStar[show] = star;
+    paintRow(show);
+  });
+});
+
+// leaving the whole row clears the preview (reliable, unlike per-button mouseleave)
+document.querySelectorAll('.star-row').forEach(function(row){
+  row.addEventListener('mouseleave', function(){
+    const show = +row.id.replace('row-','');
+    delete hoverStar[show];
+    paintRow(show);
+  });
+});
+
+/* ============ UNDERTALE-STYLE TALK ============ */
+let talkTimer = null;
+let talkMood = 'happy';
+
+function talk(text, mood, skip){
+  clearInterval(talkTimer);
+  talkMood = mood || 'happy';
+  const el = document.getElementById('speechText');
+  document.getElementById('speech').dataset.full = text;
+  if(skip){ el.textContent = text; return; }
+  el.textContent = '';
+  let i = 0;
+  const speed = (mood==='insane'||mood==='furious') ? 18 : (mood==='crazy' ? 22 : 28);
+  talkTimer = setInterval(function(){
+    if(i >= text.length){ clearInterval(talkTimer); return; }
+    const ch = text[i];
+    el.textContent += ch;
+    if(ch !== ' ' && i % 2 === 0) voiceBlip(mood);
+    i++;
+  }, speed);
+}
+
+// click the bubble to finish the line instantly (like Undertale)
+document.getElementById('speech').addEventListener('click', function(){
+  if(talkTimer){ clearInterval(talkTimer); talkTimer = null; }
+  const full = this.dataset.full || '';
+  if(full) document.getElementById('speechText').textContent = full;
+});
+
+function voiceBlip(mood){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'square';
+    const base = ({ furious:105, angry:150, mad:150, meh:180, sad:165, disappointed:175, happy:250, crazy:300, insane:350 })[mood] || 210;
+    o.frequency.value = base * (0.86 + Math.random() * 0.36);
+    const t = audioCtx.currentTime;
+    g.gain.setValueAtTime(0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+    o.start(t); o.stop(t + 0.06);
+  }catch(e){}
+}
+
+function updateMood(){
+  const vals = Object.values(ratings);
+  const stage = document.getElementById('stage');
+  const label = document.getElementById('moodLabel');
+  const avgStars = document.getElementById('avgStars');
+  const avgText = document.getElementById('avgText');
+  const meter = document.getElementById('meterFill');
+  stage.className = 'stage';
+  document.body.classList.remove('alarm-on');
+
+  if(vals.length===0){
+    setFace('happy');
+    label.textContent='Awaiting Ratings...';
+    talk('Welcome to PUZZLEVISION! Rate my shows below! I demand FIVE STARS or else... hehehe...','happy');
+    avgStars.textContent='☆☆☆☆☆'; avgText.textContent='Average: - (rate something!)'; meter.style.width='0%';
+    return;
+  }
+  // the secret minus star: it does not make him angry, it breaks his heart
+  const hasMinus = vals.some(function(v){ return v < 0; });
+  if(hasMinus){
+    stage.classList.add('mood-sad');
+    setFace('sad');
+    label.textContent = 'Heartbroken...';
+    avgStars.textContent = '−★';
+    avgText.textContent = 'Average: MINUS A STAR — that one actually hurt him';
+    meter.style.width = '0%';
+    talk('...minus a star? You think my show is WORSE than nothing? ...I see. Fine. Go into the maze. I will even make it easy for you. I do not have the heart for a hard one right now.', 'sad');
+    return;
+  }
+
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  meter.style.width = (avg/5*100)+'%';
+  avgStars.textContent = '★'.repeat(Math.round(avg)) + '☆'.repeat(5-Math.round(avg));
+  avgText.textContent = 'Average: '+avg.toFixed(1)+' / 5 from '+vals.length+' show(s)';
+
+  if(avg < 1.8){
+    stage.classList.add('mood-furious'); setFace('furious');
+    document.body.classList.add('alarm-on');
+    label.textContent='FURIOUS - SKULL MODE!!!';
+    talk(avg.toFixed(1)+' STARS?! YOU DARE?! THE STATIC CONSUMES YOU! NO POPCORN! NO MERCY! YOU ARE CANCELLED! BRRRZZZT!','furious');
+    playAlarm();
+  } else if(avg < 2.8){
+    stage.classList.add('mood-mad'); setFace('angry');
+    label.textContent='ANGRY!';
+    talk(avg.toFixed(1)+' stars? PATHETIC! My show is ART and you give me THIS?! Do better, peasant!','angry');
+  } else if(avg < 3.3){
+    stage.classList.add('mood-sad'); setFace('disappointed');
+    label.textContent='Disappointed...';
+    talk(avg.toFixed(1)+" stars... Oh. I see how it is. I pour my heart into Puzzlevision and this is the thanks I get?",'disappointed');
+  } else if(avg < 3.8){
+    stage.classList.add('mood-meh'); setFace('annoyed');
+    label.textContent='Unimpressed.';
+    talk(avg.toFixed(1)+' stars? Hmph. Unimpressive. Acceptable is NOT famous! Give me 5!','meh');
+  } else if(avg < 4.6){
+    stage.classList.add('mood-happy'); setFace('happy');
+    label.textContent='PLEASED!';
+    talk(avg.toFixed(1)+' stars! NOW we are talking! You are my favorite audience member! Encore! Encore!','happy');
+  } else if(avg < 4.85){
+    stage.classList.add('mood-crazy'); setFace('crazy');
+    label.textContent='LOSING IT...';
+    talk(avg.toFixed(1)+' stars?! YES! YES! MORE! ALMOST PERFECT! Just a little MORE and I ASCEND!!','crazy');
+    redConfetti();
+  } else {
+    stage.classList.add('mood-insane'); setFace('insane');
+    document.body.classList.add('alarm-on');
+    label.textContent='PERFECTION INSANITY!!!';
+    talk(avg.toFixed(1)+' STARS!! HAHAHAHA! PERFECT! I AM A GENIUS! THE SHOW MUST GO ON FOREVER!! RED ALERT! RED ALERT! FIVE STARS!!','insane');
+    redConfetti();
+    playAlarm();
+  }
+}
+
+function resetAll(){
+  for(const k in ratings) delete ratings[k];
+  for(const k in hoverStar) delete hoverStar[k];
+  document.querySelectorAll('.star-row').forEach(function(row){
+    const show = +row.id.replace('row-','');
+    paintRow(show);
+  });
+  document.querySelectorAll('.rating-text').forEach(t=>t.textContent='Not rated yet — Puzzles is watching...');
+  updateMood();
+}
+
+function redConfetti(){
+  const colors=['#ff0000','#ff5252','#7a0000','#ffeb3b','#ffffff'];
+  for(let i=0;i<40;i++){
+    const c=document.createElement('div');
+    c.className='confetti-bit';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(1.5+Math.random()*2)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3500);
+  }
+}
+
+let audioCtx=null;
+function playBlip(star){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = star<=2 ? 'sawtooth' : 'square';
+    o.frequency.value = 200 + star*150;
+    g.gain.value=0.08;
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.3);
+    o.stop(audioCtx.currentTime+0.3);
+  }catch(e){}
+}
+function playAlarm(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    [440,620,440,620].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type='sawtooth'; o.frequency.value=f; g.gain.value=0.06;
+      const t=audioCtx.currentTime+i*0.18;
+      o.start(t); o.stop(t+0.16);
+    });
+  }catch(e){}
+}
+/* ================= 3D MAZE HUNT ENGINE ================= */
+(function(){
+  if(!window.THREE){ console.warn('THREE not loaded'); return; }
+
+  const CELL = 4, WALL_H = 3.5, EYE = 1.62;
+  const gv = {
+    game: document.getElementById('game'),
+    canvas: document.getElementById('gameCanvas'),
+    intro: document.getElementById('gameIntro'),
+    start: document.getElementById('giStart'),
+    sub: document.getElementById('giSub'),
+    warn: document.getElementById('giWarn'),
+    end: document.getElementById('gameEnd'),
+    endTitle: document.getElementById('geTitle'),
+    endText: document.getElementById('geText'),
+    retry: document.getElementById('geRetry'),
+    exit: document.getElementById('geExit'),
+    clockEl: document.getElementById('camClock'),
+    distEl: document.getElementById('camDist'),
+    modeEl: document.getElementById('camMode'),
+    leave: document.getElementById('giLeave'),
+    accept: document.getElementById('acceptBtn'),
+    flash: document.getElementById('fxFlash'),
+    tvDim: document.getElementById('tvDim'),
+    tvdFace: document.getElementById('tvdFace'),
+    tvdStruggle: document.getElementById('tvdStruggle'),
+    tvdCount: document.getElementById('tvdCount'),
+    tvdRetry: document.getElementById('tvdRetry'),
+    tvdBack: document.getElementById('tvdBack')
+  };
+
+  let renderer, scene, camera, rt, postScene, postCam, postMat;
+  let W = 0, H = 0, grid = null, world = null;
+  let player = { x: 0, z: 0, spd: 3.5 };
+  let yaw = 0, pitch = 0, keys = {}, running = false, paused = false, started = false;
+  let rafId = 0, lastT = 0, elapsed = 0, walkPhase = 0;
+  let hunter = null, hunterCore = null, hunterLight = null;
+  let bodyParts = { armL: null, armR: null, legL: null, legR: null,
+  elbowL: null, elbowR: null, kneeL: null, kneeR: null, wristL: null, wristR: null, head: null };
+  let hunterMode = 'run';              // 'run' for 1-5 stars, 'walk' for the minus star
+  let scarePhase = null, scareT = 0;   // jumpscare state machine
+  let scareFrom = null, scareFov = 105;
+  let scareTrauma = 0;                 // smooth camera shake energy (no random jitter)
+  let path = [], pathIdx = 0, pathTimer = 0;
+  let hunterPhase = 0;   // gait phase in radians - advanced by ground covered
+  let gaitBlend = 1;     // 1 = full stride, 0 = standing rest (eased, no pops)
+  let scareQuat = null;
+  let scarePos = null;
+  let scareRoll0 = 0;   // roll carried across phase transitions (no snaps)
+  let difficulty = 0.5, hunterSpeed = 1.6, fogDensity = 0.06;
+  let caught = false, escaped = false;
+  let exitMesh = null, exitLight = null, exitCell = [0,0];
+let audio = null, hbTimer = 0, hunterDist = 999, danger = 0;
+let chaseMood = 'insane';
+  let lastStep = 0;
+  let prevYaw = 0, prevPitch = 0;
+  let motionVec = { x: 0, y: 0 };
+  const _faceW = { v: 0 }, _flareW = { v: 0 };
+
+  /* ---------- grid <-> world ---------- */
+  function gwv(gx){ return (gx - (W - 1) / 2) * CELL; }
+  function w2gx(x){ return Math.round(x / CELL + (W - 1) / 2); }
+  function w2gy(z){ return Math.round(z / CELL + (H - 1) / 2); }
+  function solidAt(x, z){
+    const gx = w2gx(x), gy = w2gy(z);
+    if(gx < 0 || gy < 0 || gx >= W || gy >= H) return true;
+    return grid[gy][gx] === 1;
+  }
+  function canStand(x, z){
+    const r = 0.55;
+    return !solidAt(x - r, z - r) && !solidAt(x + r, z - r) &&
+           !solidAt(x - r, z + r) && !solidAt(x + r, z + r);
+  }
+
+  /* ---------- maze ---------- */
+  function genMaze(n){
+    W = 2 * n + 1; H = 2 * n + 1;
+    const g = [];
+    for(let y = 0; y < H; y++) g.push(new Array(W).fill(1));
+    const stack = [[1, 1]];
+    g[1][1] = 0;
+    const dirs = [[0, -2], [2, 0], [0, 2], [-2, 0]];
+    while(stack.length){
+      const cur = stack[stack.length - 1];
+      const cx = cur[0], cy = cur[1];
+      const opts = [];
+      for(let i = 0; i < dirs.length; i++){
+        const nx = cx + dirs[i][0], ny = cy + dirs[i][1];
+        if(nx > 0 && ny > 0 && nx < W - 1 && ny < H - 1 && g[ny][nx] === 1){
+          opts.push([nx, ny, cx + dirs[i][0] / 2, cy + dirs[i][1] / 2]);
+        }
+      }
+      if(opts.length){
+        const o = opts[(Math.random() * opts.length) | 0];
+        g[o[3]][o[2]] = 0;
+        g[o[1]][o[0]] = 0;
+        stack.push([o[0], o[1]]);
+      } else stack.pop();
+    }
+    // a few extra openings make higher levels feel less unfair
+    const extra = Math.round(3 + (1 - difficulty) * 8);
+    for(let i = 0; i < extra; i++){
+      const x = 1 + 2 * ((Math.random() * ((W - 3) / 2)) | 0);
+      const y = 2 + 2 * ((Math.random() * ((H - 3) / 2)) | 0);
+      if(x < W - 1 && y < H - 1) g[y][x] = 0;
+    }
+    return g;
+  }
+
+  function bfsPath(sx, sy, tx, ty){
+    if(sx < 0 || sy < 0 || sx >= W || sy >= H) return [];
+    if(grid[sy][sx] === 1) return [];
+    const key = (x, y) => y * W + x;
+    const prev = new Map();
+    const seen = new Set([key(sx, sy)]);
+    const q = [[sx, sy]];
+    let found = false;
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    while(q.length){
+      const c = q.shift();
+      const x = c[0], y = c[1];
+      if(x === tx && y === ty){ found = true; break; }
+      for(let i = 0; i < 4; i++){
+        const nx = x + dirs[i][0], ny = y + dirs[i][1];
+        if(nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        if(grid[ny][nx] === 1) continue;
+        const k = key(nx, ny);
+        if(seen.has(k)) continue;
+        seen.add(k);
+        prev.set(k, [x, y]);
+        q.push([nx, ny]);
+      }
+    }
+    if(!found) return [];
+    const out = [];
+    let cur = [tx, ty];
+    while(cur){
+      out.push(cur);
+      const p = prev.get(key(cur[0], cur[1]));
+      if(!p) break;
+      cur = p;
+    }
+    return out.reverse();
+  }
+
+  /* ---------- three setup ---------- */
+  let inited = false;
+  let rtExp = null, expNext = null, expScene = null, expMat = null, expCam = null;
+  let depthOK = false;
+  const _proj = { v: null };
+
+  function initThree(){
+    if(inited) return;
+    renderer = new THREE.WebGLRenderer({ canvas: gv.canvas, antialias: false, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.0));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+    // main pass gets a depth texture for real depth-of-field
+    let depthTex = null;
+    let canDepth = false;
+    try {
+      const gl0 = renderer.getContext();
+      canDepth = !!(renderer.capabilities && renderer.capabilities.isWebGL2) || !!(gl0 && gl0.getExtension('WEBGL_depth_texture'));
+    } catch (e) { canDepth = false; }
+    try {
+      if (!canDepth) throw 0;
+      depthTex = new THREE.DepthTexture(2, 2);
+      rt = new THREE.WebGLRenderTarget(2, 2, {
+        minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
+        depthBuffer: true, depthTexture: depthTex
+      });
+      depthOK = true;
+    } catch (e) {
+      rt = new THREE.WebGLRenderTarget(2, 2, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+      depthOK = false;
+    }
+
+    postScene = new THREE.Scene();
+    postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    const frag = [
+      'precision highp float;',
+      'uniform sampler2D tDiffuse; uniform sampler2D tDepth; uniform sampler2D tExposure;',
+      'uniform vec2 uRes; uniform float uTime; uniform float uVhs; uniform float uDanger;',
+      'uniform float uNear; uniform float uFar; uniform float uDof; uniform float uFocus;',
+      'uniform float uCompress; uniform float uFaceR; uniform vec2 uFacePos;',
+      'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion;',
+      'varying vec2 vUv;',
+      'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
+      'float luma(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }',
+      'float linDepth(float d){ float z = d * 2.0 - 1.0;',
+      '  return (2.0 * uNear * uFar) / (uFar + uNear - z * (uFar - uNear)); }',
+      'void main(){',
+      '  vec2 uv = vUv; vec2 c = uv - 0.5;',
+      // ---- FISHEYE ----
+      '  float r2 = dot(c,c);',
+      '  uv = 0.5 + c * (1.0 + 0.46*r2 + 0.26*r2*r2);',
+      // ---- bodycam weave ----
+      '  uv.x += (hash(vec2(floor(uv.y*180.0), floor(uTime*24.0))) - 0.5) * 0.0018 * uVhs;',
+      '  float band = abs(fract(uv.y*0.7 - uTime*0.15) - 0.5);',
+      '  uv.x += smoothstep(0.03, 0.0, band) * 0.0022 * uVhs;',
+      // ---- censorship mosaic over his face ----
+      '  if(uFaceR > 0.0001){',
+      '    float fd = length(vUv - uFacePos);',
+      '    if(fd < uFaceR){',
+      '      vec2 cell = vec2(uFaceR / 11.0);',
+      '      uv = uFacePos + (floor((uv - uFacePos) / cell) + 0.5) * cell;',
+      '    }',
+      '  }',
+      // ---- depth of field ----
+      '  float rawD = texture2D(tDepth, uv).x;',
+      '  float dd = linDepth(rawD);',
+      '  float coc = clamp(abs(dd - uFocus) / max(uFocus, 0.6), 0.0, 1.0) * uDof;',
+      // ---- DOF + motion blur + bloom taps ----
+      '  vec3 acc = vec3(0.0);',
+      '  for(int i = 0; i < 6; i++){',
+      '    float fi = float(i);',
+      '    float ang = fi * 2.39996;',
+      '    float rr = sqrt(fi / 6.0) * (0.0035 + coc * 0.020);',
+      '    vec2 off = vec2(cos(ang), sin(ang)) * rr + uMotion * (fi / 6.0 - 0.5) * 2.0;',
+      '    acc += texture2D(tDiffuse, uv + off).rgb;',
+      '  }',
+      '  vec3 blurred = acc / 6.0;',
+      // ---- chroma aberration on the sharp sample ----
+      '  float ca = (0.0010 + 0.0022 * uVhs) * (1.0 + uDanger) + coc * 0.004;',
+      '  vec3 sharp;',
+      '  sharp.r = texture2D(tDiffuse, uv + vec2(ca, 0.0)).r;',
+      '  sharp.g = texture2D(tDiffuse, uv).g;',
+      '  sharp.b = texture2D(tDiffuse, uv - vec2(ca, 0.0)).b;',
+      '  float blurAmt = clamp(coc * 0.85 + length(uMotion) * 7.0, 0.0, 0.9);',
+      '  vec3 col = mix(sharp, blurred, blurAmt);',
+      // ---- bloom ----
+      '  vec3 bloom = max(blurred - 0.60, 0.0);',
+      '  col += bloom * 0.60;',
+      // ---- lens flare ghosts ----
+      '  if(uFlareAmt > 0.001){',
+      '    vec2 axis = vec2(0.5) - uFlarePos;',
+      '    for(int i = 1; i <= 3; i++){',
+      '      float fi = float(i);',
+      '      vec2 gp = uFlarePos + axis * fi * 1.15;',
+      '      float gd = length(vUv - gp);',
+      '      vec3 tint = (i == 1) ? vec3(0.4,0.8,1.0) : ((i == 2) ? vec3(1.0,0.6,0.3) : vec3(1.0,0.3,0.7));',
+      '      col += tint * smoothstep(0.09, 0.0, gd) * 0.16 * uFlareAmt;',
+      '    }',
+      '    float core = smoothstep(0.22, 0.0, distance(vUv, uFlarePos));',
+      '    col += vec3(1.0,0.95,0.85) * core * core * 0.55 * uFlareAmt;',
+      '  }',
+      // ---- lens dirt & smudges ----
+      '  float dirt = 0.0;',
+      '  dirt += smoothstep(0.17, 0.0, length(vUv - vec2(0.80,0.74))) * 0.10;',
+      '  dirt += smoothstep(0.10, 0.0, length(vUv - vec2(0.20,0.28))) * 0.08;',
+      '  dirt += smoothstep(0.07, 0.0, length(vUv - vec2(0.52,0.10))) * 0.06;',
+      '  dirt += smoothstep(0.05, 0.0, length(vUv - vec2(0.36,0.86))) * 0.05;',
+      '  col += dirt * (0.25 + 0.75 * luma(col)) * 1.6;',
+      // ---- auto exposure / eye adaptation ----
+      '  float expo = texture2D(tExposure, vec2(0.5)).r;',
+      '  col *= expo;',
+      // ---- scanlines ----
+      '  col *= 0.88 + 0.12 * sin(uv.y * 1100.0);',
+      // ---- video compression artifacts ----
+      '  if(uCompress > 0.001){',
+      '    vec2 blk = floor(gl_FragCoord.xy / 8.0);',
+      '    float q = hash(blk + floor(uTime * 15.0));',
+      '    col = floor(col * 24.0 + 0.5) / 24.0;',
+      '    col += (q - 0.5) * 0.06 * uCompress;',
+      '    if(q > 0.988) col = mix(col, vec3(0.08,0.0,0.0), 0.6 * uCompress);',
+      '  }',
+      // ---- film grain ----
+      '  float g = hash(uv * uRes + uTime * 91.0);',
+      '  col += (g - 0.5) * 0.085;',
+      // ---- vignette ----
+      '  float vig = smoothstep(1.18, 0.30, length(c) * 1.30);',
+      '  col *= vig;',
+      // ---- grade ----
+      '  float l = luma(col);',
+      '  col = mix(col, vec3(l), 0.26);',
+      '  col = mix(col, col * vec3(1.32,0.54,0.54), uDanger * 0.75);',
+      '  gl_FragColor = vec4(max(col, 0.0), 1.0);',
+      '}'
+    ].join('\n');
+
+    postMat = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { value: rt.texture },
+        tDepth: { value: depthTex ? depthTex : rt.texture },
+        tExposure: { value: null },
+        uRes: { value: new THREE.Vector2(1, 1) },
+        uTime: { value: 0 },
+        uVhs: { value: 1 },
+        uDanger: { value: 0 },
+        uNear: { value: 0.05 },
+        uFar: { value: 300 },
+        uDof: { value: 0.55 },
+        uFocus: { value: 6.0 },
+        uCompress: { value: 0.35 },
+        uFaceR: { value: 0 },
+        uFacePos: { value: new THREE.Vector2(0.5, 0.5) },
+        uFlarePos: { value: new THREE.Vector2(0.5, 0.5) },
+        uFlareAmt: { value: 0 },
+        uMotion: { value: new THREE.Vector2(0, 0) }
+      },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: frag
+    });
+    if (!depthOK) postMat.uniforms.uDof.value = 0.0;
+
+    postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMat));
+
+    // ---- 1x1 auto-exposure (eye adaptation) ----
+    expScene = new THREE.Scene();
+    expCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    expMat = new THREE.ShaderMaterial({
+      uniforms: {
+        tScene: { value: rt.texture },
+        tPrev: { value: null },
+        uDt: { value: 0.016 },
+        uDanger: { value: 0 }
+      },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: [
+        'precision highp float;',
+        'uniform sampler2D tScene; uniform sampler2D tPrev; uniform float uDt; uniform float uDanger;',
+        'varying vec2 vUv;',
+        'void main(){',
+        '  vec3 s = vec3(0.0);',
+        '  s += texture2D(tScene, vec2(0.5,0.5)).rgb * 2.0;',
+        '  s += texture2D(tScene, vec2(0.25,0.30)).rgb;',
+        '  s += texture2D(tScene, vec2(0.75,0.30)).rgb;',
+        '  s += texture2D(tScene, vec2(0.25,0.70)).rgb;',
+        '  s += texture2D(tScene, vec2(0.75,0.70)).rgb;',
+        '  s += texture2D(tScene, vec2(0.50,0.18)).rgb;',
+        '  s += texture2D(tScene, vec2(0.50,0.82)).rgb;',
+        '  float L = dot(s / 8.0, vec3(0.2126,0.7152,0.0722));',
+        '  L = max(L, 0.012);',
+        '  float target = clamp(0.42 / L, 0.65, 3.2);',
+        '  target *= (1.0 - uDanger * 0.35);',
+        '  float prev = texture2D(tPrev, vec2(0.5)).r;',
+        '  if(prev <= 0.001) prev = target;',
+        '  float k = clamp(uDt * 1.5, 0.0, 1.0);',
+        '  gl_FragColor = vec4(mix(prev, target, k), 0.0, 0.0, 1.0);',
+        '}'
+      ].join('\n')
+    });
+    expScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), expMat));
+    rtExp = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false });
+    expNext = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false });
+    postMat.uniforms.tExposure.value = rtExp.texture;
+
+    inited = true;
+  }
+
+  /* ---------- UI wiring (must run before initThree, which needs the Accept click) ---------- */
+  function attachUI(){
+    window.addEventListener('resize', onResize);
+    document.addEventListener('pointerlockchange', onLockChange);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+
+    gv.start.addEventListener('click', onStartClick);
+    gv.retry.addEventListener('click', function(){ buildAndRun(); });
+    gv.exit.addEventListener('click', endToMenu);
+    gv.leave.addEventListener('click', endToMenu);
+    gv.accept.addEventListener('click', openGame);
+
+    gv.tvdStruggle.addEventListener('click', onStruggle);
+    gv.tvdRetry.addEventListener('click', function(){ hideTVDim(); buildAndRun(); });
+    gv.tvdBack.addEventListener('click', function(){ hideTVDim(); endToMenu(); });
+  }
+
+  /* ---------- inside the TV dimension ---------- */
+  let struggleCount = 0;
+  function showTVDimension(){
+    struggleCount = 0;
+    gv.tvdFace.innerHTML = FACES.insane();
+    gv.tvdCount.textContent = '';
+    gv.tvdStruggle.style.display = '';
+    gv.tvdStruggle.textContent = 'STRUGGLE';
+    gv.tvdRetry.style.display = 'none';
+    gv.tvdBack.style.display = 'none';
+    gv.tvDim.classList.add('on');
+  }
+  function hideTVDim(){
+    gv.tvDim.classList.remove('on');
+    gv.flash.classList.remove('on');
+    gv.flash.style.opacity = '0';
+  }
+  function onStruggle(){
+    struggleCount++;
+    gv.tvDim.classList.add('shake');
+    setTimeout(function(){ gv.tvDim.classList.remove('shake'); }, 260);
+    tone(180 + Math.random() * 60, 0.18, 'square', 0.08, 90);
+    noiseHit(0.2, 0.12, 900);
+    if(struggleCount >= 3){
+      gv.tvdCount.textContent = 'The glass cracks... something is pulling you out.';
+      gv.tvdStruggle.style.display = 'none';
+      gv.tvdRetry.style.display = '';
+      gv.tvdBack.style.display = '';
+    } else {
+      gv.tvdCount.textContent = 'You are stuck in the screen. (' + (3 - struggleCount) + ' more)';
+    }
+  }
+
+  function onResize(){
+    if(!renderer) return;
+    const w2 = window.innerWidth, h2 = window.innerHeight;
+    renderer.setSize(w2, h2, false);
+    if(camera){ camera.aspect = w2 / h2; camera.updateProjectionMatrix(); }
+    const pw = Math.max(2, Math.floor(w2 * renderer.getPixelRatio()));
+    const ph = Math.max(2, Math.floor(h2 * renderer.getPixelRatio()));
+    rt.setSize(pw, ph);
+    if(rt.depthTexture){ rt.depthTexture.image.width = pw; rt.depthTexture.image.height = ph; }
+    if(postMat){
+      postMat.uniforms.uRes.value.set(pw, ph);
+      postMat.uniforms.uNear.value = 0.05;
+      postMat.uniforms.uFar.value = camera ? camera.far : 300;
+    }
+  }
+
+  /* ---------- hunter face texture (one per expression) ---------- */
+  const faceTexCache = {};
+  function makeFaceTexture(mood, cb){
+    const key = (mood === 'happy') ? 'idle' : (mood || 'insane');
+    if(faceTexCache[key]){ cb(faceTexCache[key]); return; }
+    const fn = FACES[key] || FACES.insane;
+    const svg = fn();
+    const img = new Image();
+    let usedBlob = false;
+    img.onload = function(){
+      // low-poly RETRO look: crisp chunky pixels (readable expressions, crunchy texels)
+      let src = null;
+      try{
+        const big = document.createElement('canvas');
+        big.width = 256; big.height = 168;
+        const bctx = big.getContext('2d');
+        if(!bctx) throw 0;
+        bctx.drawImage(img, 0, 0, 256, 168);
+        src = big;
+      }catch(e){ cb(null); return; }
+      const cv = document.createElement('canvas');
+      cv.width = 128; cv.height = 84;
+      const ctx = cv.getContext('2d');
+      if(!ctx){ cb(null); return; }
+      ctx.imageSmoothingEnabled = false;
+      try { ctx.drawImage(src, 0, 0, 128, 84); }
+      catch(e){ cb(null); return; }
+      const tex = new THREE.CanvasTexture(cv);
+      tex.minFilter = THREE.NearestFilter;
+      tex.magFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
+      faceTexCache[key] = tex;
+      cb(tex);
+    };
+    img.onerror = function(){
+      // some browsers refuse long SVG data URIs - retry once via a blob URL
+      if(!usedBlob){
+        usedBlob = true;
+        try{
+          const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+          img.src = URL.createObjectURL(blob);
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  /* ---------- Puzzle Park texture helpers ---------- */
+  function makeCanvasTex(size, draw, rx, ry){
+    try{
+      const cv = document.createElement('canvas');
+      cv.width = size; cv.height = size;
+      const ctx = cv.getContext('2d');
+      if(!ctx) return null;
+      draw(ctx, size);
+      const tex = new THREE.CanvasTexture(cv);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(rx || 1, ry || 1);
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      return tex;
+    }catch(e){ return null; }
+  }
+  const PARK = ['#ffd400','#00e5ff','#7dff4f','#ff6ed1','#ff3d00','#3b9bff'];
+
+  function parkFloorTex(){
+    return makeCanvasTex(128, function(ctx, s){
+      const h = s / 2;
+      ctx.fillStyle = '#d8d2be'; ctx.fillRect(0, 0, s, s);
+      ctx.fillStyle = '#2a2334'; ctx.fillRect(0, 0, h, h); ctx.fillRect(h, h, h, h);
+      // little colored puzzle studs on the light squares
+      ctx.fillStyle = '#ffd400'; ctx.beginPath(); ctx.arc(h * 1.5, h * 0.5, h * 0.16, 0, 7); ctx.fill();
+      ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(h * 0.5, h * 1.5, h * 0.16, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 3;
+      ctx.strokeRect(0, 0, s, s);
+    }, Math.max(2, Math.round(W * 0.5)), Math.max(2, Math.round(H * 0.5)));
+  }
+
+  function parkWallTex(){
+    return makeCanvasTex(128, function(ctx, s){
+      ctx.fillStyle = '#efe9d8'; ctx.fillRect(0, 0, s, s);
+      const q = s / 2;
+      const cells = [
+        [0, 0, PARK[0], PARK[1]],
+        [q, 0, PARK[2], PARK[3]],
+        [0, q, PARK[4], PARK[5]],
+        [q, q, PARK[1], PARK[0]]
+      ];
+      cells.forEach(function(c){
+        const x = c[0], y = c[1];
+        ctx.fillStyle = c[2];
+        roundRect(ctx, x + 5, y + 5, q - 10, q - 10, 12);
+        ctx.fill();
+        // puzzle bump on each panel
+        ctx.beginPath();
+        ctx.arc(x + q * (c[0] ? 0.5 : 0.5), y + q * 0.5, q * 0.16, 0, 7);
+        ctx.fillStyle = c[3]; ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 3;
+        roundRect(ctx, x + 5, y + 5, q - 10, q - 10, 12); ctx.stroke();
+      });
+      ctx.strokeStyle = '#141018'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, s, s);
+    }, 1, 1);
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* retro pixel helper: chunky texels, no smoothing (N64-style crunch) */
+  function retroTex(size, draw, rx, ry){
+    try{
+      const cv = document.createElement('canvas');
+      cv.width = size; cv.height = size;
+      const ctx = cv.getContext('2d');
+      if(!ctx) return null;
+      ctx.imageSmoothingEnabled = false;
+      draw(ctx, size);
+      const tex = new THREE.CanvasTexture(cv);
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(rx || 1, ry || 1);
+      return tex;
+    }catch(e){ return null; }
+  }
+
+  /* hard faceted normals: unweld + per-face normals so cylinders/spheres read
+     as chunky low-poly with ANY material (no shader/material changes needed) */
+  function flatGeo(geo){
+    try{
+      const g = geo.index ? geo.toNonIndexed() : geo;
+      g.computeVertexNormals();
+      return g;
+    }catch(e){ return geo; }
+  }
+
+  function pantsTex(){
+    // chunky puzzle tiles: bold white-ish seams, tile + stud (matches his show pants)
+    return retroTex(32, function(ctx, s){
+      ctx.fillStyle = '#0e0d12';
+      ctx.fillRect(0, 0, s, s);
+      const n = 2, c = s / n;
+      ctx.fillStyle = '#2c2c34';
+      for(let y = 0; y < n; y++){
+        for(let x = 0; x < n; x++){
+          ctx.fillRect(x * c + 1, y * c + 1, c - 2, c - 2);
+        }
+      }
+      ctx.strokeStyle = '#a8a8b2';
+      ctx.lineWidth = 2;
+      for(let y = 0; y < n; y++){
+        for(let x = 0; x < n; x++){
+          ctx.strokeRect(x * c + 1.5, y * c + 1.5, c - 3, c - 3);
+        }
+      }
+      ctx.fillStyle = '#8b8b96';
+      for(let y = 0; y < n; y++){
+        for(let x = 0; x < n; x++){
+          ctx.fillRect(x * c + c / 2 - 1, y * c + c / 2 - 1, 3, 3);
+        }
+      }
+    }, 1, 2);
+  }
+
+  /* ---------- level build ---------- */
+  function disposeWorld(){
+    if(!scene) return;
+    // face textures live in faceTexCache and are reused - never dispose those
+    const keep = [];
+    for(const k in faceTexCache){ if(faceTexCache[k]) keep.push(faceTexCache[k]); }
+    scene.traverse(function(o){
+      if(o.isInstancedMesh && o.dispose) o.dispose();
+      if(o.geometry) o.geometry.dispose();
+      if(o.material){
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        mats.forEach(function(m){
+          if(m.map && keep.indexOf(m.map) < 0) m.map.dispose();
+          m.dispose();
+        });
+      }
+    });
+    while(scene.children.length) scene.remove(scene.children[0]);
+    world = null;
+  }
+
+  function buildLevel(){
+    disposeWorld();
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0812);
+    scene.fog = new THREE.FogExp2(0x0e0a16, fogDensity);
+
+    camera = new THREE.PerspectiveCamera(105, window.innerWidth / window.innerHeight, 0.05, 300);
+    camera.rotation.order = 'YXZ';
+    scene.add(camera);
+
+    world = new THREE.Group();
+    scene.add(world);
+
+    // ambient + flashlight (slightly brighter than before, still moody)
+    scene.add(new THREE.AmbientLight(0x35344a, 1.55));
+    const spot = new THREE.SpotLight(0xfff2dc, 3.1, 28, Math.PI / 5.0, 0.55, 1.25);
+    spot.position.set(0, 0, 0);
+    spot.target.position.set(0, 0, -1);
+    camera.add(spot);
+    camera.add(spot.target);
+    hunterLight = new THREE.PointLight(0xff2222, 0.0, 12, 2.0);
+    world.add(hunterLight);
+
+    // ---- PUZZLE PARK build ----
+    const floorGeo = new THREE.PlaneGeometry(W * CELL + 8, H * CELL + 8);
+    const fTex = parkFloorTex();
+    const floorMat = new THREE.MeshLambertMaterial(fTex ? { map: fTex } : { color: 0x2a2433 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    world.add(floor);
+
+    const ceil = new THREE.Mesh(floorGeo.clone(), new THREE.MeshLambertMaterial({ color: 0x14101f }));
+    ceil.rotation.x = Math.PI / 2;
+    ceil.position.y = WALL_H;
+    world.add(ceil);
+
+    // walls (instanced) - colorful puzzle panels
+    let count = 0;
+    for(let y = 0; y < H; y++) for(let x = 0; x < W; x++) if(grid[y][x] === 1) count++;
+    const wallGeo = new THREE.BoxGeometry(CELL, WALL_H, CELL);
+    const wTex = parkWallTex();
+    const wallMat = new THREE.MeshLambertMaterial(wTex ? { map: wTex, emissive: 0x141020 } : { color: 0x2a2433 });
+    const inst = new THREE.InstancedMesh(wallGeo, wallMat, count);
+    const m4 = new THREE.Matrix4();
+    let i = 0;
+    for(let y = 0; y < H; y++){
+      for(let x = 0; x < W; x++){
+        if(grid[y][x] !== 1) continue;
+        m4.makeTranslation(gwv(x), WALL_H / 2, gwv(y));
+        inst.setMatrixAt(i++, m4);
+      }
+    }
+    inst.instanceMatrix.needsUpdate = true;
+    world.add(inst);
+
+    // exit portal
+    const ex = gwv(exitCell[0]), ez = gwv(exitCell[1]);
+    exitMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.2, 2.9),
+      new THREE.MeshBasicMaterial({ color: 0x7dffb0, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+    );
+    exitMesh.position.set(ex, 1.45, ez);
+    exitMesh.lookAt(gwv(exitCell[0] - 1), 1.45, ez);
+    world.add(exitMesh);
+    exitLight = new THREE.PointLight(0x66ff99, 2.4, 16, 2);
+    exitLight.position.set(ex, 2.0, ez);
+    world.add(exitLight);
+
+    // ---- MR. PUZZLES full body (lanky TV-headed showman) ----
+    hunter = new THREE.Group();
+    hunterCore = new THREE.Group();
+    hunter.add(hunterCore);
+    bodyParts = { armL: null, armR: null, legL: null, legR: null,
+      elbowL: null, elbowR: null, kneeL: null, kneeR: null, wristL: null, wristR: null, head: null };
+
+    // the body is built immediately; the face texture is dropped in when ready
+    const faceMat = new THREE.MeshBasicMaterial({ color: 0x3a1010 });
+    makeFaceTexture(chaseMood, function(tex){
+      if(tex){ faceMat.map = tex; faceMat.color.setHex(0xffffff); faceMat.needsUpdate = true; }
+    });
+    (function(){
+      const BLACK = new THREE.MeshLambertMaterial({ color: 0x0b0b0e, flatShading: true });
+      const SUIT  = new THREE.MeshLambertMaterial({ color: 0x1d1d23, flatShading: true });
+      const SHIRT = new THREE.MeshLambertMaterial({ color: 0x9c9ca4, flatShading: true });
+      const SKIN  = new THREE.MeshLambertMaterial({ color: 0xf1f1ec, flatShading: true });
+      const SHELL = new THREE.MeshLambertMaterial({ color: 0x9d9d9b, flatShading: true });
+      const pantTex = pantsTex();
+      const PANTS = new THREE.MeshLambertMaterial(pantTex ? { map: pantTex, flatShading: true } : { color: 0x141418, flatShading: true });
+
+      // ---- legs: thigh@hip -> knee -> shin+shoe (two-segment, bends) ----
+      function makeLeg(side){
+        const hip = new THREE.Group();
+        hip.position.set(0.16 * side, 1.12, 0);
+        const thigh = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.115, 0.082, 0.5, 5)), PANTS);
+        thigh.position.y = -0.25;
+        hip.add(thigh);
+        // knee hinge
+        const knee = new THREE.Group();
+        knee.position.y = -0.5;
+        hip.add(knee);
+        const shin = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.088, 0.062, 0.48, 5)), PANTS);
+        shin.position.y = -0.24;
+        knee.add(shin);
+        const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.14, 0.44), BLACK);
+        shoe.position.set(0, -0.5, 0.07);
+        knee.add(shoe);
+        const toe = new THREE.Mesh(new THREE.BoxGeometry(0.27, 0.15, 0.18), SKIN);
+        toe.position.set(0, -0.47, 0.22);
+        knee.add(toe);
+        hip.userData.knee = knee;
+        hunterCore.add(hip);
+        return hip;
+      }
+    bodyParts.legL = makeLeg(-1);
+    bodyParts.legR = makeLeg(1);
+    bodyParts.kneeL = bodyParts.legL.userData.knee;
+    bodyParts.kneeR = bodyParts.legR.userData.knee;
+
+      // ---- hips + torso: faceted tapered forms (low-poly, not cubes) ----
+      const hips = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.25, 0.235, 0.2, 8)), SUIT);
+      hips.scale.set(1, 1, 0.62);
+      hips.position.y = 1.14; hunterCore.add(hips);
+
+      const torso = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.30, 0.245, 0.66, 8)), SHIRT);
+      torso.scale.set(1, 1, 0.62);
+      torso.position.y = 1.5; hunterCore.add(torso);
+
+      // waistcoat: two curved panels hugging the shirt, leaving a centre strip
+      function makeVest(side){
+        const g = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.315, 0.255, 0.64, 8, 1, false, side > 0 ? 0 : Math.PI, Math.PI)));
+        g.scale.set(1, 1, 0.62);
+        g.position.y = 1.5;
+        hunterCore.add(g);
+        return g;
+      }
+      makeVest(1); makeVest(-1);
+      // breast pocket on his left chest
+      const pocket = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.09, 0.02), SUIT);
+      pocket.position.set(0.12, 1.56, 0.175); hunterCore.add(pocket);
+      // suspenders
+      const susL = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.64, 0.02), BLACK);
+      susL.position.set(-0.1, 1.5, 0.183); hunterCore.add(susL);
+      const susR = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.64, 0.02), BLACK);
+      susR.position.set(0.1, 1.5, 0.183); hunterCore.add(susR);
+      // buttons
+      for(let b = 0; b < 3; b++){
+        const btn = new THREE.Mesh(flatGeo(new THREE.SphereGeometry(0.02, 4, 3)), BLACK);
+        btn.position.set(0, 1.32 + b * 0.14, 0.172); hunterCore.add(btn);
+      }
+
+      // ---- arms: shoulder -> elbow hinge -> forearm+wrist+glove (lagged swing) ----
+      function makeArm(side){
+        const g = new THREE.Group();
+        g.position.set(0.33 * side, 1.78, 0);
+        const upper = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.058, 0.046, 0.42, 5)), SKIN);
+        upper.position.y = -0.21; g.add(upper);
+        // elbow hinge
+        const elbow = new THREE.Group();
+        elbow.position.y = -0.42;
+        g.add(elbow);
+        const lower = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.05, 0.04, 0.42, 5)), SKIN);
+        lower.position.y = -0.21; elbow.add(lower);
+        const cuff = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.07, 0.07, 0.07, 5)), BLACK);
+        cuff.position.y = -0.43; elbow.add(cuff);
+        const glove = new THREE.Mesh(flatGeo(new THREE.SphereGeometry(0.12, 6, 4)), SKIN);
+        glove.scale.set(1.0, 1.3, 0.85);
+        glove.position.y = -0.56; elbow.add(glove);
+        g.rotation.z = 0.07 * side;
+        g.userData.elbow = elbow;
+        g.userData.glove = glove;
+        hunterCore.add(g);
+        return g;
+      }
+    bodyParts.armL = makeArm(-1);
+    bodyParts.armR = makeArm(1);
+    bodyParts.elbowL = bodyParts.armL.userData.elbow;
+    bodyParts.elbowR = bodyParts.armR.userData.elbow;
+    bodyParts.wristL = bodyParts.armL.userData.glove;
+    bodyParts.wristR = bodyParts.armR.userData.glove;
+
+      // ---- bow tie + neck ----
+      const neck = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.068, 0.068, 0.14, 4)), BLACK);
+      neck.position.y = 1.9; hunterCore.add(neck);
+      const tieL = new THREE.Mesh(flatGeo(new THREE.ConeGeometry(0.1, 0.17, 4)), BLACK);
+      tieL.rotation.z = Math.PI / 2; tieL.position.set(-0.1, 1.9, 0.13); hunterCore.add(tieL);
+      const tieR = new THREE.Mesh(flatGeo(new THREE.ConeGeometry(0.1, 0.17, 4)), BLACK);
+      tieR.rotation.z = -Math.PI / 2; tieR.position.set(0.1, 1.9, 0.13); hunterCore.add(tieR);
+      const tieK = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.09), BLACK);
+      tieK.position.set(0, 1.9, 0.15); hunterCore.add(tieK);
+
+      // ---- TV head ----
+      const head = new THREE.Mesh(
+        new THREE.BoxGeometry(0.92, 0.66, 0.52),
+        [SHELL, SHELL, SHELL, SHELL, faceMat, SHELL]
+      );
+      head.position.y = 2.3; hunterCore.add(head);
+    bodyParts.head = head;
+      // knobs on the right
+      for(let k = 0; k < 2; k++){
+        const knob = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.07, 0.07, 0.06, 6)), BLACK);
+        knob.rotation.z = Math.PI / 2;
+        knob.position.set(0.48, 2.44 - k * 0.16, 0.08);
+        hunterCore.add(knob);
+      }
+        // bowler hat
+        const brim = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.4, 0.4, 0.05, 10)), BLACK);
+        brim.position.y = 2.66; hunterCore.add(brim);
+        const dome = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.2, 0.27, 0.22, 8)), BLACK);
+        dome.position.y = 2.77; hunterCore.add(dome);
+      // antennae: left straight, right kinked like the show
+      (function(){
+        const ant = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.013, 0.013, 0.5, 4)), BLACK);
+        ant.position.set(-0.16, 2.98, 0);
+        ant.rotation.z = 0.35;
+        hunterCore.add(ant);
+        const tip = new THREE.Mesh(flatGeo(new THREE.SphereGeometry(0.032, 5, 3)), BLACK);
+        tip.position.set(-0.246, 3.22, 0);
+        hunterCore.add(tip);
+      })();
+      (function(){
+        // right antenna: up, then a sharp kink outward
+        const seg1 = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.013, 0.013, 0.3, 4)), BLACK);
+        seg1.position.set(0.17, 2.93, 0);
+        seg1.rotation.z = -0.18;
+        hunterCore.add(seg1);
+        const seg2 = new THREE.Mesh(flatGeo(new THREE.CylinderGeometry(0.013, 0.013, 0.3, 4)), BLACK);
+        seg2.position.set(0.30, 3.10, 0);
+        seg2.rotation.z = -1.05;
+        hunterCore.add(seg2);
+        const tip = new THREE.Mesh(flatGeo(new THREE.SphereGeometry(0.032, 5, 3)), BLACK);
+        tip.position.set(0.42, 3.16, 0);
+        hunterCore.add(tip);
+      })();
+      // screen glow that follows the face
+      const glow = new THREE.PointLight(0xffddcc, 0.9, 4, 2);
+      glow.position.set(0, 2.3, 0.6);
+      hunterCore.add(glow);
+    })();
+    hunter.position.set(gwv(W - 2), 0, gwv(H - 2));
+    world.add(hunter);
+
+    path = []; pathIdx = 0; pathTimer = 0;
+  }
+
+  /* ---------- audio ---------- */
+  function initAudio(){
+    try{
+      if(!audio){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audio = new AC();
+        const master = audio.createGain();
+        master.gain.value = 0.9;
+        master.connect(audio.destination);
+        audio._master = master;
+      }
+      if(audio._drone) return;
+      // low oppressive drone
+      const o1 = audio.createOscillator(), o2 = audio.createOscillator();
+      const lp = audio.createBiquadFilter(), dg = audio.createGain();
+      o1.type = 'sawtooth'; o1.frequency.value = 41;
+      o2.type = 'sine'; o2.frequency.value = 55.5;
+      lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = 3;
+      dg.gain.value = 0.055;
+      o1.connect(lp); o2.connect(lp); lp.connect(dg); dg.connect(audio._master);
+      o1.start(); o2.start();
+      audio._drone = { o1: o1, o2: o2, g: dg };
+    }catch(e){ audio = null; }
+  }
+
+  function tone(freq, dur, type, vol, slideTo){
+    if(!audio) return;
+    try{
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, audio.currentTime);
+      if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, audio.currentTime + dur);
+      g.gain.setValueAtTime(vol || 0.1, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
+      o.connect(g); g.connect(audio._master);
+      o.start(); o.stop(audio.currentTime + dur + 0.02);
+    }catch(e){}
+  }
+
+  function noiseHit(dur, vol, lpFreq){
+    if(!audio) return;
+    try{
+      const len = Math.floor(audio.sampleRate * dur);
+      const buf = audio.createBuffer(1, len, audio.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      const src = audio.createBufferSource(); src.buffer = buf;
+      const bp = audio.createBiquadFilter(); bp.type = 'lowpass'; bp.frequency.value = lpFreq || 1400;
+      const g = audio.createGain(); g.gain.value = vol || 0.15;
+      src.connect(bp); bp.connect(g); g.connect(audio._master);
+      src.start();
+    }catch(e){}
+  }
+
+  function footstep(){
+    noiseHit(0.12, 0.075, 700);
+    tone(70, 0.09, 'sine', 0.05, 45);
+  }
+  function heartbeat(intensity){
+    tone(58, 0.16, 'sine', 0.12 * intensity, 36);
+    setTimeout(function(){ tone(48, 0.14, 'sine', 0.09 * intensity, 30); }, 150);
+  }
+  function scare(){
+    if(!audio) return;
+    tone(880, 0.9, 'sawtooth', 0.28, 60);
+    noiseHit(0.9, 0.4, 2600);
+    setTimeout(function(){ tone(300, 1.2, 'square', 0.18, 40); }, 120);
+  }
+  function winChime(){
+    tone(523, 0.25, 'triangle', 0.14);
+    setTimeout(function(){ tone(784, 0.3, 'triangle', 0.13); }, 140);
+    setTimeout(function(){ tone(1046, 0.5, 'triangle', 0.12); }, 300);
+  }
+
+  /* ---------- input ---------- */
+  function onKeyDown(e){
+    if(!running) return;
+    keys[e.key.toLowerCase()] = true;
+    if(e.key === 'Escape'){ /* pointer lock handles pause */ }
+  }
+  function onKeyUp(e){ keys[e.key.toLowerCase()] = false; }
+
+  function onMouseMove(e){
+    if(!running || paused) return;
+    const mx = e.movementX || 0, my = e.movementY || 0;
+    yaw -= mx * 0.0022;
+    pitch -= my * 0.0022;
+    const lim = Math.PI / 2 - 0.05;
+    if(pitch > lim) pitch = lim;
+    if(pitch < -lim) pitch = -lim;
+  }
+
+  function onLockChange(){
+    if(!running) return;
+    if(document.pointerLockElement !== gv.canvas && !caught && !escaped){
+      paused = true;
+      gv.game.classList.remove('playing');
+      gv.intro.style.display = 'flex';
+      gv.sub.textContent = 'PAUSED';
+      gv.start.textContent = 'CLICK TO RESUME';
+      gv.warn.textContent = 'He is still in there with you.';
+      keys = {};
+    }
+  }
+
+  /* ---------- flow ---------- */
+  function currentDifficulty(){
+    const vals = Object.values(ratings);
+    const hasMinus = vals.some(function(v){ return v < 0; });
+    if(hasMinus){
+      // the minus star hurts him: easiest hunt, and he just WALKS at you, crying
+      return { avg: -1, d: 0, hasMinus: true, mood: 'sad', mode: 'walk' };
+    }
+    const avg = vals.length ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 3;
+    const d = Math.max(0, Math.min(1, (5 - avg) / 4));
+    // 1-5 stars: he RUNS you down with a crazy face that gets worse as the rating drops.
+    // minus star: he WALKS, sad.
+    let mood;
+    if(d < 0.5) mood = 'crazy';
+    else if(d < 0.85) mood = 'insane';
+    else mood = 'furious';
+    return { avg: avg, d: d, hasMinus: false, mood: mood, mode: 'run' };
+  }
+
+  function openGame(){
+    try { initThree(); }
+    catch(err){
+      alert('The maze needs WebGL, which this browser blocked. Try Chrome or Edge.');
+      return;
+    }
+    const cd = currentDifficulty();
+    difficulty = cd.d;
+    chaseMood = cd.mood;
+    hunterMode = cd.mode || 'run';
+    hideTVDim();
+    const n = 5 + Math.round(difficulty * 7);
+    let moodWord, warn;
+    if(cd.hasMinus){
+      moodWord = 'EMPTY';
+      warn = 'You gave him MINUS a star.\nHe is heartbroken. The maze is tiny, and he barely even tries.';
+    } else {
+      moodWord = difficulty > 0.75 ? 'NIGHTMARE' : difficulty > 0.5 ? 'SEVERE' : difficulty > 0.25 ? 'UNSETTLING' : 'LENIENT';
+      warn = 'Average rating: ' + cd.avg.toFixed(1) + ' / 5  →  difficulty ' + Math.round(difficulty * 100) + '%' +
+        (difficulty > 0.6 ? '\nHe is FURIOUS. The maze is huge and he is fast.' : '\nHe is pleased... so he will toy with you a little less.');
+    }
+    gv.sub.textContent = moodWord + ' MAZE';
+    gv.warn.textContent = warn;
+    gv.start.textContent = 'CLICK TO ENTER';
+    gv.intro.style.display = 'flex';
+    gv.end.classList.remove('on');
+    gv.game.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    started = false; running = false; paused = false; caught = false; escaped = false;
+    buildWithSize(n);
+  }
+
+  let pendingN = 8;
+  function buildWithSize(n){ pendingN = n; }
+
+  function buildAndRun(){
+    hideTVDim();
+    gv.end.classList.remove('on');
+    gv.intro.style.display = 'flex';
+    gv.sub.textContent = 'TRY AGAIN';
+    gv.start.textContent = 'CLICK TO ENTER';
+    gv.warn.textContent = '';
+    started = false; running = false; paused = false; caught = false; escaped = false;
+    scarePhase = null; scareT = 0;
+    buildWithSize(pendingN);
+  }
+
+  function onStartClick(){
+    initAudio();
+    if(audio && audio.state === 'suspended') audio.resume();
+    if(!started){
+      // difficulty actually drives the hunt
+      hunterSpeed = 1.4 + difficulty * 2.6;
+      fogDensity = 0.040 + difficulty * 0.032;
+      player.spd = 3.6 - difficulty * 0.35;
+      // build maze + reset state
+      grid = genMaze(pendingN);
+      exitCell = [W - 2, 1];
+      buildLevel();
+      player.x = gwv(1); player.z = gwv(1);
+      yaw = 0; pitch = 0; elapsed = 0; walkPhase = 0;
+      caught = false; escaped = false; danger = 0;
+      scarePhase = null; scareT = 0;
+      hunter.position.set(gwv(W - 2), 0, gwv(H - 2));
+      hunter.scale.setScalar(1);
+      if(bodyParts.head) bodyParts.head.rotation.x = 0;
+      if(camera){
+        camera.rotation.z = 0;
+        camera.fov = 105;
+        camera.updateProjectionMatrix();
+      }
+      resetHunterPath();
+      started = true;
+    }
+    paused = false;
+    running = true;
+    gv.game.classList.add('playing');
+    hideTVDim();
+    gv.intro.style.display = 'none';
+    gv.end.classList.remove('on');
+    keys = {};
+    lastT = performance.now();
+    if(!rafId) rafId = requestAnimationFrame(loop);
+    if(gv.canvas.requestPointerLock) { try{ gv.canvas.requestPointerLock(); }catch(e){} }
+  }
+
+  function endToMenu(){
+    running = false; paused = false; started = false;
+    scarePhase = null; scareT = 0;
+    gv.game.classList.remove('playing');
+    hideTVDim();
+    gv.end.classList.remove('on');
+    gv.game.classList.remove('on');
+    document.body.style.overflow = '';
+    if(document.exitPointerLock) { try{ document.exitPointerLock(); }catch(e){} }
+    if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    if(audio && audio._drone){
+      try{ audio._drone.o1.stop(); audio._drone.o2.stop(); }catch(e){}
+      audio._drone = null;
+    }
+  }
+
+  /* ---------- hunter ---------- */
+  function resetHunterPath(){
+    path = [];
+    pathIdx = 0;
+    pathTimer = 0;
+  }
+
+  function updateHunter(dt){
+    if(!hunter) return;
+    const hgx = w2gx(hunter.position.x), hgy = w2gy(hunter.position.z);
+    const pgx = w2gx(player.x), pgy = w2gy(player.z);
+
+    pathTimer -= dt;
+    if(pathTimer <= 0 || pathIdx >= path.length){
+      pathTimer = 0.55;
+      path = bfsPath(hgx, hgy, pgx, pgy);
+      pathIdx = 1;
+    }
+
+    // actual ground covered this frame - the gait is driven by this, not by a clock
+    let moved = 0;
+    if(pathIdx < path.length){
+      const c = path[pathIdx];
+      const tx = gwv(c[0]), tz = gwv(c[1]);
+      const dx = tx - hunter.position.x, dz = tz - hunter.position.z;
+      const d = Math.sqrt(dx * dx + dz * dz);
+      if(d < 0.3){ pathIdx++; }
+      else {
+        const step = Math.min(d, hunterSpeed * dt);
+        hunter.position.x += (dx / d) * step;
+        hunter.position.z += (dz / d) * step;
+        moved = step;
+      }
+    }
+
+    // face the player
+    const pdx = player.x - hunter.position.x, pdz = player.z - hunter.position.z;
+    hunter.rotation.y = Math.atan2(pdx, pdz);
+
+    // ---- speed-driven gait: stride AND swing both follow ground speed ----
+    // no foot-skate by construction: strideLen = 2 * reach per half-cycle ----
+    const t = elapsed;
+    const isRun = (hunterMode === 'run');
+    // 0 = sad trudge, 1 = full sprint (from actual chase speed, not a switch)
+    const spdN = Math.max(0, Math.min(1, (hunterSpeed - 0.8) / 3.4));
+    const amp = 0.30 + 0.55 * spdN;                    // thigh swing angle
+    const strideLen = Math.max(0.4, 4 * Math.sin(amp)); // world units per full cycle (no-slip)
+    // ease stride amplitude in/out when starting or stopping - kills the freeze pop
+    const wantAmp = (moved > 0.0005) ? 1 : 0;
+    gaitBlend += (wantAmp - gaitBlend) * Math.min(1, dt * 7);
+    const a = amp * gaitBlend;
+    hunterPhase += (moved / Math.max(strideLen, 0.001)) * Math.PI * 2;
+    const sPh = Math.sin(hunterPhase);
+    const kneeWinL = (1 - Math.cos(hunterPhase)) / 2;        // peaks mid-swing L
+    const kneeWinR = (1 + Math.cos(hunterPhase)) / 2;        // peaks mid-swing R
+    const elbWinL = (1 + Math.cos(hunterPhase - 3.63)) / 2;  // lagged fold L
+    const elbWinR = (1 + Math.cos(hunterPhase - 0.49)) / 2;  // lagged fold R
+    const bob = (0.5 - 0.5 * Math.cos(hunterPhase * 2));     // smooth double-bounce, no cusp
+    if(bodyParts.legL){
+      bodyParts.legL.rotation.x = sPh * a;
+      bodyParts.legR.rotation.x = -sPh * a;
+      if(bodyParts.kneeL){
+        bodyParts.kneeL.rotation.x = 0.06 + kneeWinL * a * 1.1;
+        bodyParts.kneeR.rotation.x = 0.06 + kneeWinR * a * 1.1;
+      }
+    }
+    if(bodyParts.armL){
+      // run: big counter-swings; walk: arms hang limp
+      const armA = (isRun ? 0.85 : 0.42) * a;
+      bodyParts.armL.rotation.x = -sPh * armA;
+      bodyParts.armR.rotation.x = sPh * armA;
+      // running: arms flail out with the bounce; walking: arms hang limp
+      bodyParts.armL.rotation.z = isRun ? -0.30 - 0.25 * bob : 0.07;
+      bodyParts.armR.rotation.z = isRun ? 0.30 + 0.25 * bob : -0.07;
+      // elbows fold forward, trailing the shoulder swing
+      if(bodyParts.elbowL){
+        bodyParts.elbowL.rotation.x = -a * 0.55 * elbWinL;
+        bodyParts.elbowR.rotation.x = -a * 0.55 * elbWinR;
+      }
+      // wrists drift in counter-phase for whip-like hands
+      if(bodyParts.wristL){
+        bodyParts.wristL.rotation.x = a * 0.22 * Math.sin(hunterPhase - 1.4);
+        bodyParts.wristR.rotation.x = a * 0.22 * Math.sin(hunterPhase + Math.PI - 1.4);
+      }
+    }
+    if(hunterCore){
+      // foot-plant lift: raise the hips exactly as much as the swinging feet
+      // would dip below the floor (no sinking, no floating), eased by gaitBlend
+      const liftAmp = 1.05 * (1 - Math.cos(a)) + 0.012;
+      hunterCore.position.y = bob * liftAmp;
+      hunterCore.rotation.z = isRun ? sPh * 0.07 * gaitBlend : Math.sin(hunterPhase * 0.5) * 0.02;
+      hunterCore.rotation.x = isRun ? 0.04 + 0.16 * spdN : 0.0;
+      // spine twist counter-rotates with the stride, fades out at rest
+      hunterCore.rotation.y = sPh * a * 0.14;
+    }
+    if(hunterLight){
+      hunterLight.position.set(hunter.position.x, 1.9, hunter.position.z);
+      hunterLight.intensity = (isRun ? 2.0 : 0.7) + Math.sin(t * 9) * 0.4;
+    }
+
+    hunterDist = Math.sqrt(pdx * pdx + pdz * pdz);
+    danger = Math.max(0, Math.min(1, 1 - (hunterDist - 2) / 16));
+
+    if(hunterDist < 1.75 && !caught){ onCaught(); }
+  }
+
+  function onCaught(){
+    if(caught) return;
+    caught = true;
+    running = false;
+    gv.game.classList.remove('playing');
+    scarePhase = 'stalk';
+    scareT = 0;
+    scareFrom = camera ? camera.position.clone() : new THREE.Vector3(player.x, EYE, player.z);
+    scareQuat = camera ? camera.quaternion.clone() : new THREE.Quaternion();
+    scareFov = camera ? camera.fov : 105;
+    scarePos = new THREE.Vector3(player.x, EYE, player.z);
+    // rising dread before the strike
+    tone(70, 1.1, 'sawtooth', 0.12, 720);
+    noiseHit(0.6, 0.06, 420);
+    if(gv.distEl) gv.distEl.textContent = 'SIGNAL LOST';
+    // let go of the mouse so the cinematic is visible
+    if(document.exitPointerLock){ try{ document.exitPointerLock(); }catch(e){} }
+  }
+
+  function onEscaped(){
+    escaped = true; running = false;
+    gv.game.classList.remove('playing');
+    winChime();
+    gv.endTitle.textContent = 'ESCAPED';
+    gv.endText.textContent = 'You slipped out of Puzzlevision... for now. He is already writing season two.';
+    gv.end.classList.add('on');
+    if(document.exitPointerLock) { try{ document.exitPointerLock(); }catch(e){} }
+  }
+
+  /* ---------- loop ---------- */
+  function loop(now){
+    rafId = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
+    lastT = now;
+
+    if(running && !paused){
+      elapsed += dt;
+
+      // movement
+      const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+      const rx = Math.cos(yaw), rz = -Math.sin(yaw);
+      let mx = 0, mz = 0;
+      if(keys['w'] || keys['arrowup']){ mx += fx; mz += fz; }
+      if(keys['s'] || keys['arrowdown']){ mx -= fx; mz -= fz; }
+      if(keys['d'] || keys['arrowright']){ mx += rx; mz += rz; }
+      if(keys['a'] || keys['arrowleft']){ mx -= rx; mz -= rz; }
+      const len = Math.sqrt(mx * mx + mz * mz);
+      let moving = false;
+      if(len > 0.001){
+        moving = true;
+        const spd = player.spd * (keys['shift'] ? 1.65 : 1);
+        mx = mx / len * spd * dt;
+        mz = mz / len * spd * dt;
+        const nx = player.x + mx, nz = player.z + mz;
+        if(canStand(nx, player.z)) player.x = nx;
+        if(canStand(player.x, nz)) player.z = nz;
+        walkPhase += dt * (keys['shift'] ? 13 : 9);
+        // footsteps
+        if(elapsed - lastStep > (keys['shift'] ? 0.32 : 0.48)){ lastStep = elapsed; footstep(); }
+      }
+
+      // ---- bodycam: handheld sway + breathing (procedural, layered sines) ----
+      const bob = Math.sin(walkPhase) * (moving ? 0.045 : 0.012);
+      const swayAmp = moving ? 1.0 : 0.42;
+      const swx = (Math.sin(elapsed * 1.9) * 0.0034 + Math.sin(elapsed * 0.61 + 1.3) * 0.0021) * swayAmp;
+      const swy = (Math.cos(elapsed * 1.5) * 0.0026 + Math.sin(elapsed * 0.47 + 2.4) * 0.0017) * swayAmp;
+      const breath = Math.sin(elapsed * 2.2) * 0.004 * (1 - danger * 0.5);
+      camera.position.set(player.x, EYE + bob + breath, player.z);
+      camera.rotation.y = yaw + swx;
+      camera.rotation.x = pitch + swy;
+      camera.rotation.z = swx * 0.9;
+
+      // motion-blur vector from actual look deltas this frame
+      const dYaw = yaw - prevYaw, dPitch = pitch - prevPitch;
+      prevYaw = yaw; prevPitch = pitch;
+      motionVec.x = Math.max(-0.02, Math.min(0.02, dYaw * 0.10 + (moving ? Math.sin(walkPhase) * 0.0009 : 0)));
+      motionVec.y = Math.max(-0.02, Math.min(0.02, -dPitch * 0.10 + (moving ? Math.cos(walkPhase) * 0.0006 : 0)));
+
+      updateHunter(dt);
+
+      // heartbeat driven by proximity
+      hbTimer -= dt;
+      if(hbTimer <= 0){
+        const rate = 1.25 - danger * 0.75;
+        hbTimer = Math.max(0.35, rate);
+        if(danger > 0.15) heartbeat(0.5 + danger * 0.9);
+      }
+
+      // exit check
+      if(!escaped){
+        const ex = gwv(exitCell[0]), ez = gwv(exitCell[1]);
+        const dd = Math.sqrt((player.x - ex) ** 2 + (player.z - ez) ** 2);
+        if(dd < 1.5) onEscaped();
+      }
+
+      // HUD
+      const mm = Math.floor(elapsed / 60), ss = Math.floor(elapsed % 60);
+      gv.clockEl.textContent = '00:' + (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss;
+      gv.distEl.textContent = 'SIGNAL ' + (hunterDist < 6 ? 'DANGER' : hunterDist < 14 ? 'WEAK' : '--');
+      if(gv.modeEl) gv.modeEl.textContent = danger > 0.5 ? 'NIGHT VISION ON' : 'NIGHT VISION OFF';
+    }
+
+    // ---- jumpscare: LOCKED CAMERA. He comes to you; the camera never translates. ----
+    if(scarePhase){
+      scareT += dt;
+      scareTrauma = Math.max(0, scareTrauma - dt * 1.4);
+      const ease = function(t){ return t * t * (3 - 2 * t); };
+      const shk = scareTrauma * scareTrauma;
+      const shx = Math.sin(scareT * 11.3) + 0.6 * Math.sin(scareT * 27.1 + 1.7);
+      const shy = Math.sin(scareT * 13.7 + 0.6) + 0.6 * Math.sin(scareT * 29.7 + 2.9);
+      const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+      const desired = new THREE.Vector3(player.x, EYE + 0.22, player.z).addScaledVector(fwd, 1.0);
+
+      // camera is bolted to where you were caught - it cannot fall, sink or clip. Ever.
+      camera.position.set(player.x, EYE, player.z);
+
+      const screen = new THREE.Vector3();
+      hunter.updateMatrixWorld(true);
+      hunter.localToWorld(screen.set(0, 2.3, 0.26));
+
+      function harness(){
+        if(!bodyParts.armL) return;
+        const kd = Math.min(1, dt * 4);
+        bodyParts.armL.rotation.x += (-0.5 - bodyParts.armL.rotation.x) * kd;
+        bodyParts.armR.rotation.x += (-0.5 - bodyParts.armR.rotation.x) * kd;
+        bodyParts.armL.rotation.z += (-0.95 - bodyParts.armL.rotation.z) * kd;
+        bodyParts.armR.rotation.z += (0.95 - bodyParts.armR.rotation.z) * kd;
+        bodyParts.elbowL.rotation.x += (-0.42 - bodyParts.elbowL.rotation.x) * kd;
+        bodyParts.elbowR.rotation.x += (-0.42 - bodyParts.elbowR.rotation.x) * kd;
+        bodyParts.kneeL.rotation.x += (0.06 - bodyParts.kneeL.rotation.x) * kd;
+        bodyParts.kneeR.rotation.x += (0.06 - bodyParts.kneeR.rotation.x) * kd;
+        bodyParts.wristL.rotation.x += (0 - bodyParts.wristL.rotation.x) * kd;
+        bodyParts.wristR.rotation.x += (0 - bodyParts.wristR.rotation.x) * kd;
+      }
+
+      if(scarePhase === 'stalk'){
+        // ~0.85s of dread: he rears up, spreads his arms, locks onto you
+        const e = ease(Math.min(1, scareT / 0.85));
+        hunter.rotation.y = Math.atan2(player.x - hunter.position.x, player.z - hunter.position.z);
+        hunter.scale.setScalar(1 + e * 0.10);
+        hunterCore.position.y += (0 - hunterCore.position.y) * Math.min(1, dt * 5);
+        hunterCore.rotation.x += (0.14 - hunterCore.rotation.x) * Math.min(1, dt * 4);
+        harness();
+        if(bodyParts.head) bodyParts.head.rotation.x += (0.12 - bodyParts.head.rotation.x) * Math.min(1, dt * 3);
+        hunterLight.intensity = 1.1 + Math.sin(scareT * 20) * 0.7;
+        scareTrauma = Math.max(scareTrauma, 0.25 * e);
+        camera.lookAt(screen);
+        camera.rotation.z = shx * 0.005 * shk;
+        camera.fov = 105 - e * 3;
+        camera.updateProjectionMatrix();
+        if(scareT > 0.86){
+          scarePhase = 'strike';
+          scareT = 0;
+          scare();
+        }
+      } else if(scarePhase === 'strike'){
+        // he lunges until his glass sits right in front of your eyes
+        const e = 1 - Math.pow(1 - Math.min(1, scareT / 0.45), 3);
+        hunter.rotation.y = Math.atan2(player.x - hunter.position.x, player.z - hunter.position.z);
+        const pull = Math.min(1, dt * 10);
+        hunter.position.x += (desired.x - screen.x) * pull;
+        hunter.position.y += (desired.y - screen.y) * pull;
+        hunter.position.z += (desired.z - screen.z) * pull;
+        hunter.scale.setScalar(Math.min(1.5, hunter.scale.x + (1.5 - hunter.scale.x) * Math.min(1, dt * 7)));
+        harness();
+        scareTrauma = 1;
+        camera.lookAt(screen);
+        camera.rotation.z = shx * 0.009 * shk;
+        camera.fov = 102 - e * 14;
+        camera.updateProjectionMatrix();
+        if(scareT > 0.46){ scarePhase = 'zoom'; scareT = 0; }
+      } else if(scarePhase === 'zoom'){
+        // PURE lens zoom into the glass - being pulled in, with zero camera motion
+        const e = ease(Math.min(1, scareT / 0.75));
+        const pull = Math.min(1, dt * 10);
+        hunter.position.x += (desired.x - screen.x) * pull;
+        hunter.position.y += (desired.y - screen.y) * pull;
+        hunter.position.z += (desired.z - screen.z) * pull;
+        hunter.scale.setScalar(Math.min(1.62, hunter.scale.x + (1.62 - hunter.scale.x) * Math.min(1, dt * 5)));
+        if(bodyParts.armL){
+          bodyParts.armL.rotation.z += (-1.15 - bodyParts.armL.rotation.z) * Math.min(1, dt * 6);
+          bodyParts.armR.rotation.z += (1.15 - bodyParts.armR.rotation.z) * Math.min(1, dt * 6);
+        }
+        scareTrauma = Math.max(scareTrauma, 0.55 * (1 - e));
+        camera.lookAt(screen);
+        camera.rotation.z = shx * 0.007 * shk * (1 - e);
+        camera.fov = 88 - e * 50;   // 88 -> 38: the screen swallows the frame
+        camera.updateProjectionMatrix();
+        if(e > 0.42 && !gv.flash.classList.contains('on')) gv.flash.classList.add('on');
+        if(scareT > 0.78){ scarePhase = 'hold'; scareT = 0; }
+      } else if(scarePhase === 'hold'){
+        if(scareT > 0.4){
+          scarePhase = null;
+          camera.rotation.z = 0;
+          showTVDimension();
+        }
+      }
+    }
+
+    // ---- bodycam uniforms ----
+    const dngr = Math.max(danger, scarePhase ? 1 : 0);
+    if(postMat && camera){
+      const U = postMat.uniforms;
+      U.uTime.value = elapsed + scareT;
+      U.uVhs.value = 1.0;
+      U.uDanger.value = dngr;
+      U.uMotion.value.set(motionVec.x, motionVec.y);
+      U.uFocus.value = 5.5 + Math.sin(elapsed * 0.4) * 1.2;
+      U.uCompress.value = 0.28 + dngr * 0.45;
+      U.uNear.value = camera.near;
+      U.uFar.value = camera.far;
+
+      // ---- censorship pixelation over his screen ----
+      let faceR = 0;
+      const fp = { x: 0.5, y: 0.5 };
+      if(hunter && !escaped){
+        const w = new THREE.Vector3();
+        hunter.localToWorld(w.set(0, 2.3, 0.26));
+        const dist = w.distanceTo(camera.position);
+        if(dist < 11){
+          const p = w.clone().project(camera);
+          if(p.z < 1 && p.z > -1){
+            fp.x = p.x * 0.5 + 0.5;
+            fp.y = p.y * 0.5 + 0.5;
+            if(fp.x > -0.2 && fp.x < 1.2 && fp.y > -0.2 && fp.y < 1.2){
+              faceR = Math.max(0, Math.min(0.42, 1.35 / Math.max(dist, 0.8) - 0.045));
+            }
+          }
+        }
+      }
+      U.uFaceR.value = faceR;
+      U.uFacePos.value.set(fp.x, fp.y);
+
+      // ---- lens flare off the exit light ----
+      let flareAmt = 0, fx = 0.5, fy = 0.5;
+      if(exitLight){
+        const lp = new THREE.Vector3().copy(exitLight.position).project(camera);
+        if(lp.z < 1){
+          const sx = lp.x * 0.5 + 0.5, sy = lp.y * 0.5 + 0.5;
+          if(sx > -0.1 && sx < 1.1 && sy > -0.1 && sy < 1.1){
+            const d = exitLight.position.distanceTo(camera.position);
+            const off = Math.max(0, 1 - Math.max(0, Math.abs(sx - 0.5) * 2)) *
+                        Math.max(0, 1 - Math.max(0, Math.abs(sy - 0.5) * 2));
+            flareAmt = off * Math.max(0, Math.min(1, 9 / Math.max(d, 1)));
+            fx = sx; fy = sy;
+          }
+        }
+      }
+      U.uFlareAmt.value = flareAmt;
+      U.uFlarePos.value.set(fx, fy);
+
+      // ---- auto exposure / eye adaptation ----
+      if(expMat && rtExp && expNext){
+        expMat.uniforms.tScene.value = rt.texture;
+        expMat.uniforms.tPrev.value = rtExp.texture;
+        expMat.uniforms.uDt.value = Math.max(0.001, dt);
+        expMat.uniforms.uDanger.value = dngr;
+        renderer.setRenderTarget(expNext);
+        renderer.render(expScene, expCam);
+        renderer.setRenderTarget(null);
+        const tmp = rtExp; rtExp = expNext; expNext = tmp;
+        U.tExposure.value = rtExp.texture;
+      }
+    }
+
+    // render
+    if(renderer && scene && camera){
+      const dpr = renderer.getPixelRatio();
+      const pw = Math.max(2, Math.floor(window.innerWidth * dpr));
+      const ph = Math.max(2, Math.floor(window.innerHeight * dpr));
+      if(rt.width !== pw || rt.height !== ph){
+        rt.setSize(pw, ph);
+        if(rt.depthTexture){ rt.depthTexture.image.width = pw; rt.depthTexture.image.height = ph; }
+        if(postMat) postMat.uniforms.uRes.value.set(pw, ph);
+      }
+      renderer.setRenderTarget(rt);
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      renderer.render(postScene, postCam);
+    }
+  }
+
+  attachUI();
+})();
+
+/* ================= ADWARE / SITE CORRUPTION ================= */
+(function(){
+  const ad = document.getElementById('adware');
+  const layer = document.getElementById('corruptLayer');
+  if(!ad || !layer) return;
+
+  function tvMascotSVG(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" aria-hidden="true">'+
+      '<g transform="rotate(-6 160 150)">'+
+        '<line x1="150" y1="64" x2="52" y2="6" stroke="#1b1b1b" stroke-width="5" stroke-linecap="round"/>'+
+        '<line x1="172" y1="64" x2="276" y2="10" stroke="#1b1b1b" stroke-width="5" stroke-linecap="round"/>'+
+        '<circle cx="52" cy="6" r="5" fill="#1b1b1b"/><circle cx="276" cy="10" r="5" fill="#1b1b1b"/>'+
+        '<rect x="34" y="58" width="252" height="176" rx="22" fill="#2c2c2c" stroke="#0d0d0d" stroke-width="7"/>'+
+        '<rect x="236" y="68" width="42" height="156" rx="9" fill="#3b3b3b" stroke="#111" stroke-width="3"/>'+
+        '<circle cx="257" cy="104" r="13" fill="#4c4c4c" stroke="#111" stroke-width="3"/>'+
+        '<line x1="257" y1="104" x2="265" y2="96" stroke="#111" stroke-width="3" stroke-linecap="round"/>'+
+        '<circle cx="257" cy="144" r="13" fill="#4c4c4c" stroke="#111" stroke-width="3"/>'+
+        '<line x1="257" y1="144" x2="249" y2="136" stroke="#111" stroke-width="3" stroke-linecap="round"/>'+
+        '<rect x="52" y="72" width="176" height="148" rx="16" fill="#141414" stroke="#090909" stroke-width="5"/>'+
+        '<circle cx="112" cy="116" r="27" fill="#ffffff"/>'+
+        '<circle cx="123" cy="121" r="13" fill="#111111"/><circle cx="118" cy="115" r="4" fill="#ffffff"/>'+
+        '<circle cx="178" cy="114" r="23" fill="#ffffff"/>'+
+        '<circle cx="186" cy="119" r="11" fill="#111111"/><circle cx="181" cy="113" r="3.5" fill="#ffffff"/>'+
+        '<defs><clipPath id="grinClip"><path d="M94 150 Q140 178 196 148 Q150 226 94 150 Z"/></clipPath></defs>'+
+        '<path d="M94 150 Q140 178 196 148 Q150 226 94 150 Z" fill="#ffffff" stroke="#0a0a0a" stroke-width="5" stroke-linejoin="round"/>'+
+        '<g clip-path="url(#grinClip)" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round">'+
+          '<path d="M106 140 L106 220 M118 140 L118 220 M130 140 L130 220 M142 140 L142 220 M154 140 L154 220 M166 140 L166 220 M178 140 L178 220 M190 140 L190 220"/>'+
+        '</g>'+
+      '</g>'+
+      '<rect x="58" y="238" width="204" height="16" rx="6" fill="#262626" stroke="#0d0d0d" stroke-width="4"/>'+
+    '</svg>';
+  }
+
+  function realisticEyeSVG(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" aria-hidden="true">'+
+      '<ellipse cx="100" cy="60" rx="96" ry="54" fill="#2a0808" opacity=".5"/>'+
+      '<ellipse cx="100" cy="60" rx="88" ry="46" fill="#efe6d6"/>'+
+      '<g stroke="#a00000" stroke-width="1.6" fill="none" opacity=".8">'+
+        '<path d="M18 50 Q48 60 66 62 M20 70 Q50 66 66 64 M182 50 Q152 60 134 62 M180 70 Q150 66 134 64"/>'+
+      '</g>'+
+      '<g class="gaze">'+
+        '<circle cx="100" cy="60" r="31" fill="#5c0a0a"/>'+
+        '<circle cx="100" cy="60" r="31" fill="none" stroke="#2a0000" stroke-width="3"/>'+
+        '<circle cx="100" cy="60" r="13" fill="#000000"/>'+
+        '<ellipse cx="87" cy="45" rx="8" ry="6" fill="#ffffff" opacity=".85"/>'+
+      '</g>'+
+      '<path d="M4 60 Q100 -14 196 60" stroke="#170707" stroke-width="8" fill="none"/>'+
+      '<path d="M4 60 Q100 134 196 60" stroke="#170707" stroke-width="8" fill="none"/>'+
+    '</svg>';
+  }
+
+  document.getElementById('adMascot').innerHTML = tvMascotSVG();
+
+  let secs = 599, stock = 3;
+  const timerEl = document.getElementById('adTimer');
+  const stockEl = document.getElementById('adStock');
+  const tick = setInterval(function(){
+    secs = secs <= 0 ? 599 : secs - 1;
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    timerEl.textContent = m + ':' + s;
+    if(Math.random() < 0.05 && stock > 1){ stock--; stockEl.textContent = stock; }
+  }, 1000);
+
+  document.getElementById('adClose').addEventListener('click', function(){
+    clearInterval(tick);
+    ad.classList.add('gone');
+    setTimeout(function(){ ad.remove(); }, 380);
+  });
+
+  document.getElementById('adBuy').addEventListener('click', function(){
+    clearInterval(tick);
+    ad.classList.add('gone');
+    setTimeout(function(){ ad.remove(); }, 380);
+    corruptSite();
+  });
+
+  const eyes = [];
+
+  function corruptSite(){
+    if(document.body.classList.contains('corrupted')) return;
+    document.body.classList.add('corrupted');
+    layer.classList.add('on');
+
+    // crimson goo
+    for(let i = 0; i < 16; i++){
+      const b = document.createElement('div');
+      b.className = 'goo-blob';
+      const size = 60 + Math.random() * 190;
+      b.style.width = size + 'px';
+      b.style.height = (size * (0.6 + Math.random() * 0.7)) + 'px';
+      b.style.left = (Math.random() * 100) + '%';
+      b.style.top = (Math.random() * 100) + '%';
+      b.style.opacity = (0.55 + Math.random() * 0.45).toFixed(2);
+      b.style.animationDelay = (-Math.random() * 6) + 's';
+      b.style.animationDuration = (5 + Math.random() * 5) + 's';
+      layer.appendChild(b);
+    }
+    // drips from the top of the screen
+    for(let i = 0; i < 12; i++){
+      const d = document.createElement('div');
+      d.className = 'goo-drip';
+      d.style.width = (10 + Math.random() * 26) + 'px';
+      d.style.height = (60 + Math.random() * 240) + 'px';
+      d.style.left = (Math.random() * 100) + '%';
+      d.style.animationDelay = (-Math.random() * 5) + 's';
+      d.style.animationDuration = (4 + Math.random() * 4) + 's';
+      layer.appendChild(d);
+    }
+
+    // realistic eyes that follow the cursor
+    for(let i = 0; i < 12; i++){
+      const eye = document.createElement('div');
+      eye.className = 'ceye';
+      eye.style.width = (90 + Math.random() * 130) + 'px';
+      eye.style.left = (Math.random() * 86) + 'vw';
+      eye.style.top = (Math.random() * 80) + 'vh';
+      eye.style.animationDelay = (-Math.random() * 6) + 's';
+      const blink = document.createElement('div');
+      blink.className = 'ceye-blink';
+      blink.innerHTML = realisticEyeSVG();
+      const svg = blink.querySelector('svg');
+      if(svg) svg.style.transform = 'rotate(' + ((Math.random() * 40) - 20).toFixed(1) + 'deg)';
+      eye.appendChild(blink);
+      layer.appendChild(eye);
+      eyes.push({ el: eye, gaze: blink.querySelector('.gaze') });
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'corrupt-toast';
+    toast.textContent = 'THANK YOU FOR YOUR PURCHASE. IT IS ALREADY INSIDE YOUR HOUSE.';
+    document.body.appendChild(toast);
+    setTimeout(function(){ toast.remove(); }, 6200);
+
+    document.addEventListener('mousemove', trackEyes);
+    trackEyes({ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
+  }
+
+  function trackEyes(e){
+    for(let i = 0; i < eyes.length; i++){
+      const o = eyes[i];
+      if(!o.gaze) continue;
+      const r = o.el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const ang = Math.atan2(dy, dx);
+      const mag = Math.min(1, Math.sqrt(dx * dx + dy * dy) / 420) * 13;
+      o.gaze.setAttribute('transform',
+        'translate(' + (Math.cos(ang) * mag).toFixed(2) + ',' + (Math.sin(ang) * mag).toFixed(2) + ')');
+    }
+  }
+})();
+
+setFace('happy');
+updateMood();
+</script>
+</body>
+</html>
+
