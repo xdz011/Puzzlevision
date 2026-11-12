@@ -31,8 +31,21 @@ No build step, no server, no internet required — everything is local.
   heartbroken crying face and unlocks the easiest maze.
 - Undertale-style typewriter speech with per-character voice blips; click the bubble to skip.
 
-### The maze (3D)
-- Procedurally generated maze, first-person, pointer-lock mouse look.
+### The maze — THE STUDIO (3D)
+You wake in a television studio with no crew, no audience, and no wrap.
+
+- **Rolling Studio Floors** — polished concrete, expansion joints, gaffer-tape X's
+  marking seats for guests who will never arrive.
+- **Chroma-key green walls** bleed that saturated, wrong green into your periphery;
+  the rest is off-white studio panel with scuffed skirting.
+- **The lighting grid** overhead is black iron, hung with fluorescent panels that hum
+  in rows that never end.
+- **Set dressing:** camera pedestals and jibs frozen mid-gesture with red tally lights
+  *always recording*, boom mics dangling like hanged things, green-room chairs with
+  lavalier mics clipped to nobody, and monitors cycling colour bars and dead air.
+- **The walls breathe.** Over the course of a run, flesh creeps up from the floor —
+  a slow red growth you never see move, only the result.
+- Procedurally generated, first-person, pointer-lock mouse look.
 - Mr. Puzzles is a **low-poly (~700 triangle) character** with articulated hips, knees,
   shoulders, elbows and wrists — flat-shaded faceting, show-accurate outfit
   (TV head, bowler hat, kinked antenna, bow tie, waistcoat, suspenders, puzzle pants,
@@ -101,7 +114,7 @@ on the rating screen.
 
 ## Build
 
-Current build string is shown in the footer of the page: **`BUILD v4.0`**.
+Current build string is shown in the footer of the page: **`BUILD v4.1`**.
 
 If the footer shows an older version after an update, close every tab of the site and
 re-open the file with `Ctrl + F5` — browsers cache `file://` pages aggressively.

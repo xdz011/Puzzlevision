@@ -507,7 +507,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.0 &bull; polys + bodycam</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.1 &bull; the studio</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -1451,7 +1451,7 @@ let chaseMood = 'insane';
       'uniform vec2 uRes; uniform float uTime; uniform float uVhs; uniform float uDanger;',
       'uniform float uNear; uniform float uFar; uniform float uDof; uniform float uFocus;',
       'uniform float uCompress; uniform float uFaceR; uniform vec2 uFacePos;',
-      'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion;',
+      'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion; uniform float uFlesh;',
       'varying vec2 vUv;',
       'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
       'float luma(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }',
@@ -1535,7 +1535,7 @@ let chaseMood = 'insane';
       // ---- film grain ----
       '  float g = hash(uv * uRes + uTime * 91.0);',
       '  col += (g - 0.5) * 0.085;',
-      // ---- vignette ----
+      // ---- the walls breathe: flesh creeping up from the floor ----\n      if(uFlesh > 0.001){\n        float wob = 0.035 * sin(vUv.x * 19.0 + uTime * 0.6) + 0.02 * sin(vUv.x * 47.0 - uTime * 1.1);\n        float level = uFlesh * 1.14 - 0.14 + wob;\n        float cover = 1.0 - smoothstep(level - 0.05, level + 0.03, vUv.y);\n        float blot = smoothstep(0.30, 0.80, hash(floor(vUv * 46.0)));\n        float veins = smoothstep(0.86, 1.0, hash(floor(vUv * 92.0) + floor(uTime * 0.2)));\n        float fm = clamp(cover * (blot * 0.55 + veins * 0.55), 0.0, 0.85);\n        col = mix(col, vec3(0.34, 0.045, 0.055) + col * 0.22, fm);\n      }\n\n      // ---- vignette ----
       '  float vig = smoothstep(1.18, 0.30, length(c) * 1.30);',
       '  col *= vig;',
       // ---- grade ----
@@ -1564,7 +1564,8 @@ let chaseMood = 'insane';
         uFacePos: { value: new THREE.Vector2(0.5, 0.5) },
         uFlarePos: { value: new THREE.Vector2(0.5, 0.5) },
         uFlareAmt: { value: 0 },
-        uMotion: { value: new THREE.Vector2(0, 0) }
+        uMotion: { value: new THREE.Vector2(0, 0) },
+        uFlesh: { value: 0 }
       },
       vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
       fragmentShader: frag
@@ -1751,42 +1752,106 @@ let chaseMood = 'insane';
   }
   const PARK = ['#ffd400','#00e5ff','#7dff4f','#ff6ed1','#ff3d00','#3b9bff'];
 
-  function parkFloorTex(){
-    return makeCanvasTex(128, function(ctx, s){
-      const h = s / 2;
-      ctx.fillStyle = '#d8d2be'; ctx.fillRect(0, 0, s, s);
-      ctx.fillStyle = '#2a2334'; ctx.fillRect(0, 0, h, h); ctx.fillRect(h, h, h, h);
-      // little colored puzzle studs on the light squares
-      ctx.fillStyle = '#ffd400'; ctx.beginPath(); ctx.arc(h * 1.5, h * 0.5, h * 0.16, 0, 7); ctx.fill();
-      ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(h * 0.5, h * 1.5, h * 0.16, 0, 7); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 3;
-      ctx.strokeRect(0, 0, s, s);
+  /* ================= THE STUDIO - materials ================= */
+  // polished concrete: warm grey, expansion joints, scuffs, gaffer-tape X marks
+  function studioFloorTex(){
+    return makeCanvasTex(256, function(ctx, s){
+      ctx.fillStyle = '#6c6a66'; ctx.fillRect(0, 0, s, s);
+      // mottled polish
+      for(let i = 0; i < 260; i++){
+        const x = Math.random()*s, y = Math.random()*s, r = 1 + Math.random()*7;
+        ctx.fillStyle = 'rgba(' + (140 + Math.random()*50|0) + ',' + (138 + Math.random()*48|0) + ',' + (132 + Math.random()*46|0) + ',' + (0.05 + Math.random()*0.10).toFixed(2) + ')';
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+      }
+      // expansion joints
+      ctx.strokeStyle = 'rgba(30,30,28,.55)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, s/2); ctx.lineTo(s, s/2);
+      ctx.moveTo(s/2, 0); ctx.lineTo(s/2, s); ctx.stroke();
+      // gaffer tape X for a guest who will never sit
+      ctx.strokeStyle = 'rgba(24,24,24,.75)'; ctx.lineWidth = 9; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(s*0.30, s*0.30); ctx.lineTo(s*0.56, s*0.56);
+      ctx.moveTo(s*0.56, s*0.30); ctx.lineTo(s*0.30, s*0.56); ctx.stroke();
+      // faint cable run
+      ctx.strokeStyle = 'rgba(18,18,18,.35)'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(0, s*0.86); ctx.bezierCurveTo(s*0.3, s*0.80, s*0.6, s*0.93, s, s*0.84); ctx.stroke();
     }, Math.max(2, Math.round(W * 0.5)), Math.max(2, Math.round(H * 0.5)));
   }
 
-  function parkWallTex(){
+  // off-white studio wall: flat panels, scuffed skirting, occasional seam
+  function studioWallTex(){
     return makeCanvasTex(128, function(ctx, s){
-      ctx.fillStyle = '#efe9d8'; ctx.fillRect(0, 0, s, s);
-      const q = s / 2;
-      const cells = [
-        [0, 0, PARK[0], PARK[1]],
-        [q, 0, PARK[2], PARK[3]],
-        [0, q, PARK[4], PARK[5]],
-        [q, q, PARK[1], PARK[0]]
-      ];
-      cells.forEach(function(c){
-        const x = c[0], y = c[1];
-        ctx.fillStyle = c[2];
-        roundRect(ctx, x + 5, y + 5, q - 10, q - 10, 12);
-        ctx.fill();
-        // puzzle bump on each panel
-        ctx.beginPath();
-        ctx.arc(x + q * (c[0] ? 0.5 : 0.5), y + q * 0.5, q * 0.16, 0, 7);
-        ctx.fillStyle = c[3]; ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 3;
-        roundRect(ctx, x + 5, y + 5, q - 10, q - 10, 12); ctx.stroke();
-      });
-      ctx.strokeStyle = '#141018'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, s, s);
+      ctx.fillStyle = '#c9c6bc'; ctx.fillRect(0, 0, s, s);
+      const g = ctx.createLinearGradient(0, 0, 0, s);
+      g.addColorStop(0, 'rgba(255,255,255,.20)');
+      g.addColorStop(0.55, 'rgba(255,255,255,0)');
+      g.addColorStop(1, 'rgba(0,0,0,.22)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
+      // panel seams
+      ctx.strokeStyle = 'rgba(70,68,62,.35)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, s*0.5); ctx.lineTo(s, s*0.5); ctx.moveTo(s*0.5, 0); ctx.lineTo(s*0.5, s); ctx.stroke();
+      // scuffs at the base
+      for(let i = 0; i < 26; i++){
+        ctx.fillStyle = 'rgba(40,38,34,' + (0.05 + Math.random()*0.12).toFixed(2) + ')';
+        ctx.fillRect(Math.random()*s, s*0.82 + Math.random()*s*0.16, 2 + Math.random()*9, 1 + Math.random()*2);
+      }
+    }, 1, 1);
+  }
+
+  // chroma-key green: that saturated, wrong green
+  function chromaWallTex(){
+    return makeCanvasTex(128, function(ctx, s){
+      const g = ctx.createLinearGradient(0, 0, s, s);
+      g.addColorStop(0, '#12a83f');
+      g.addColorStop(0.5, '#0b8a30');
+      g.addColorStop(1, '#13b446');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
+      ctx.strokeStyle = 'rgba(0,60,20,.35)'; ctx.lineWidth = 2;
+      ctx.strokeRect(4, 4, s - 8, s - 8);
+      for(let i = 0; i < 30; i++){
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.02 + Math.random()*0.05).toFixed(3) + ')';
+        ctx.fillRect(Math.random()*s, Math.random()*s, 3, 3);
+      }
+    }, 1, 1);
+  }
+
+  // ceiling: black iron lighting grid with rows of fluorescent panels
+  function studioCeilTex(){
+    return makeCanvasTex(256, function(ctx, s){
+      ctx.fillStyle = '#0b0b0d'; ctx.fillRect(0, 0, s, s);
+      // iron grid
+      ctx.strokeStyle = '#22242a'; ctx.lineWidth = 5;
+      for(let i = 0; i <= 4; i++){
+        const q = i * (s/4);
+        ctx.beginPath(); ctx.moveTo(q, 0); ctx.lineTo(q, s); ctx.moveTo(0, q); ctx.lineTo(s, q); ctx.stroke();
+      }
+      // fluorescent panels
+      const panel = function(x, y, w, h, on){
+        ctx.fillStyle = on ? '#f4f6ef' : '#2a2c30';
+        ctx.fillRect(x, y, w, h);
+        if(on){
+          ctx.fillStyle = 'rgba(220,240,255,.35)';
+          ctx.fillRect(x + 3, y + 3, w - 6, h - 6);
+        }
+        ctx.strokeStyle = '#101114'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+      };
+      panel(s*0.10, s*0.14, s*0.30, s*0.10, true);
+      panel(s*0.58, s*0.14, s*0.30, s*0.10, Math.random() > 0.25);
+      panel(s*0.10, s*0.62, s*0.30, s*0.10, Math.random() > 0.3);
+      panel(s*0.58, s*0.62, s*0.30, s*0.10, true);
+    }, Math.max(2, Math.round(W * 0.5)), Math.max(2, Math.round(H * 0.5)));
+  }
+
+  // dark monitor face: colour bars / dead air
+  function monitorTex(){
+    return makeCanvasTex(64, function(ctx, s){
+      const cols = ['#c8c8c8','#c8c800','#00c8c8','#00c800','#c800c8','#c80000','#0000c8'];
+      for(let i = 0; i < 7; i++){
+        ctx.fillStyle = cols[i];
+        ctx.fillRect(i * (s/7), s*0.20, s/7 + 1, s*0.55);
+      }
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, s, s*0.20); ctx.fillRect(0, s*0.75, s, s*0.25);
+      ctx.fillStyle = 'rgba(255,255,255,.08)';
+      for(let y = 0; y < s; y += 2) ctx.fillRect(0, y, s, 1);
     }, 1, 1);
   }
 
@@ -1881,8 +1946,8 @@ let chaseMood = 'insane';
   function buildLevel(){
     disposeWorld();
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0812);
-    scene.fog = new THREE.FogExp2(0x0e0a16, fogDensity);
+    scene.background = new THREE.Color(0x101215);
+    scene.fog = new THREE.FogExp2(0x141a1c, fogDensity);
 
     camera = new THREE.PerspectiveCamera(105, window.innerWidth / window.innerHeight, 0.05, 300);
     camera.rotation.order = 'YXZ';
@@ -1892,8 +1957,8 @@ let chaseMood = 'insane';
     scene.add(world);
 
     // ambient + flashlight (slightly brighter than before, still moody)
-    scene.add(new THREE.AmbientLight(0x35344a, 1.55));
-    const spot = new THREE.SpotLight(0xfff2dc, 3.1, 28, Math.PI / 5.0, 0.55, 1.25);
+    scene.add(new THREE.AmbientLight(0x5b6470, 2.05));
+    const spot = new THREE.SpotLight(0xeaf4ff, 2.6, 26, Math.PI / 5.0, 0.6, 1.2);
     spot.position.set(0, 0, 0);
     spot.target.position.set(0, 0, -1);
     camera.add(spot);
@@ -1901,37 +1966,161 @@ let chaseMood = 'insane';
     hunterLight = new THREE.PointLight(0xff2222, 0.0, 12, 2.0);
     world.add(hunterLight);
 
-    // ---- PUZZLE PARK build ----
+    // ================= THE STUDIO =================
     const floorGeo = new THREE.PlaneGeometry(W * CELL + 8, H * CELL + 8);
-    const fTex = parkFloorTex();
-    const floorMat = new THREE.MeshLambertMaterial(fTex ? { map: fTex } : { color: 0x2a2433 });
+
+    // polished concrete
+    const fTex = studioFloorTex();
+    const floorMat = new THREE.MeshLambertMaterial(fTex ? { map: fTex } : { color: 0x6c6a66 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     world.add(floor);
 
-    const ceil = new THREE.Mesh(floorGeo.clone(), new THREE.MeshLambertMaterial({ color: 0x14101f }));
+    // black iron lighting grid overhead, fluorescent panels glowing
+    const cTex = studioCeilTex();
+    const ceil = new THREE.Mesh(floorGeo.clone(), new THREE.MeshBasicMaterial(cTex ? { map: cTex } : { color: 0x15161a }));
     ceil.rotation.x = Math.PI / 2;
     ceil.position.y = WALL_H;
     world.add(ceil);
 
-    // walls (instanced) - colorful puzzle panels
-    let count = 0;
-    for(let y = 0; y < H; y++) for(let x = 0; x < W; x++) if(grid[y][x] === 1) count++;
+    // walls: white studio panels, some chroma-key green, some hide a monitor wall
     const wallGeo = new THREE.BoxGeometry(CELL, WALL_H, CELL);
-    const wTex = parkWallTex();
-    const wallMat = new THREE.MeshLambertMaterial(wTex ? { map: wTex, emissive: 0x141020 } : { color: 0x2a2433 });
-    const inst = new THREE.InstancedMesh(wallGeo, wallMat, count);
-    const m4 = new THREE.Matrix4();
-    let i = 0;
+    const wTex = studioWallTex();
+    const gTex = chromaWallTex();
+    const wallMat = new THREE.MeshLambertMaterial(wTex ? { map: wTex } : { color: 0xc9c6bc });
+    const chromaMat = new THREE.MeshLambertMaterial(gTex ? { map: gTex, emissive: 0x06340f } : { color: 0x0b8a30 });
+
+    const whiteCells = [], greenCells = [];
     for(let y = 0; y < H; y++){
       for(let x = 0; x < W; x++){
         if(grid[y][x] !== 1) continue;
-        m4.makeTranslation(gwv(x), WALL_H / 2, gwv(y));
-        inst.setMatrixAt(i++, m4);
+        // ~1 in 6 is a chroma wall; interior walls only so the outer shell stays white
+        const interior = (x > 0 && y > 0 && x < W - 1 && y < H - 1);
+        if(interior && Math.random() < 0.17) greenCells.push([x, y]);
+        else whiteCells.push([x, y]);
       }
     }
-    inst.instanceMatrix.needsUpdate = true;
-    world.add(inst);
+    const m4 = new THREE.Matrix4();
+    const addWallBatch = function(cells, mat){
+      if(!cells.length) return;
+      const im = new THREE.InstancedMesh(wallGeo, mat, cells.length);
+      cells.forEach(function(c, idx){
+        m4.makeTranslation(gwv(c[0]), WALL_H / 2, gwv(c[1]));
+        im.setMatrixAt(idx, m4);
+      });
+      im.instanceMatrix.needsUpdate = true;
+      world.add(im);
+    };
+    addWallBatch(whiteCells, wallMat);
+    addWallBatch(greenCells, chromaMat);
+
+    // ---------- set dressing ----------
+    const props = new THREE.Group();
+    world.add(props);
+    const openCells = [];
+    for(let y = 1; y < H - 1; y++)
+      for(let x = 1; x < W - 1; x++)
+        if(grid[y][x] === 0) openCells.push([x, y]);
+    const pick = function(){
+      if(!openCells.length) return [1, 1];
+      return openCells[(Math.random() * openCells.length) | 0];
+    };
+    const RED = new THREE.MeshBasicMaterial({ color: 0xff1a1a });
+    const IRON = new THREE.MeshLambertMaterial({ color: 0x1a1b1f, flatShading: true });
+    const STEEL = new THREE.MeshLambertMaterial({ color: 0x8b8f96, flatShading: true });
+    const DARK = new THREE.MeshLambertMaterial({ color: 0x14151a, flatShading: true });
+
+    // tally lights - always recording, bolted to scattered walls
+    (function(){
+      const n = Math.min(26, Math.floor(openCells.length / 6));
+      for(let i = 0; i < n; i++){
+        const c = pick();
+        const t = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.12), RED);
+        t.position.set(gwv(c[0]) + (Math.random()-0.5)*2.6, 2.4 + Math.random()*0.5, gwv(c[1]) + (Math.random()-0.5)*2.6);
+        props.add(t);
+        const g = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.06), DARK);
+        g.position.copy(t.position);
+        props.add(g);
+      }
+    })();
+
+    // camera pedestals, lenses pointed at nothing
+    (function(){
+      const n = Math.min(7, Math.max(3, Math.floor(openCells.length / 26)));
+      for(let i = 0; i < n; i++){
+        const c = pick();
+        const g = new THREE.Group();
+        g.position.set(gwv(c[0]) + 0.9, 0, gwv(c[1]) - 0.9);
+        g.rotation.y = Math.random() * Math.PI * 2;
+        const legs = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5), IRON);
+        legs.position.y = 0.6; g.add(legs);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.6), DARK);
+        body.position.y = 1.32; g.add(body);
+        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.22, 6), STEEL);
+        lens.rotation.x = Math.PI/2; lens.position.set(0, 1.32, -0.38); g.add(lens);
+        const tally = new THREE.Mesh(new THREE.SphereGeometry(0.05, 5, 4), RED);
+        tally.position.set(0.14, 1.48, 0.2); g.add(tally);
+        props.add(g);
+      }
+    })();
+
+    // boom mic, dangling like a hanged thing
+    (function(){
+      for(let i = 0; i < 3; i++){
+        const c = pick();
+        const g = new THREE.Group();
+        g.position.set(gwv(c[0]), 0, gwv(c[1]));
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.5, 4), IRON);
+        pole.position.y = WALL_H - 0.75; g.add(pole);
+        const mic = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.42, 6), DARK);
+        mic.position.y = WALL_H - 1.62; g.add(mic);
+        g.rotation.z = (Math.random()-0.5) * 0.12;
+        props.add(g);
+      }
+    })();
+
+    // green-room chairs with lavalier mics clipped on, nobody sitting
+    (function(){
+      const n = Math.min(6, Math.max(2, Math.floor(openCells.length / 32)));
+      for(let i = 0; i < n; i++){
+        const c = pick();
+        const g = new THREE.Group();
+        g.position.set(gwv(c[0]) - 0.8, 0, gwv(c[1]) + 0.8);
+        g.rotation.y = Math.random() * Math.PI * 2;
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.5), DARK); seat.position.y = 0.46; g.add(seat);
+        const back = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.07), DARK); back.position.set(0, 0.74, 0.22); g.add(back);
+        for(let k = 0; k < 4; k++){
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.46, 4), IRON);
+          leg.position.set((k%2? 0.2:-0.2), 0.23, (k<2? 0.2:-0.2)); g.add(leg);
+        }
+        const lav = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.12), STEEL);
+        lav.position.set(0.12, 0.62, -0.1); g.add(lav);
+        props.add(g);
+      }
+    })();
+
+    // monitors showing colour bars and, sometimes, you
+    (function(){
+      const mt = monitorTex();
+      const mMat = new THREE.MeshBasicMaterial(mt ? { map: mt } : { color: 0x2a2c30 });
+      const n = Math.min(8, Math.max(3, Math.floor(openCells.length / 24)));
+      for(let i = 0; i < n; i++){
+        const c = pick();
+        const g = new THREE.Group();
+        g.position.set(gwv(c[0]) + 1.0, 0, gwv(c[1]) + 1.0);
+        g.rotation.y = Math.random() * Math.PI * 2;
+        const stand = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), IRON);
+        stand.position.y = 0.25; g.add(stand);
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.52, 0.06), DARK);
+        frame.position.y = 0.78; g.add(frame);
+        const face = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.42), mMat);
+        face.position.set(0, 0.78, 0.035); g.add(face);
+        props.add(g);
+      }
+    })();
+
+    // the walls breathe: creeping flesh, applied in post via uFlesh
+    if(postMat && postMat.uniforms.uFlesh) postMat.uniforms.uFlesh.value = 0;
 
     // exit portal
     const ex = gwv(exitCell[0]), ez = gwv(exitCell[1]);
@@ -2662,6 +2851,7 @@ let chaseMood = 'insane';
       U.uDanger.value = dngr;
       U.uMotion.value.set(motionVec.x, motionVec.y);
       U.uFocus.value = 5.5 + Math.sin(elapsed * 0.4) * 1.2;
+      U.uFlesh.value = Math.min(1, (elapsed + scareT) / 210);   // it grows. always slowly.
       U.uCompress.value = 0.28 + dngr * 0.45;
       U.uNear.value = camera.near;
       U.uFar.value = camera.far;
