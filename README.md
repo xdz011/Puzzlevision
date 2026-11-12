@@ -64,8 +64,9 @@ You wake in a television studio with no crew, no audience, and no wrap.
 ### Bodycam post-processing
 Fisheye barrel distortion · chromatic aberration · vignette · procedural handheld
 shake/breath · true 1×1 auto-exposure (eye adaptation) · motion blur · film grain ·
-procedural lens dirt & smudges · depth-of-field from a real depth texture ·
-censorship pixelation over his face · bloom + lens flare ghosts off the exit light ·
+procedural lens dirt & smudges · depth-of-field from a real depth texture with
+**autofocus that racks onto Mr. Puzzles** so he is always sharp ·
+bloom + lens flare ghosts off the exit light ·
 8×8 video-compression artifacts · HUD with REC, timecode, battery and signal.
 
 ### Adware (main page)

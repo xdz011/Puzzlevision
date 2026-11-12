@@ -507,7 +507,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.1 &bull; the studio</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.2 &bull; the studio, in focus</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -1450,7 +1450,7 @@ let chaseMood = 'insane';
       'uniform sampler2D tDiffuse; uniform sampler2D tDepth; uniform sampler2D tExposure;',
       'uniform vec2 uRes; uniform float uTime; uniform float uVhs; uniform float uDanger;',
       'uniform float uNear; uniform float uFar; uniform float uDof; uniform float uFocus;',
-      'uniform float uCompress; uniform float uFaceR; uniform vec2 uFacePos;',
+      'uniform float uCompress;',
       'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion; uniform float uFlesh;',
       'varying vec2 vUv;',
       'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
@@ -1466,18 +1466,12 @@ let chaseMood = 'insane';
       '  uv.x += (hash(vec2(floor(uv.y*180.0), floor(uTime*24.0))) - 0.5) * 0.0018 * uVhs;',
       '  float band = abs(fract(uv.y*0.7 - uTime*0.15) - 0.5);',
       '  uv.x += smoothstep(0.03, 0.0, band) * 0.0022 * uVhs;',
-      // ---- censorship mosaic over his face ----
-      '  if(uFaceR > 0.0001){',
-      '    float fd = length(vUv - uFacePos);',
-      '    if(fd < uFaceR){',
-      '      vec2 cell = vec2(uFaceR / 11.0);',
-      '      uv = uFacePos + (floor((uv - uFacePos) / cell) + 0.5) * cell;',
-      '    }',
-      '  }',
+
       // ---- depth of field ----
       '  float rawD = texture2D(tDepth, uv).x;',
       '  float dd = linDepth(rawD);',
-      '  float coc = clamp(abs(dd - uFocus) / max(uFocus, 0.6), 0.0, 1.0) * uDof;',
+      '  float cd = abs(dd - uFocus);',
+      '  float coc = smoothstep(0.55, 3.2, cd) * uDof;',
       // ---- DOF + motion blur + bloom taps ----
       '  vec3 acc = vec3(0.0);',
       '  for(int i = 0; i < 6; i++){',
@@ -1560,8 +1554,6 @@ let chaseMood = 'insane';
         uDof: { value: 0.55 },
         uFocus: { value: 6.0 },
         uCompress: { value: 0.35 },
-        uFaceR: { value: 0 },
-        uFacePos: { value: new THREE.Vector2(0.5, 0.5) },
         uFlarePos: { value: new THREE.Vector2(0.5, 0.5) },
         uFlareAmt: { value: 0 },
         uMotion: { value: new THREE.Vector2(0, 0) },
@@ -2647,6 +2639,7 @@ let chaseMood = 'insane';
     if(caught) return;
     caught = true;
     running = false;
+    motionVec.x = 0; motionVec.y = 0;   // no motion smear during the scare
     gv.game.classList.remove('playing');
     scarePhase = 'stalk';
     scareT = 0;
@@ -2850,32 +2843,26 @@ let chaseMood = 'insane';
       U.uVhs.value = 1.0;
       U.uDanger.value = dngr;
       U.uMotion.value.set(motionVec.x, motionVec.y);
-      U.uFocus.value = 5.5 + Math.sin(elapsed * 0.4) * 1.2;
       U.uFlesh.value = Math.min(1, (elapsed + scareT) / 210);   // it grows. always slowly.
       U.uCompress.value = 0.28 + dngr * 0.45;
       U.uNear.value = camera.near;
       U.uFar.value = camera.far;
 
-      // ---- censorship pixelation over his screen ----
-      let faceR = 0;
-      const fp = { x: 0.5, y: 0.5 };
+      // ---- autofocus: rack onto him the moment he is close, so he is ALWAYS sharp ----
+      let focus = 5.5 + Math.sin(elapsed * 0.4) * 1.2;
+      let subject = 0;
       if(hunter && !escaped){
         const w = new THREE.Vector3();
         hunter.localToWorld(w.set(0, 2.3, 0.26));
-        const dist = w.distanceTo(camera.position);
-        if(dist < 11){
-          const p = w.clone().project(camera);
-          if(p.z < 1 && p.z > -1){
-            fp.x = p.x * 0.5 + 0.5;
-            fp.y = p.y * 0.5 + 0.5;
-            if(fp.x > -0.2 && fp.x < 1.2 && fp.y > -0.2 && fp.y < 1.2){
-              faceR = Math.max(0, Math.min(0.42, 1.35 / Math.max(dist, 0.8) - 0.045));
-            }
-          }
+        const dz = w.distanceTo(camera.position);
+        if(dz < 16){
+          focus = Math.max(0.7, dz);
+          subject = 1;
         }
       }
-      U.uFaceR.value = faceR;
-      U.uFacePos.value.set(fp.x, fp.y);
+      U.uFocus.value = focus;
+      // weaker bokeh while he is the subject - we want to SEE him
+      U.uDof.value = depthOK ? (subject ? 0.28 : 0.5) : 0.0;
 
       // ---- lens flare off the exit light ----
       let flareAmt = 0, fx = 0.5, fy = 0.5;
