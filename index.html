@@ -507,7 +507,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.3 &bull; the studio floorplan</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.4 &bull; wide halls, wall exit, eyes</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -1511,21 +1511,27 @@ let chaseMood = 'insane';
       '  float coc = smoothstep(0.55, 3.2, cd) * uDof;',
       // ---- DOF + motion blur + bloom taps ----
       '  vec3 acc = vec3(0.0);',
-      '  for(int i = 0; i < 6; i++){',
-      '    float fi = float(i);',
-      '    float ang = fi * 2.39996;',
-      '    float rr = sqrt(fi / 6.0) * (0.0035 + coc * 0.020);',
-      '    vec2 off = vec2(cos(ang), sin(ang)) * rr + uMotion * (fi / 6.0 - 0.5) * 2.0;',
-      '    acc += texture2D(tDiffuse, uv + off).rgb;',
+      '  vec3 blurred;',
+      '  float mAmt = clamp(coc * 0.85 + length(uMotion) * 7.0, 0.0, 0.9);',
+      '  if(mAmt > 0.02){',
+      '    for(int i = 0; i < 6; i++){',
+      '      float fi = float(i);',
+      '      float ang = fi * 2.39996;',
+      '      float rr = sqrt(fi / 6.0) * (0.0035 + coc * 0.020);',
+      '      vec2 off = vec2(cos(ang), sin(ang)) * rr + uMotion * (fi / 6.0 - 0.5) * 2.0;',
+      '      acc += texture2D(tDiffuse, uv + off).rgb;',
+      '    }',
+      '    blurred = acc / 6.0;',
+      '  } else {',
+      '    blurred = texture2D(tDiffuse, uv).rgb;',
       '  }',
-      '  vec3 blurred = acc / 6.0;',
       // ---- chroma aberration on the sharp sample ----
       '  float ca = (0.0010 + 0.0022 * uVhs) * (1.0 + uDanger) + coc * 0.004;',
       '  vec3 sharp;',
       '  sharp.r = texture2D(tDiffuse, uv + vec2(ca, 0.0)).r;',
       '  sharp.g = texture2D(tDiffuse, uv).g;',
       '  sharp.b = texture2D(tDiffuse, uv - vec2(ca, 0.0)).b;',
-      '  float blurAmt = clamp(coc * 0.85 + length(uMotion) * 7.0, 0.0, 0.9);',
+      '  float blurAmt = mAmt;',
       '  vec3 col = mix(sharp, blurred, blurAmt);',
       // ---- bloom ----
       '  vec3 bloom = max(blurred - 0.60, 0.0);',
@@ -1566,7 +1572,27 @@ let chaseMood = 'insane';
       // ---- film grain ----
       '  float g = hash(uv * uRes + uTime * 91.0);',
       '  col += (g - 0.5) * 0.085;',
-      // ---- the walls breathe: flesh creeping up from the floor ----\n      if(uFlesh > 0.001){\n        float wob = 0.035 * sin(vUv.x * 19.0 + uTime * 0.6) + 0.02 * sin(vUv.x * 47.0 - uTime * 1.1);\n        float level = uFlesh * 1.14 - 0.14 + wob;\n        float cover = 1.0 - smoothstep(level - 0.05, level + 0.03, vUv.y);\n        float blot = smoothstep(0.30, 0.80, hash(floor(vUv * 46.0)));\n        float veins = smoothstep(0.86, 1.0, hash(floor(vUv * 92.0) + floor(uTime * 0.2)));\n        float fm = clamp(cover * (blot * 0.55 + veins * 0.55), 0.0, 0.85);\n        col = mix(col, vec3(0.34, 0.045, 0.055) + col * 0.22, fm);\n      }\n\n      // ---- vignette ----
+            '// ---- the walls breathe: flesh creeping up from the floor ----',
+      'if(uFlesh > 0.001){',
+      'float wob = 0.035 * sin(vUv.x * 19.0 + uTime * 0.6) + 0.02 * sin(vUv.x * 47.0 - uTime * 1.1);',
+      'float level = uFlesh * 1.14 - 0.14 + wob;',
+      'float cover = 1.0 - smoothstep(level - 0.05, level + 0.03, vUv.y);',
+      'float blot = smoothstep(0.30, 0.80, hash(floor(vUv * 46.0)));',
+      'float veins = smoothstep(0.86, 1.0, hash(floor(vUv * 92.0) + floor(uTime * 0.2)));',
+      'float fm = clamp(cover * (blot * 0.55 + veins * 0.55), 0.0, 0.85);',
+      'col = mix(col, vec3(0.34, 0.045, 0.055) + col * 0.22, fm);',
+      '      if(uFlesh > 0.30){',
+      '        float blink = step(0.05, fract(uTime * 0.29));',
+      '        vec2 ep = vec2(0.5 + uMotion.x * 6.0, 0.05 + uFlesh * 0.10);',
+      '        vec2 d2 = (vUv - ep) / vec2(0.15, 0.085);',
+      '        float eye = smoothstep(0.30, 0.95, max(0.0, 1.0 - dot(d2, d2)));',
+      '        eye *= blink * uFlesh;',
+      '        col = mix(col, vec3(0.015, 0.005, 0.01), eye * 0.92);',
+      '        col += vec3(0.92, 0.86, 0.72) * eye * 0.22;',
+      '      }',
+      '      }',
+
+      // ---- vignette ----
       '  float vig = smoothstep(1.18, 0.30, length(c) * 1.30);',
       '  col *= vig;',
       // ---- grade ----
@@ -2163,13 +2189,13 @@ let chaseMood = 'insane';
       }
 
       if(r.type === 'cyclo'){
-        // seamless white infinity, shadowless and maddening
-        const rad = b.w * 0.42;
+        // seamless white infinity: a curve springing from one corner of the room
+        const rad = Math.min(b.w, b.d) * 0.82;
         const cyclo = new THREE.Mesh(
-          new THREE.CylinderGeometry(rad, rad, WALL_H, 16, 1, true, Math.PI, Math.PI),
-          new THREE.MeshLambertMaterial({ color: 0xfafaf7, side: THREE.BackSide })
+          new THREE.CylinderGeometry(rad, rad, WALL_H, 18, 1, true, 0, Math.PI / 2),
+          new THREE.MeshLambertMaterial({ color: 0xfafaf7, side: THREE.DoubleSide })
         );
-        cyclo.position.set(cx, WALL_H / 2, cz);
+        cyclo.position.set(b.x1, WALL_H / 2, b.z1);
         props.add(cyclo);
         const whiteFloor = new THREE.Mesh(
           new THREE.PlaneGeometry(b.w * 0.94, b.d * 0.94),
@@ -2178,6 +2204,13 @@ let chaseMood = 'insane';
         whiteFloor.rotation.x = -Math.PI / 2;
         whiteFloor.position.set(cx, 0.014, cz);
         props.add(whiteFloor);
+        const whiteCeil = new THREE.Mesh(
+          new THREE.PlaneGeometry(b.w * 0.94, b.d * 0.94),
+          new THREE.MeshLambertMaterial({ color: 0xf6f6f2 })
+        );
+        whiteCeil.rotation.x = Math.PI / 2;
+        whiteCeil.position.set(cx, WALL_H - 0.02, cz);
+        props.add(whiteCeil);
       }
 
       if(r.type === 'control'){
@@ -2265,17 +2298,62 @@ let chaseMood = 'insane';
     // the walls breathe: creeping flesh, applied in post via uFlesh
     if(postMat && postMat.uniforms.uFlesh) postMat.uniforms.uFlesh.value = 0;
 
-    // exit portal
-    const ex = gwv(exitCell[0]), ez = gwv(exitCell[1]);
+    // exit: a lit doorway bolted onto a wall of the far room
+    const er = studioRooms[studioRooms.length - 1];
+    const eb = rw(er);
+    // pick the wall facing away from the building centre so it reads as a way out
+    let side = Math.abs(eb.cx) > Math.abs(eb.cz) ? 'x' : 'z';
+    const outX = eb.cx > 0, outZ = eb.cz > 0;
+    const portal = new THREE.Vector3();
+    let ry = 0;
+    if(side === 'x'){
+      portal.x = outX ? eb.x2 - 0.08 : eb.x1 + 0.08;
+      portal.y = 1.5; portal.z = eb.cz;
+      ry = outX ? -Math.PI / 2 : Math.PI / 2;
+      exitCell = [outX ? er.x0 + er.w - 1 : er.x0, er.cy];
+    } else {
+      portal.x = eb.cx;
+      portal.y = 1.5; portal.z = outZ ? eb.z2 - 0.08 : eb.z1 + 0.08;
+      ry = outZ ? Math.PI : 0;
+      exitCell = [er.cx, outZ ? er.y0 + er.h - 1 : er.y0];
+    }
     exitMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(2.2, 2.9),
-      new THREE.MeshBasicMaterial({ color: 0x7dffb0, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ color: 0x7dffb0, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
     );
-    exitMesh.position.set(ex, 1.45, ez);
-    exitMesh.lookAt(gwv(exitCell[0] - 1), 1.45, ez);
+    exitMesh.position.set(portal.x, portal.y, portal.z);
+    exitMesh.rotation.y = ry;
     world.add(exitMesh);
+    // door frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(2.7, 3.2, 0.14), DARK);
+    const nxz = Math.sin(ry), nzr = Math.cos(ry);
+    frame.position.set(portal.x - nxz * 0.07, 1.55, portal.z - nzr * 0.07);
+    frame.rotation.y = ry;
+    world.add(frame);
+    // EXIT sign
+    const signCv = document.createElement('canvas');
+    signCv.width = 128; signCv.height = 48;
+    const sctx = signCv.getContext('2d');
+    if(sctx){
+      sctx.fillStyle = '#06340f'; sctx.fillRect(0, 0, 128, 48);
+      sctx.fillStyle = '#7dffb0'; sctx.font = '900 34px Consolas, monospace';
+      sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
+      sctx.fillText('EXIT', 64, 26);
+    }
+    const signTex = new THREE.CanvasTexture(signCv);
+    const sign = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.5, 0.55),
+      new THREE.MeshBasicMaterial({ map: signTex })
+    );
+    sign.position.set(portal.x + nxz * 0.06, 3.0, portal.z + nzr * 0.06);
+    sign.rotation.y = ry;
+    world.add(sign);
     exitLight = new THREE.PointLight(0x66ff99, 2.4, 16, 2);
-    exitLight.position.set(ex, 2.0, ez);
+    exitLight.position.set(
+      portal.x - Math.sin(ry) * 0.7,
+      2.1,
+      portal.z - Math.cos(ry) * 0.7
+    );
     world.add(exitLight);
 
     // ---- MR. PUZZLES full body (lanky TV-headed showman) ----
