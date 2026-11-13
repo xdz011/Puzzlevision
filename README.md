@@ -3,7 +3,7 @@
 A fan-made, single-file browser game built around **Mr. Puzzles** from SMG4 / Puzzlevision.
 
 Rate his shows from 1 to 5 stars, watch his TV face react live, then hit **ACCEPT** and get
-hunted through a fully 3D low-poly maze shot through a grimy bodycam lens.
+hunted through a television studio shot through a grimy bodycam lens.
 
 No build step, no server, no internet required — everything is local.
 
@@ -15,7 +15,7 @@ No build step, no server, no internet required — everything is local.
 2. Double-click **`index.html`** (Chrome, Edge or Firefox).
 3. Rate a show, then press **ACCEPT**.
 
-> A desktop browser with a mouse and keyboard is required for the maze
+> A desktop browser with a mouse and keyboard is required for the studio
 > (WebGL + pointer lock for mouse look).
 
 ---
@@ -23,51 +23,60 @@ No build step, no server, no internet required — everything is local.
 ## What's in it
 
 ### Rating screen
-- 6 shows, each ratable 1–5 stars.
-- His face changes with your average: furious skull → angry → disappointed → annoyed →
-  pleased → losing it → perfection insanity.
+- 6 shows, each ratable 1 to 5 stars.
+- His face changes with your average: furious skull, angry, disappointed, annoyed,
+  pleased, losing it, perfection insanity.
 - The whole UI re-themes per mood (accent colour, glow, speech bubble, meter, page siren).
 - **Hidden minus star** on every row (nearly invisible until you hover): gives him a
-  heartbroken crying face and unlocks the easiest maze.
+  heartbroken crying face and unlocks the easiest studio.
 - Undertale-style typewriter speech with per-character voice blips; click the bubble to skip.
 
-### The maze — THE STUDIO (3D)
+### THE STUDIO
 You wake in a television studio with no crew, no audience, and no wrap.
+**It is a building, not a maze:** six-cell rooms on a lattice, joined by eight-unit-wide
+dolly corridors. Rooms *repeat* — the same seven types cycle across the floor, so you keep
+walking into the room you just left.
 
-- **Rolling Studio Floors** — polished concrete, expansion joints, gaffer-tape X's
-  marking seats for guests who will never arrive.
-- **Chroma-key green walls** bleed that saturated, wrong green into your periphery;
-  the rest is off-white studio panel with scuffed skirting.
-- **The lighting grid** overhead is black iron, hung with fluorescent panels that hum
-  in rows that never end.
-- **Set dressing:** camera pedestals and jibs frozen mid-gesture with red tally lights
-  *always recording*, boom mics dangling like hanged things, green-room chairs with
-  lavalier mics clipped to nobody, and monitors cycling colour bars and dead air.
-- **The walls breathe.** Over the course of a run, flesh creeps up from the floor —
-  a slow red growth you never see move, only the result.
-- Procedurally generated, first-person, pointer-lock mouse look.
-- Mr. Puzzles is a **low-poly (~700 triangle) character** with articulated hips, knees,
-  shoulders, elbows and wrists — flat-shaded faceting, show-accurate outfit
-  (TV head, bowler hat, kinked antenna, bow tie, waistcoat, suspenders, puzzle pants,
-  oversized gloves).
-- Walk cycle is speed-driven: stride length derives from ground covered, so no foot-skate.
-- **1–5 stars → he runs** at you (face escalates with difficulty).
-  **Minus star → he walks**, crying, at the slowest speed.
-- Difficulty scales maze size, hunter speed, fog density and player speed from your rating.
+The seven repeating rooms:
+- **Studio Floor** — empty stage, gaffer-tape X's, camera pedestals, a teleprompter scrolling nothing
+- **Chroma-Key Stage** — walls and floor forced to that saturated, wrong green
+- **Cyclorama** — seamless white curve, shadowless, maddening
+- **Production Control** — vision-mixer desk with a sixteen-screen multiviewer tiling the same empty room
+- **Master Control** — a wall of channels, all dead air, all colour bars, all slightly different
+- **Green Room** — a couch, and a TV playing the Green Room
+- **Cafeteria** — long steel tables, trays, and a row of warm automats
+
+Always: red tally lights bolted at head height (*always recording*), a black iron lighting
+grid overhead with fluorescent panels that hum in rows that never end, polished concrete
+with expansion joints and cable runs, boom mics dangling like hanged things, IFB earpieces
+coiled on a desk.
+
+**The walls breathe.** Over the course of a run, flesh creeps up from the floor — a slow,
+growing red growth. You never see it move, only the result.
+
+### The hunter
+- Low-poly (~700 triangles) character with articulated hips, knees, shoulders, elbows and
+  wrists, flat-shaded faceting, and a show-accurate outfit: TV head, bowler hat, kinked
+  antenna, bow tie, waistcoat, suspenders, puzzle-pattern trousers, oversized gloves.
+- Walk cycle is speed-driven: stride length derives from ground covered, so there is no
+  foot-skate.
+- **1 to 5 stars: he runs** at you, face escalating with difficulty.
+  **Minus star: he walks**, crying, at the slowest speed.
+- Difficulty scales building size, hunter speed, fog density and player speed.
 
 ### Jumpscare
-- **The camera never moves.** It is locked to where you were caught — verified 0.000 m drift —
-  so it cannot fall, sink or clip. He lunges to you and presses his glass against the lens.
-- "Swallowed" feeling comes from a pure lens zoom (FOV 105° → 38°), then a white flash,
-  then the **TV dimension** where you must STRUGGLE three times to break out.
+- **The camera never moves.** It is locked to where you were caught (0.000 m drift), so it
+  cannot fall, sink or clip. He lunges to you and presses his glass against the lens.
+- The "swallowed" feeling comes from a pure lens zoom (FOV 105 to 38 degrees), then a white
+  flash, then the **TV dimension** where you must STRUGGLE three times to break out.
 
 ### Bodycam post-processing
 Fisheye barrel distortion · chromatic aberration · vignette · procedural handheld
-shake/breath · true 1×1 auto-exposure (eye adaptation) · motion blur · film grain ·
-procedural lens dirt & smudges · depth-of-field from a real depth texture with
-**autofocus that racks onto Mr. Puzzles** so he is always sharp ·
-bloom + lens flare ghosts off the exit light ·
-8×8 video-compression artifacts · HUD with REC, timecode, battery and signal.
+shake and breathing · true 1x1 auto-exposure (eye adaptation) · motion blur · film grain ·
+procedural lens dirt and smudges · depth of field from a real depth texture with
+**autofocus that racks onto Mr. Puzzles** so he is always sharp · bloom and lens flare
+ghosts off the exit light · 8x8 video-compression artifacts · HUD with REC, timecode,
+battery, camera and signal readouts.
 
 ### Adware (main page)
 A permanently bobbing "TOTALLY NORMAL KEYBOARD" popup with a TV mascot, fake countdown and
@@ -90,12 +99,12 @@ layout, crimson goo, and realistic eyes that blink and follow your cursor.
 
 ## Difficulty
 
-| Your average | Maze | Hunter | Face |
+| Your average | Building | Hunter | Face |
 |---|---|---|---|
 | minus star | smallest | walks, slowest | heartbroken, crying |
-| 1–2 stars | large | runs, fastest | furious skull / insane |
+| 1 to 2 stars | large | runs, fastest | furious skull / insane |
 | 3 stars | medium | runs | insane / crazy |
-| 4–5 stars | small | runs | crazy |
+| 4 to 5 stars | small | runs | crazy |
 
 ---
 
@@ -103,9 +112,9 @@ layout, crimson goo, and realistic eyes that blink and follow your cursor.
 
 ```
 mr-puzzles/
-├── index.html      everything: markup, CSS, all game + shader code
-├── three.min.js    vendored Three.js r149 (works offline)
-└── README.md
+  index.html      everything: markup, CSS, all game and shader code
+  three.min.js    vendored Three.js r149 (works offline)
+  README.md
 ```
 
 Optional: drop a `mr-puzzles.png` (character art) next to `index.html` and it will appear
@@ -115,14 +124,14 @@ on the rating screen.
 
 ## Build
 
-Current build string is shown in the footer of the page: **`BUILD v4.1`**.
+Current build string is shown in the footer of the page: **`BUILD v4.3`**.
 
 If the footer shows an older version after an update, close every tab of the site and
-re-open the file with `Ctrl + F5` — browsers cache `file://` pages aggressively.
+re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.
 
 ---
 
-## Credits & disclaimer
+## Credits and disclaimer
 
 Fan project. **Mr. Puzzles / SMG4 / Puzzlevision belong to SMG4 / Glitch Productions.**
 Not affiliated with or endorsed by them. No assets are redistributed except the
