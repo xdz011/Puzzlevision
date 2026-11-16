@@ -537,7 +537,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.6 &bull; combat, tracers, studio roof</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.7 &bull; studio hitboxes</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -1372,6 +1372,7 @@ function playAlarm(){
   let caught = false, escaped = false;
   let exitMesh = null, exitLight = null, exitCell = [0,0];
   let exitPortalPos = null;
+  let colliders = [];
 let audio = null, hbTimer = 0, hunterDist = 999, danger = 0;
 let chaseMood = 'insane';
   let lastStep = 0;
@@ -1562,7 +1563,10 @@ let chaseMood = 'insane';
       if(!list.length) continue;
       const id = list[(Math.random() * list.length) | 0];
       const c = cells[(Math.random() * cells.length) | 0];
-      spawnFloorItem(id, tier, gwv(c[0]) + (Math.random() - 0.5) * 2.4, gwv(c[1]) + (Math.random() - 0.5) * 2.4);
+      const wx = gwv(c[0]) + (Math.random() - 0.5) * 2.4;
+      const wz = gwv(c[1]) + (Math.random() - 0.5) * 2.4;
+      if(hitProp(wx, wz, 0.15)) continue;   // not inside the furniture
+      spawnFloorItem(id, tier, wx, wz);
     }
   }
 
@@ -1579,6 +1583,33 @@ let chaseMood = 'insane';
     const r = 0.55;
     return !solidAt(x - r, z - r) && !solidAt(x + r, z - r) &&
            !solidAt(x - r, z + r) && !solidAt(x + r, z + r);
+  }
+
+  /* ---------- studio prop collision ---------- */
+  function addCollider(x, z, r){ colliders.push({ x: x, z: z, r: r }); }
+  function hitProp(x, z, r){
+    for(let i = 0; i < colliders.length; i++){
+      const c = colliders[i];
+      const dx = c.x - x, dz = c.z - z;
+      const rr = c.r + r;
+      if(dx * dx + dz * dz < rr * rr) return true;
+    }
+    return false;
+  }
+  // footprint: circles strung along the long axis of a box
+  function addFootprint(x, z, w, d, ry){
+    const ang = ry || 0;
+    const co = Math.abs(Math.cos(ang)), si = Math.abs(Math.sin(ang));
+    const ww = Math.abs(w * co) + Math.abs(d * si);
+    const dd = Math.abs(w * si) + Math.abs(d * co);
+    const r = Math.max(0.4, Math.min(ww, dd) / 2);
+    const long = Math.max(ww, dd);
+    const count = Math.max(1, Math.min(5, Math.ceil(long / (r * 2))));
+    for(let i = 0; i < count; i++){
+      const t = count === 1 ? 0.5 : i / (count - 1);
+      if(ww >= dd) addCollider(x - ww / 2 + ww * t, z, r);
+      else addCollider(x, z - dd / 2 + dd * t, r);
+    }
   }
 
   /* ---------- maze ---------- */
@@ -2252,6 +2283,7 @@ let chaseMood = 'insane';
 
   function buildLevel(){
     disposeWorld();
+    colliders = [];
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101215);
     scene.fog = new THREE.FogExp2(0x141a1c, fogDensity);
@@ -2383,6 +2415,10 @@ let chaseMood = 'insane';
     const DARK = new THREE.MeshLambertMaterial({ color: 0x14151a, flatShading: true });
     const OFFWHITE = new THREE.MeshLambertMaterial({ color: 0xf4f4f0 });
 
+    function addSolidBox(w, h, d, mat, x, y, z, ry){
+      addBox(w, h, d, mat, x, y, z, ry);
+      addFootprint(x, z, w, d, ry || 0);
+    }
     function addBox(w, h, d, mat, x, y, z, ry){
       const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
       m.position.set(x, y, z);
@@ -2419,6 +2455,7 @@ let chaseMood = 'insane';
       lens.rotation.x = Math.PI / 2; lens.position.set(0, 1.4, -0.42); g.add(lens);
       const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.05, 5, 4), RED);
       lamp.position.set(0.15, 1.56, 0.22); g.add(lamp);
+      addCollider(x, z, 0.55);
       props.add(g);
     };
     const monitorBank = function(x, z, ry, cols, rows, size){
@@ -2437,6 +2474,7 @@ let chaseMood = 'insane';
       }
       const stand = new THREE.Mesh(new THREE.BoxGeometry(sw * cols * 0.9, 0.9, 0.4), IRON);
       stand.position.y = 0.45; g.add(stand);
+      addFootprint(x, z, size * cols * 1.05, 0.55, ry || 0);
       props.add(g);
       return g;
     };
@@ -2457,7 +2495,7 @@ let chaseMood = 'insane';
         // teleprompter, scrolling nothing
         (function(){
           const tx = cx + b.w * 0.30, tz = cz + b.d * 0.28;
-          addBox(0.12, 1.1, 0.12, IRON, tx, 0.55, tz);
+          addSolidBox(0.12, 1.1, 0.12, IRON, tx, 0.55, tz);
           const board = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.62, 0.07), DARK);
           board.position.set(tx, 1.3, tz); board.rotation.x = -0.32;
           props.add(board);
@@ -2511,24 +2549,24 @@ let chaseMood = 'insane';
       if(r.type === 'control'){
         // vision mixer desk, cuts between cameras that show you
         monitorBank(cx, cz - b.d * 0.34, 0, 4, 4, 0.72);   // sixteen screens, same empty room
-        addBox(4.2, 0.75, 0.9, IRON, cx, 0.375, cz - b.d * 0.30 + 0.9);
+        addSolidBox(4.2, 0.75, 0.9, IRON, cx, 0.375, cz - b.d * 0.30 + 0.9);
         addBox(4.2, 0.06, 0.9, STEEL, cx, 0.78, cz - b.d * 0.30 + 0.9);
         for(let k = -2; k <= 2; k++){
           addBox(0.22, 0.07, 0.22, RED, cx + k * 0.5, 0.82, cz - b.d * 0.30 + 0.9);
         }
-        const chair = addBox(0.55, 0.08, 0.55, DARK, cx, 0.46, cz - b.d * 0.30 + 1.9);
+        const chair = addSolidBox(0.55, 0.08, 0.55, DARK, cx, 0.46, cz - b.d * 0.30 + 1.9);
         addBox(0.55, 0.5, 0.07, DARK, cx, 0.72, cz - b.d * 0.30 + 2.15);
       }
 
       if(r.type === 'master'){
         // wall of channels: dead air, colour bars, all slightly different
         monitorBank(cx, cz - b.d * 0.40, 0, 6, 3, 0.95);
-        addBox(5.6, 0.8, 0.7, IRON, cx, 0.4, cz - b.d * 0.40 + 0.8);
+        addSolidBox(5.6, 0.8, 0.7, IRON, cx, 0.4, cz - b.d * 0.40 + 0.8);
       }
 
       if(r.type === 'green'){
         // a couch and a TV playing the Green Room
-        addBox(2.3, 0.42, 0.95, DARK, cx, 0.21, cz + b.d * 0.16);
+        addSolidBox(2.3, 0.42, 0.95, DARK, cx, 0.21, cz + b.d * 0.16);
         addBox(2.3, 0.6, 0.22, DARK, cx, 0.62, cz + b.d * 0.16 + 0.42);
         addBox(0.22, 0.45, 0.95, DARK, cx - 1.15, 0.42, cz + b.d * 0.16);
         addBox(0.22, 0.45, 0.95, DARK, cx + 1.15, 0.42, cz + b.d * 0.16);
@@ -2538,7 +2576,7 @@ let chaseMood = 'insane';
       if(r.type === 'cafeteria'){
         // long steel tables, trays, and a row of automats
         for(let k = -1; k <= 1; k += 2){
-          addBox(4.6, 0.09, 1.0, STEEL, cx, 0.74, cz + k * 1.7);
+          addSolidBox(4.6, 0.09, 1.0, STEEL, cx, 0.74, cz + k * 1.7);
           addBox(0.12, 0.74, 0.12, IRON, cx - 2.0, 0.37, cz + k * 1.7);
           addBox(0.12, 0.74, 0.12, IRON, cx + 2.0, 0.37, cz + k * 1.7);
           for(let s = -1; s <= 1; s++){
@@ -2548,7 +2586,7 @@ let chaseMood = 'insane';
         // the automats: warm food behind little glass windows
         for(let k = 0; k < 4; k++){
           const ax = cx - b.w * 0.38 + k * (b.w * 0.25);
-          addBox(1.1, 2.0, 0.5, STEEL, ax, 1.0, cz - b.d * 0.40);
+          addSolidBox(1.1, 2.0, 0.5, STEEL, ax, 1.0, cz - b.d * 0.40);
           const glow = new THREE.Mesh(
             new THREE.PlaneGeometry(0.86, 0.5),
             new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
@@ -2578,7 +2616,7 @@ let chaseMood = 'insane';
     (function(){
       const r0 = studioRooms[Math.min(3, studioRooms.length - 1)];
       const b = rw(r0);
-      addBox(1.5, 0.08, 0.8, STEEL, b.cx, 0.78, b.cz);
+      addSolidBox(1.5, 0.08, 0.8, STEEL, b.cx, 0.78, b.cz);
       addBox(0.1, 0.78, 0.1, IRON, b.cx - 0.6, 0.39, b.cz);
       addBox(0.1, 0.78, 0.1, IRON, b.cx + 0.6, 0.39, b.cz);
       for(let k = 0; k < 3; k++){
@@ -3425,8 +3463,8 @@ let chaseMood = 'insane';
         mx = mx / len * spd * dt;
         mz = mz / len * spd * dt;
         const nx = player.x + mx, nz = player.z + mz;
-        if(canStand(nx, player.z)) player.x = nx;
-        if(canStand(player.x, nz)) player.z = nz;
+        if(canStand(nx, player.z) && !hitProp(nx, player.z, 0.55)) player.x = nx;
+        if(canStand(player.x, nz) && !hitProp(player.x, nz, 0.55)) player.z = nz;
         if(sprinting) playerStam = Math.max(0, playerStam - 15 * dt);
         walkPhase += dt * (sprinting ? 13 : 9);
         // footsteps
@@ -3759,7 +3797,10 @@ let chaseMood = 'insane';
     get dead(){ return hunterDead; },
     scatter: scatterItems,
     give: function(id, slot){ const t = ITEM_DEFS[id].tier; inv[slot === undefined ? invSel : slot] = { id: id, def: ITEM_DEFS[id], tier: t }; updateInvHUD(); },
-    rooms: function(){ return studioRooms; }
+    rooms: function(){ return studioRooms; },
+    get colliders(){ return colliders; },
+    get px(){ return player.x; },
+    get pz(){ return player.z; }
   };
 
   attachUI();
