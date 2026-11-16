@@ -272,6 +272,36 @@
   .cam-frame::before { left:14px; top:14px; width:26px; height:2px; }
   .cam-frame::after { left:14px; top:14px; width:2px; height:26px; }
 
+  .camhud-hp { position:absolute; top:52px; left:50%; transform:translateX(-50%); z-index:6;
+    opacity:0; transition:opacity .3s; pointer-events:none; text-align:center; }
+  .hp-label { font-family:'Consolas',monospace; font-size:11px; letter-spacing:2px; color:#ffb3b3;
+    text-shadow:0 0 6px rgba(0,0,0,.9); margin-bottom:4px; }
+  .hp-bar { width:min(420px, 60vw); height:10px; background:rgba(0,0,0,.55); border:1px solid #ffffff55;
+    border-radius:99px; overflow:hidden; }
+  .hp-fill { height:100%; width:100%; background:linear-gradient(90deg,#8a0000,#ff2222,#ff6b6b); transition:width .18s; }
+
+  .camhud-stam { position:absolute; bottom:44px; left:20px; z-index:6; pointer-events:none; }
+  .stam-label { font-family:'Consolas',monospace; font-size:10px; letter-spacing:2px; color:#cfe8d0;
+    text-shadow:0 0 6px rgba(0,0,0,.9); margin-bottom:3px; }
+  .stam-bar { width:150px; height:7px; background:rgba(0,0,0,.55); border:1px solid #ffffff44;
+    border-radius:99px; overflow:hidden; }
+  .stam-fill { height:100%; width:100%; background:linear-gradient(90deg,#2e7d32,#8bc34a,#cddc39); transition:width .12s; }
+
+  .inv { position:absolute; bottom:44px; left:50%; transform:translateX(-50%); z-index:6;
+    display:flex; gap:8px; pointer-events:none; align-items:flex-end; }
+  .inv .slot { width:64px; height:52px; border:2px solid #ffffff44; border-radius:8px;
+    background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center;
+    font-family:'Consolas',monospace; font-size:9px; font-weight:700; letter-spacing:.5px;
+    color:#ffffff22; text-align:center; padding:2px; overflow:hidden;
+    text-shadow:0 0 4px rgba(0,0,0,.9); }
+  .inv-keys { position:absolute; left:50%; transform:translateX(-50%); bottom:-16px; white-space:nowrap;
+    font-family:'Consolas',monospace; font-size:9px; letter-spacing:1px; color:#ffffff55; }
+
+  .cam-msg { position:absolute; bottom:118px; left:50%; transform:translateX(-50%); z-index:6;
+    font-family:'Consolas',monospace; font-size:12px; letter-spacing:1px; color:#ffe9a8;
+    text-shadow:0 0 8px rgba(0,0,0,.95); opacity:0; transition:opacity .3s; pointer-events:none;
+    white-space:nowrap; }
+
   .game-intro { position:absolute; inset:0; z-index:8; display:flex; flex-direction:column;
     align-items:center; justify-content:center; text-align:center; gap:12px;
     background:radial-gradient(circle at center, rgba(40,0,0,.75), rgba(0,0,0,.96)); }
@@ -507,7 +537,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.4 &bull; wide halls, wall exit, eyes</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.5 &bull; loot, stamina, weapons, boss HP</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -556,6 +586,25 @@
   </div>
   <div class="cam-cross">+</div>
   <div class="cam-frame"></div>
+
+  <div class="camhud-hp" id="camHp">
+    <div class="hp-label">MR. PUZZLES</div>
+    <div class="hp-bar"><div class="hp-fill" id="camHpFill"></div></div>
+  </div>
+
+  <div class="camhud-stam">
+    <div class="stam-label">STAM</div>
+    <div class="stam-bar"><div class="stam-fill" id="camStamFill"></div></div>
+  </div>
+
+  <div class="inv" id="invHud">
+    <div class="slot" id="inv0"></div>
+    <div class="slot" id="inv1"></div>
+    <div class="slot" id="inv2"></div>
+    <div class="inv-keys">1 2 3 pick &middot; F use &middot; E grab &middot; LMB attack</div>
+  </div>
+
+  <div class="cam-msg" id="camMsg"></div>
 
   <div class="game-intro" id="gameIntro">
     <div class="gi-title">PUZZLEVISION PRESENTS</div>
@@ -1293,7 +1342,12 @@ function playAlarm(){
     tvdStruggle: document.getElementById('tvdStruggle'),
     tvdCount: document.getElementById('tvdCount'),
     tvdRetry: document.getElementById('tvdRetry'),
-    tvdBack: document.getElementById('tvdBack')
+    tvdBack: document.getElementById('tvdBack'),
+    hpWrap: document.getElementById('camHp'),
+    hpFill: document.getElementById('camHpFill'),
+    stamFill: document.getElementById('camStamFill'),
+    invSlots: [document.getElementById('inv0'), document.getElementById('inv1'), document.getElementById('inv2')],
+    msgEl: document.getElementById('camMsg')
   };
 
   let renderer, scene, camera, rt, postScene, postCam, postMat;
@@ -1317,12 +1371,179 @@ function playAlarm(){
   let difficulty = 0.5, hunterSpeed = 1.6, fogDensity = 0.06;
   let caught = false, escaped = false;
   let exitMesh = null, exitLight = null, exitCell = [0,0];
+  let exitPortalPos = null;
 let audio = null, hbTimer = 0, hunterDist = 999, danger = 0;
 let chaseMood = 'insane';
   let lastStep = 0;
+  /* ---------- items / stamina / combat ---------- */
+  let playerStam = 100, stamMax = 100;
+  let inv = [null, null, null], invSel = 0;
+  let floorItems = [];
+  let atkCd = 0;
+  let hunterHP = 0, hunterHPMax = 0, hunterDead = false, defeatT = 0;
+  let hpShow = 0, speedBoostT = 0, speedBoostMul = 1;
+  let msgT = 0;
+  const handCache = {};
+  let handMesh = null;
+
+  const TIERS = [
+    { name: 'COMMON',    col: '#9aa0a6' },
+    { name: 'UNCOMMON',  col: '#4caf50' },
+    { name: 'RARE',      col: '#42a5f5' },
+    { name: 'LEGENDARY', col: '#ffb300' },
+    { name: 'SECRET',    col: '#ff1744' }
+  ];
+  const ITEM_DEFS = {
+    stick:     { kind: 'weapon', name: 'Stick',                  tier: 0, dmg: 8,  rate: 0.55, range: 1.9,  melee: true },
+    slingshot: { kind: 'weapon', name: 'Slingshot',              tier: 1, dmg: 15, rate: 0.75, range: 26,   melee: false },
+    hammer:    { kind: 'weapon', name: 'Hammer',                 tier: 2, dmg: 27, rate: 1.0,  range: 2.0,  melee: true },
+    axe:       { kind: 'weapon', name: 'Fire Axe',               tier: 3, dmg: 42, rate: 0.95, range: 2.1,  melee: true },
+    rifle:     { kind: 'weapon', name: 'Prop Rifle',             tier: 3, dmg: 33, rate: 0.62, range: 44,   melee: false },
+    minigun:   { kind: 'weapon', name: 'Minigun',                tier: 4, dmg: 9,  rate: 0.09, range: 36,   melee: false },
+    chainsaw:  { kind: 'weapon', name: 'Chainsaw',               tier: 4, dmg: 17, rate: 0.15, range: 2.1,  melee: true },
+    donut:     { kind: 'food',   name: 'Stale Donut',            tier: 0, stam: 30,  boost: 1.10, boostT: 9 },
+    sandwich:  { kind: 'food',   name: 'Craft-Services Sandwich',tier: 1, stam: 50,  boost: 1.18, boostT: 13 },
+    energy:    { kind: 'food',   name: 'Energy Drink',           tier: 2, stam: 75,  boost: 1.30, boostT: 17 },
+    espresso:  { kind: 'food',   name: 'Director\u2019s Espresso', tier: 3, stam: 100, boost: 1.42, boostT: 23 },
+    popcorn:   { kind: 'food',   name: 'Puzzlevision Popcorn',   tier: 4, stam: 100, boost: 1.6,  boostT: 30 }
+  };
+  const BY_TIER = { 0: [], 1: [], 2: [], 3: [], 4: [] };
+  Object.keys(ITEM_DEFS).forEach(function(id){ BY_TIER[ITEM_DEFS[id].tier].push(id); });
+
+  // rarity gates, exactly as pitched: a spot has loot 75% of the time;
+  // Uncommon 50% / Rare 25% / Legendary 5% / Secret 0.001% of the time
+  function rollTier(){
+    const r = Math.random();
+    if(r < 0.00001) return 4;
+    if(r < 0.05)    return 3;
+    if(r < 0.25)    return 2;
+    if(r < 0.50)    return 1;
+    return 0;
+  }
   let prevYaw = 0, prevPitch = 0;
   let motionVec = { x: 0, y: 0 };
   const _faceW = { v: 0 }, _flareW = { v: 0 };
+
+  /* ---------- item meshes (low-poly, flat-shaded) ---------- */
+  const IM = {
+    wood:  new THREE.MeshLambertMaterial({ color: 0x8a5a2b, flatShading: true }),
+    wood2: new THREE.MeshLambertMaterial({ color: 0xa3703c, flatShading: true }),
+    steel: new THREE.MeshLambertMaterial({ color: 0xb9c0c8, flatShading: true }),
+    dark:  new THREE.MeshLambertMaterial({ color: 0x22242a, flatShading: true }),
+    red:   new THREE.MeshLambertMaterial({ color: 0xb02020, flatShading: true }),
+    green: new THREE.MeshLambertMaterial({ color: 0x2e8b3a, flatShading: true }),
+    pink:  new THREE.MeshLambertMaterial({ color: 0xe86ba8, flatShading: true }),
+    tan:   new THREE.MeshLambertMaterial({ color: 0xd8b878, flatShading: true }),
+    cream: new THREE.MeshLambertMaterial({ color: 0xf2ead8, flatShading: true })
+  };
+  function P(geo, mat, x, y, z, rx, ry, rz){
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x || 0, y || 0, z || 0);
+    if(rx) m.rotation.x = rx;
+    if(ry) m.rotation.y = ry;
+    if(rz) m.rotation.z = rz;
+    return m;
+  }
+  function buildItemModel(id){
+    const g = new THREE.Group();
+    if(id === 'stick'){
+      g.add(P(new THREE.CylinderGeometry(0.03, 0.045, 0.5, 5), IM.wood, 0, 0, 0, 0, 0, 0.35));
+      g.add(P(new THREE.CylinderGeometry(0.045, 0.03, 0.1, 5), IM.wood2, 0.09, 0.19, 0, 0, 0, -0.5));
+    } else if(id === 'slingshot'){
+      g.add(P(new THREE.CylinderGeometry(0.028, 0.032, 0.42, 5), IM.wood, 0, -0.06, 0));
+      g.add(P(new THREE.CylinderGeometry(0.024, 0.024, 0.22, 5), IM.wood, -0.1, 0.16, 0, 0, 0, 0.5));
+      g.add(P(new THREE.CylinderGeometry(0.024, 0.024, 0.22, 5), IM.wood, 0.1, 0.16, 0, 0, 0, -0.5));
+      g.add(P(new THREE.BoxGeometry(0.2, 0.016, 0.016), IM.dark, 0, 0.27, 0));
+    } else if(id === 'hammer'){
+      g.add(P(new THREE.CylinderGeometry(0.035, 0.04, 0.4, 5), IM.wood, 0, -0.05, 0));
+      g.add(P(new THREE.BoxGeometry(0.3, 0.16, 0.16), IM.steel, 0, 0.18, 0));
+    } else if(id === 'axe'){
+      g.add(P(new THREE.CylinderGeometry(0.035, 0.038, 0.62, 5), IM.wood, 0, 0, 0));
+      g.add(P(new THREE.BoxGeometry(0.06, 0.2, 0.16), IM.red, 0.06, 0.26, 0));
+      g.add(P(new THREE.BoxGeometry(0.05, 0.24, 0.1), IM.steel, 0.13, 0.26, 0));
+    } else if(id === 'rifle'){
+      g.add(P(new THREE.CylinderGeometry(0.028, 0.028, 0.72, 5), IM.dark, 0, 0.03, -0.1, Math.PI / 2));
+      g.add(P(new THREE.BoxGeometry(0.09, 0.13, 0.42), IM.wood2, 0, -0.03, 0.22));
+      g.add(P(new THREE.BoxGeometry(0.05, 0.06, 0.1), IM.steel, 0, 0.12, -0.3));
+    } else if(id === 'minigun'){
+      for(let k = -1; k <= 1; k++)
+        g.add(P(new THREE.CylinderGeometry(0.032, 0.032, 0.56, 5), IM.steel, k * 0.055, 0.02, 0, Math.PI / 2));
+      g.add(P(new THREE.CylinderGeometry(0.11, 0.09, 0.18, 6), IM.dark, 0, 0.02, 0.2, Math.PI / 2));
+      g.add(P(new THREE.BoxGeometry(0.1, 0.16, 0.2), IM.dark, 0, -0.14, 0.26));
+    } else if(id === 'chainsaw'){
+      g.add(P(new THREE.BoxGeometry(0.2, 0.22, 0.34), IM.red, 0, 0, 0.12));
+      g.add(P(new THREE.BoxGeometry(0.05, 0.08, 0.5), IM.steel, 0, 0, -0.28));
+      for(let k = 0; k < 5; k++) g.add(P(new THREE.BoxGeometry(0.07, 0.03, 0.045), IM.dark, 0, 0.055, -0.12 - k * 0.1));
+      g.add(P(new THREE.BoxGeometry(0.16, 0.05, 0.1), IM.dark, 0, 0.15, 0.2));
+    } else if(id === 'donut'){
+      g.add(P(new THREE.TorusGeometry(0.15, 0.062, 6, 10), IM.tan, 0, 0, 0, Math.PI / 2));
+      g.add(P(new THREE.TorusGeometry(0.15, 0.05, 6, 10), IM.pink, 0, 0.03, 0, Math.PI / 2));
+    } else if(id === 'sandwich'){
+      g.add(P(new THREE.BoxGeometry(0.34, 0.06, 0.26), IM.tan, 0, 0.03, 0));
+      g.add(P(new THREE.BoxGeometry(0.36, 0.035, 0.24), IM.green, 0, -0.01, 0));
+      g.add(P(new THREE.BoxGeometry(0.34, 0.06, 0.26), IM.tan, 0, -0.05, 0));
+    } else if(id === 'energy'){
+      g.add(P(new THREE.CylinderGeometry(0.09, 0.09, 0.3, 7), IM.dark, 0, 0, 0));
+      g.add(P(new THREE.CylinderGeometry(0.095, 0.095, 0.09, 7), IM.pink, 0, 0.05, 0));
+      g.add(P(new THREE.CylinderGeometry(0.03, 0.03, 0.03, 6), IM.steel, 0, 0.165, 0));
+    } else if(id === 'espresso'){
+      g.add(P(new THREE.CylinderGeometry(0.085, 0.07, 0.14, 7), IM.cream, 0, 0, 0));
+      g.add(P(new THREE.TorusGeometry(0.05, 0.014, 4, 8), IM.cream, 0.1, 0.01, 0));
+      g.add(P(new THREE.CylinderGeometry(0.075, 0.075, 0.02, 7), IM.dark, 0, 0.07, 0));
+    } else if(id === 'popcorn'){
+      g.add(P(new THREE.BoxGeometry(0.2, 0.28, 0.16), IM.red, 0, 0, 0));
+      g.add(P(new THREE.BoxGeometry(0.21, 0.09, 0.17), IM.cream, 0, 0.05, 0));
+      for(let k = 0; k < 5; k++){
+        const a = k * 1.3;
+        g.add(P(new THREE.SphereGeometry(0.045, 5, 4), IM.cream, Math.cos(a) * 0.07, 0.17 + (k % 2) * 0.04, Math.sin(a) * 0.05));
+      }
+    } else {
+      g.add(P(new THREE.BoxGeometry(0.2, 0.2, 0.2), IM.dark, 0, 0, 0));
+    }
+    return g;
+  }
+  function glowRing(tier){
+    const col = TIERS[tier].col;
+    const m = new THREE.Mesh(
+      new THREE.TorusGeometry(0.34, 0.03, 5, 14),
+      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.85 })
+    );
+    m.rotation.x = Math.PI / 2;
+    m.position.y = 0.03;
+    return m;
+  }
+
+  function spawnFloorItem(id, tier, x, z){
+    const mesh = buildItemModel(id);
+    mesh.position.set(x, 0.42, z);
+    const ring = glowRing(tier);
+    mesh.add(ring);
+    world.add(mesh);
+    floorItems.push({ id: id, tier: tier, mesh: mesh, ring: ring, x: x, z: z, spin: Math.random() * 6 });
+  }
+  function scatterItems(){
+    floorItems.forEach(function(it){ world.remove(it.mesh); });
+    floorItems.length = 0;
+    const cells = [];
+    for(let y = 1; y < H - 1; y++)
+      for(let x = 1; x < W - 1; x++)
+        if(grid[y][x] === 0 && grid[y][x] !== undefined) cells.push([x, y]);
+    if(!cells.length) return;
+    const count = Math.max(6, Math.min(24, Math.floor(cells.length * 0.05)));
+    for(let i = 0; i < count; i++){
+      const r = Math.random();
+      if(r >= 0.75) continue;   // a quarter of the spots are empty
+      const tier = rollTier();
+      const pool = Math.random() < 0.5 ? BY_TIER[tier] : [];
+      const foodPool = Object.keys(ITEM_DEFS).filter(function(id){ return ITEM_DEFS[id].tier === tier && ITEM_DEFS[id].kind === 'food'; });
+      const useFood = foodPool.length && (Math.random() < 0.45 || !pool.length);
+      const list = useFood ? foodPool : pool;
+      if(!list.length) continue;
+      const id = list[(Math.random() * list.length) | 0];
+      const c = cells[(Math.random() * cells.length) | 0];
+      spawnFloorItem(id, tier, gwv(c[0]) + (Math.random() - 0.5) * 2.4, gwv(c[1]) + (Math.random() - 0.5) * 2.4);
+    }
+  }
 
   /* ---------- grid <-> world ---------- */
   function gwv(gx){ return (gx - (W - 1) / 2) * CELL; }
@@ -1488,7 +1709,7 @@ let chaseMood = 'insane';
       'uniform vec2 uRes; uniform float uTime; uniform float uVhs; uniform float uDanger;',
       'uniform float uNear; uniform float uFar; uniform float uDof; uniform float uFocus;',
       'uniform float uCompress;',
-      'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion; uniform float uFlesh;',
+      'uniform vec2 uFlarePos; uniform float uFlareAmt; uniform vec2 uMotion; uniform float uFlesh; uniform float uStam;',
       'varying vec2 vUv;',
       'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
       'float luma(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }',
@@ -1558,6 +1779,10 @@ let chaseMood = 'insane';
       '  col += dirt * (0.25 + 0.75 * luma(col)) * 1.6;',
       // ---- auto exposure / eye adaptation ----
       '  float expo = texture2D(tExposure, vec2(0.5)).r;',
+      '  float stam = uStam;',
+      '  expo *= mix(0.48, 1.0, smoothstep(0.0, 0.42, stam));',
+      '  float flick = hash(vec2(floor(uTime * 24.0), 7.0));',
+      '  expo *= 1.0 - (1.0 - smoothstep(0.0, 0.45, stam)) * step(0.74, flick) * 0.6;',
       '  col *= expo;',
       // ---- scanlines ----
       '  col *= 0.88 + 0.12 * sin(uv.y * 1100.0);',
@@ -1620,7 +1845,8 @@ let chaseMood = 'insane';
         uFlarePos: { value: new THREE.Vector2(0.5, 0.5) },
         uFlareAmt: { value: 0 },
         uMotion: { value: new THREE.Vector2(0, 0) },
-        uFlesh: { value: 0 }
+        uFlesh: { value: 0 },
+        uStam: { value: 1 }
       },
       vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
       fragmentShader: frag
@@ -1689,6 +1915,11 @@ let chaseMood = 'insane';
     gv.tvdStruggle.addEventListener('click', onStruggle);
     gv.tvdRetry.addEventListener('click', function(){ hideTVDim(); buildAndRun(); });
     gv.tvdBack.addEventListener('click', function(){ hideTVDim(); endToMenu(); });
+    document.addEventListener('mousedown', function(e){
+      if(e.button !== 0) return;
+      if(document.pointerLockElement !== gv.canvas) return;
+      tryAttack();
+    });
   }
 
   /* ---------- inside the TV dimension ---------- */
@@ -2355,6 +2586,7 @@ let chaseMood = 'insane';
       portal.z - Math.cos(ry) * 0.7
     );
     world.add(exitLight);
+    exitPortalPos = new THREE.Vector3(portal.x, 1.5, portal.z);
 
     // ---- MR. PUZZLES full body (lanky TV-headed showman) ----
     hunter = new THREE.Group();
@@ -2608,9 +2840,119 @@ let chaseMood = 'insane';
 
   /* ---------- input ---------- */
   function onKeyDown(e){
-    if(!running) return;
+    if(!running || paused) { return; }
     keys[e.key.toLowerCase()] = true;
+    if(e.code === 'KeyE') tryPickup();
+    else if(e.code === 'KeyF') useSelected();
+    else if(e.code === 'Digit1') selectSlot(0);
+    else if(e.code === 'Digit2') selectSlot(1);
+    else if(e.code === 'Digit3') selectSlot(2);
     if(e.key === 'Escape'){ /* pointer lock handles pause */ }
+  }
+  function tryPickup(){
+    if(hunterDead) return;
+    let best = null, bd = 1.45;
+    for(let i = 0; i < floorItems.length; i++){
+      const it = floorItems[i];
+      const d = Math.hypot(it.x - player.x, it.z - player.z);
+      if(d < bd){ bd = d; best = it; }
+    }
+    if(!best){ flashMsg('NOTHING HERE'); return; }
+    const slot = inv.indexOf(null);
+    if(slot < 0){ flashMsg('POCKETS FULL (3/3) - press F to use, 1-3 to select'); return; }
+    const def = ITEM_DEFS[best.id];
+    inv[slot] = { id: best.id, def: def, tier: best.tier };
+    world.remove(best.mesh);
+    floorItems.splice(floorItems.indexOf(best), 1);
+    selectSlot(slot);
+    flashMsg('PICKED UP: ' + def.name.toUpperCase() + ' [' + TIERS[best.tier].name + ']');
+    tone(520, 0.1, 'triangle', 0.1);
+  }
+  function selectSlot(i){
+    invSel = i;
+    updateInvHUD();
+    const it = inv[i];
+    if(it && it.def.kind === 'weapon'){
+      flashMsg('READY: ' + it.def.name.toUpperCase() + ' - LMB to attack');
+      attachHand(it.id);
+      tone(300, 0.08, 'square', 0.08);
+    } else if(it){
+      flashMsg(it.def.name.toUpperCase() + ' - press F to eat');
+      detachHand();
+      tone(220, 0.08, 'triangle', 0.08);
+    } else {
+      detachHand();
+    }
+  }
+  function useSelected(){
+    const it = inv[invSel];
+    if(!it){ flashMsg('EMPTY HAND'); return; }
+    if(it.def.kind !== 'food'){ flashMsg('READY: ' + it.def.name.toUpperCase()); attachHand(it.id); return; }
+    playerStam = Math.min(stamMax, playerStam + it.def.stam);
+    speedBoostT = it.def.boostT;
+    speedBoostMul = it.def.boost;
+    inv[invSel] = null;
+    updateInvHUD();
+    detachHand();
+    flashMsg('ATE: ' + it.def.name.toUpperCase() + ' +' + it.def.stam + ' STAM, SPEED x' + it.def.boost.toFixed(2));
+    tone(180, 0.16, 'triangle', 0.12, 90);
+    noiseHit(0.2, 0.08, 500);
+  }
+  function tryAttack(){
+    if(!running || paused || caught || hunterDead) return;
+    const it = inv[invSel];
+    if(!it || it.def.kind !== 'weapon'){ return; }
+    if(atkCd > 0) return;
+    const d = it.def;
+    if(d.melee && playerStam < 4){ flashMsg('WINDED - eat something'); return; }
+    atkCd = d.rate;
+    if(d.melee) playerStam = Math.max(0, playerStam - 5);
+    const w = new THREE.Vector3();
+    hunter.localToWorld(w.set(0, 2.3, 0.26));
+    const toH = w.clone().sub(camera.position);
+    const dist = toH.length();
+    if(!isFinite(dist) || dist < 0.01){ return; }
+    toH.normalize();
+    const look = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+    const aim = toH.dot(look);
+    const inRange = d.melee ? (dist < d.range + 0.9) : (dist < d.range);
+    const cone = d.melee ? 0.45 : 0.965;
+    if(hunterDist > 60 || !inRange || aim < cone){
+      tone(200, 0.05, 'square', 0.04);
+      return;
+    }
+    damageHunter(d.dmg);
+  }
+  function flashMsg(t){
+    if(!gv.msgEl) return;
+    gv.msgEl.textContent = t;
+    gv.msgEl.style.opacity = '1';
+    msgT = 2.2;
+  }
+  function attachHand(id){
+    detachHand();
+    if(!camera) return;
+    if(!handCache[id]) handCache[id] = buildItemModel(id);
+    handMesh = handCache[id];
+    handMesh.scale.setScalar(1.15);
+    handMesh.position.set(0.38, -0.32, -0.72);
+    handMesh.rotation.set(0.1, -0.35, 0.12);
+    camera.add(handMesh);
+  }
+  function detachHand(){
+    if(handMesh && camera && handMesh.parent === camera) camera.remove(handMesh);
+    handMesh = null;
+  }
+  function updateInvHUD(){
+    for(let i = 0; i < 3; i++){
+      const el = gv.invSlots && gv.invSlots[i];
+      if(!el) continue;
+      const it = inv[i];
+      el.textContent = it ? it.def.name.split(' ')[0].toUpperCase() : '';
+      el.style.borderColor = it ? TIERS[it.tier].col : '#ffffff44';
+      el.style.color = it ? TIERS[it.tier].col : '#ffffff22';
+      el.style.background = (i === invSel && it) ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.4)';
+    }
   }
   function onKeyUp(e){ keys[e.key.toLowerCase()] = false; }
 
@@ -2714,6 +3056,18 @@ let chaseMood = 'insane';
       // build maze + reset state
       grid = genStudio(pendingN);   // sets exitCell, spawnCell, hunterCell, studioRooms
       buildLevel();
+      // higher the difficulty, tankier the showman
+      hunterHP = hunterHPMax = Math.round(140 + difficulty * 360);
+      hunterDead = false; defeatT = 0; hpShow = 0;
+      playerStam = stamMax; speedBoostT = 0; speedBoostMul = 1;
+      atkCd = 0;
+      if(gv.hpWrap) gv.hpWrap.style.opacity = '0';
+      if(gv.msgEl) gv.msgEl.style.opacity = '0';
+      inv = [null, null, null]; invSel = 0; updateInvHUD();
+      detachHand();
+      flashMsg('LOOT IS SCATTERED. GRAB IT. HE WILL NOT LIKE THAT.');
+      scatterItems();
+      updateInvHUD();
       player.x = gwv(spawnCell[0]); player.z = gwv(spawnCell[1]);
       yaw = 0; pitch = 0; elapsed = 0; walkPhase = 0;
       caught = false; escaped = false; danger = 0;
@@ -2765,7 +3119,7 @@ let chaseMood = 'insane';
   }
 
   function updateHunter(dt){
-    if(!hunter) return;
+    if(!hunter || hunterDead) return;
     const hgx = w2gx(hunter.position.x), hgy = w2gy(hunter.position.z);
     const pgx = w2gx(player.x), pgy = w2gy(player.z);
 
@@ -2860,7 +3214,37 @@ let chaseMood = 'insane';
     hunterDist = Math.sqrt(pdx * pdx + pdz * pdz);
     danger = Math.max(0, Math.min(1, 1 - (hunterDist - 2) / 16));
 
-    if(hunterDist < 1.75 && !caught){ onCaught(); }
+    if(hunterDist < 1.75 && !caught && !hunterDead){ onCaught(); }
+  }
+
+  function damageHunter(dmg){
+    if(hunterDead) return;
+    hunterHP -= dmg;
+    hpShow = 4;
+    if(gv.hpFill) gv.hpFill.style.width = Math.max(0, hunterHP / hunterHPMax * 100) + '%';
+    noiseHit(0.16, 0.2, 1900);
+    tone(140 + Math.random() * 80, 0.12, 'square', 0.12, 60);
+    // he staggers back and the screen flickers on his glass
+    if(hunter.position){
+      const push = new THREE.Vector3(player.x - hunter.position.x, 0, player.z - hunter.position.z).normalize();
+      hunter.position.x -= push.x * 0.35;
+      hunter.position.z -= push.z * 0.35;
+    }
+    if(hunterHP <= 0) defeatHunter();
+  }
+  function defeatHunter(){
+    hunterDead = true;
+    running = false;
+    scarePhase = null; scareT = 0;
+    gv.game.classList.remove('playing');
+    defeatT = 0.9;
+    winChime();
+    if(document.exitPointerLock){ try{ document.exitPointerLock(); }catch(e){} }
+  }
+  function showEnd(title, text){
+    gv.endTitle.textContent = title;
+    gv.endText.textContent = text;
+    gv.end.classList.add('on');
   }
 
   function onCaught(){
@@ -2914,15 +3298,17 @@ let chaseMood = 'insane';
       let moving = false;
       if(len > 0.001){
         moving = true;
-        const spd = player.spd * (keys['shift'] ? 1.65 : 1);
+        const sprinting = keys['shift'] && playerStam > 1;
+        const spd = player.spd * (sprinting ? 1.6 : 1) * speedBoostMul;
         mx = mx / len * spd * dt;
         mz = mz / len * spd * dt;
         const nx = player.x + mx, nz = player.z + mz;
         if(canStand(nx, player.z)) player.x = nx;
         if(canStand(player.x, nz)) player.z = nz;
-        walkPhase += dt * (keys['shift'] ? 13 : 9);
+        if(sprinting) playerStam = Math.max(0, playerStam - 15 * dt);
+        walkPhase += dt * (sprinting ? 13 : 9);
         // footsteps
-        if(elapsed - lastStep > (keys['shift'] ? 0.32 : 0.48)){ lastStep = elapsed; footstep(); }
+        if(elapsed - lastStep > (sprinting ? 0.32 : 0.48)){ lastStep = elapsed; footstep(); }
       }
 
       // ---- bodycam: handheld sway + breathing (procedural, layered sines) ----
@@ -2941,8 +3327,26 @@ let chaseMood = 'insane';
       prevYaw = yaw; prevPitch = pitch;
       motionVec.x = Math.max(-0.02, Math.min(0.02, dYaw * 0.10 + (moving ? Math.sin(walkPhase) * 0.0009 : 0)));
       motionVec.y = Math.max(-0.02, Math.min(0.02, -dPitch * 0.10 + (moving ? Math.cos(walkPhase) * 0.0006 : 0)));
+      if(!(moving && keys['shift'])) playerStam = Math.min(stamMax, playerStam + 13 * dt);
 
       updateHunter(dt);
+
+      // items on the floor: bob + spin
+      for(let i = 0; i < floorItems.length; i++){
+        const it = floorItems[i];
+        it.spin += dt * 1.6;
+        it.mesh.rotation.y = it.spin;
+        it.mesh.position.y = 0.42 + Math.sin(it.spin * 1.4) * 0.06;
+      }
+      if(atkCd > 0) atkCd -= dt;
+      if(speedBoostT > 0){ speedBoostT -= dt; if(speedBoostT <= 0) speedBoostMul = 1; }
+      if(hpShow > 0) hpShow -= dt;
+      if(msgT > 0){ msgT -= dt; if(msgT <= 0 && gv.msgEl) gv.msgEl.style.opacity = '0'; }
+      if(gv.stamFill) gv.stamFill.style.width = (playerStam / stamMax * 100) + '%';
+      if(gv.hpWrap){
+        const showHp = (hpShow > 0 || danger > 0.25) && !hunterDead;
+        gv.hpWrap.style.opacity = showHp ? '1' : '0';
+      }
 
       // heartbeat driven by proximity
       hbTimer -= dt;
@@ -2952,11 +3356,10 @@ let chaseMood = 'insane';
         if(danger > 0.15) heartbeat(0.5 + danger * 0.9);
       }
 
-      // exit check
-      if(!escaped){
-        const ex = gwv(exitCell[0]), ez = gwv(exitCell[1]);
-        const dd = Math.sqrt((player.x - ex) ** 2 + (player.z - ez) ** 2);
-        if(dd < 1.5) onEscaped();
+      // exit check: distance to the doorway itself, not the floor cell
+      if(!escaped && exitPortalPos){
+        const dd = Math.hypot(player.x - exitPortalPos.x, player.z - exitPortalPos.z);
+        if(dd < 1.35) onEscaped();
       }
 
       // HUD
@@ -3063,6 +3466,21 @@ let chaseMood = 'insane';
       }
     }
 
+    // showman takes a bow: the defeat collapse (outside the running gate)
+    if(defeatT > 0 && hunter && camera){
+      defeatT -= dt;
+      const dN = 1 - Math.max(0, defeatT) / 0.9;
+      const eD = dN * dN * (3 - 2 * dN);
+      hunter.rotation.x = eD * Math.PI * 0.48;
+      hunter.position.y = -eD * 0.3;
+      hunter.rotation.z = Math.sin(eD * 6) * 0.04;
+      camera.lookAt(hunter.position.x, 1.2, hunter.position.z);
+      if(defeatT <= 0){
+        defeatT = 0;
+        showEnd('SHOW CANCELLED', 'You beat Mr. Puzzles at his own show. The studio goes dark. Somewhere, a minute of silence for the ratings.');
+      }
+    }
+
     // ---- bodycam uniforms ----
     const dngr = Math.max(danger, scarePhase ? 1 : 0);
     if(postMat && camera){
@@ -3074,6 +3492,7 @@ let chaseMood = 'insane';
       U.uFlesh.value = Math.min(1, (elapsed + scareT) / 210);   // it grows. always slowly.
       U.uCompress.value = 0.28 + dngr * 0.45;
       U.uNear.value = camera.near;
+      U.uStam.value = playerStam / stamMax;
       U.uFar.value = camera.far;
 
       // ---- autofocus: rack onto him the moment he is close, so he is ALWAYS sharp ----
@@ -3140,6 +3559,19 @@ let chaseMood = 'insane';
       renderer.render(postScene, postCam);
     }
   }
+
+  window.PV = {
+    get hp(){ return hunterHP; },
+    get hpMax(){ return hunterHPMax; },
+    damage: damageHunter,
+    get inv(){ return inv; },
+    get items(){ return floorItems; },
+    get stam(){ return playerStam; },
+    get dead(){ return hunterDead; },
+    scatter: scatterItems,
+    give: function(id, slot){ const t = ITEM_DEFS[id].tier; inv[slot === undefined ? invSel : slot] = { id: id, def: ITEM_DEFS[id], tier: t }; updateInvHUD(); },
+    rooms: function(){ return studioRooms; }
+  };
 
   attachUI();
 })();

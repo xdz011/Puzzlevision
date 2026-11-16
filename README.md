@@ -1,11 +1,11 @@
-# PUZZLEVISION — Mr. Puzzles Rate-O-Rama
+﻿# PUZZLEVISION â€” Mr. Puzzles Rate-O-Rama
 
 A fan-made, single-file browser game built around **Mr. Puzzles** from SMG4 / Puzzlevision.
 
 Rate his shows from 1 to 5 stars, watch his TV face react live, then hit **ACCEPT** and get
 hunted through a television studio shot through a grimy bodycam lens.
 
-No build step, no server, no internet required — everything is local.
+No build step, no server, no internet required â€” everything is local.
 
 ---
 
@@ -34,24 +34,24 @@ No build step, no server, no internet required — everything is local.
 ### THE STUDIO
 You wake in a television studio with no crew, no audience, and no wrap.
 **It is a building, not a maze:** six-cell rooms on a lattice, joined by eight-unit-wide
-dolly corridors. Rooms *repeat* — the same seven types cycle across the floor, so you keep
+dolly corridors. Rooms *repeat* â€” the same seven types cycle across the floor, so you keep
 walking into the room you just left.
 
 The seven repeating rooms:
-- **Studio Floor** — empty stage, gaffer-tape X's, camera pedestals, a teleprompter scrolling nothing
-- **Chroma-Key Stage** — walls and floor forced to that saturated, wrong green
-- **Cyclorama** — seamless white curve, shadowless, maddening
-- **Production Control** — vision-mixer desk with a sixteen-screen multiviewer tiling the same empty room
-- **Master Control** — a wall of channels, all dead air, all colour bars, all slightly different
-- **Green Room** — a couch, and a TV playing the Green Room
-- **Cafeteria** — long steel tables, trays, and a row of warm automats
+- **Studio Floor** â€” empty stage, gaffer-tape X's, camera pedestals, a teleprompter scrolling nothing
+- **Chroma-Key Stage** â€” walls and floor forced to that saturated, wrong green
+- **Cyclorama** â€” seamless white curve, shadowless, maddening
+- **Production Control** â€” vision-mixer desk with a sixteen-screen multiviewer tiling the same empty room
+- **Master Control** â€” a wall of channels, all dead air, all colour bars, all slightly different
+- **Green Room** â€” a couch, and a TV playing the Green Room
+- **Cafeteria** â€” long steel tables, trays, and a row of warm automats
 
 Always: red tally lights bolted at head height (*always recording*), a black iron lighting
 grid overhead with fluorescent panels that hum in rows that never end, polished concrete
 with expansion joints and cable runs, boom mics dangling like hanged things, IFB earpieces
 coiled on a desk.
 
-**The walls breathe.** Over the course of a run, flesh creeps up from the floor — a slow,
+**The walls breathe.** Over the course of a run, flesh creeps up from the floor â€” a slow,
 growing red growth. You never see it move, only the result.
 
 ### The hunter
@@ -71,17 +71,39 @@ growing red growth. You never see it move, only the result.
   flash, then the **TV dimension** where you must STRUGGLE three times to break out.
 
 ### Bodycam post-processing
-Fisheye barrel distortion · chromatic aberration · vignette · procedural handheld
-shake and breathing · true 1x1 auto-exposure (eye adaptation) · motion blur · film grain ·
-procedural lens dirt and smudges · depth of field from a real depth texture with
-**autofocus that racks onto Mr. Puzzles** so he is always sharp · bloom and lens flare
-ghosts off the exit light · 8x8 video-compression artifacts · HUD with REC, timecode,
+Fisheye barrel distortion Â· chromatic aberration Â· vignette Â· procedural handheld
+shake and breathing Â· true 1x1 auto-exposure (eye adaptation) Â· motion blur Â· film grain Â·
+procedural lens dirt and smudges Â· depth of field from a real depth texture with
+**autofocus that racks onto Mr. Puzzles** so he is always sharp Â· bloom and lens flare
+ghosts off the exit light Â· 8x8 video-compression artifacts Â· HUD with REC, timecode,
 battery, camera and signal readouts.
 
 ### Adware (main page)
 A permanently bobbing "TOTALLY NORMAL KEYBOARD" popup with a TV mascot, fake countdown and
 dwindling stock. Closing it is harmless. Buying it corrupts the whole site: jittering
 layout, crimson goo, and realistic eyes that blink and follow your cursor.
+
+### Loot, inventory & combat
+- **Item spots** are scattered through the studios and corridors. A spot has loot
+  75% of the time; the tier then rolls at the pitched gates â€” Uncommon 50%,
+  Rare 25%, Legendary 5%, **Secret 0.001%** â€” Common fills the rest.
+- **Food** restores stamina and grants a timed speed boost, scaling with rarity
+  (Stale Donut â†’ Craft-Services Sandwich â†’ Energy Drink â†’ Director's Espresso â†’
+  Secret: Puzzlevision Popcorn).
+- **Weapons** (Common Stick â†’ Uncommon Slingshot â†’ Rare Hammer â†’ Legendary Fire
+  Axe / Prop Rifle â†’ Secret Minigun / Chainsaw) all deal damage that scales with
+  rarity; melee costs a little stamina, ranged guns aim down a cone.
+- **Inventory caps at 3.** `E` grabs the nearest item, `1` `2` `3` select a slot,
+  `F` eats food / readies a weapon, `LMB` attacks. Slots glow in the item's
+  rarity colour.
+- **Mr. Puzzles has HP** â€” the harder your rating, the tankier he is (140 â†’ 500).
+  A red HP bar appears over the studio once you draw blood; he staggers when hit
+  and collapses for good at zero: **SHOW CANCELLED**.
+
+### Stamina
+- Sprinting drains it, everything else regenerates it.
+- Below ~40% the bodycam darkens; below that it starts **flickering** like a
+  dying battery. Eat something.
 
 ---
 
@@ -91,7 +113,11 @@ layout, crimson goo, and realistic eyes that blink and follow your cursor.
 |---|---|
 | Move | `W A S D` / arrows |
 | Look | Mouse (click once to lock) |
-| Sprint | `Shift` |
+| Sprint | `Shift` (drains stamina) |
+| Grab item | `E` |
+| Use / eat / ready | `F` |
+| Select slot | `1` `2` `3` |
+| Attack | Left mouse button |
 | Pause / release mouse | `Esc` |
 | Ready up / resume | Click the prompt |
 
@@ -127,7 +153,7 @@ on the rating screen.
 Current build string is shown in the footer of the page: **`BUILD v4.3`**.
 
 If the footer shows an older version after an update, close every tab of the site and
-re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.
+re-open the file with `Ctrl + F5` â€” browsers cache local pages aggressively.
 
 ---
 
@@ -136,3 +162,4 @@ re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.
 Fan project. **Mr. Puzzles / SMG4 / Puzzlevision belong to SMG4 / Glitch Productions.**
 Not affiliated with or endorsed by them. No assets are redistributed except the
 Three.js library (MIT licence).
+
