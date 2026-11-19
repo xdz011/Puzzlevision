@@ -407,6 +407,7 @@
   @keyframes tvdRings { 0%,100%{transform:translate(-50%,-50%) scale(1)}
     50%{transform:translate(-50%,-50%) scale(1.07)} }
   .tvd-script { position:relative; z-index:2; transform:rotate(-9deg);
+    transition:transform .45s ease, filter .45s ease;
     font-family:'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;
     font-style:italic; font-weight:700; white-space:nowrap;
     font-size:clamp(15px,3.4vw,34px); color:#fdfdf6;
@@ -459,11 +460,10 @@
     70%{transform:scale(1.05,.9)} 100%{transform:scale(1,.92)} }
 
   /* XDZ in 3D — SM64-style low-poly model, banging from inside the screen */
-  .tvd-sil3d { position:absolute; left:50%; top:50%; z-index:2; width:78%; opacity:0; pointer-events:none;
-    transform:translate(-50%,-50%); transition:opacity .35s ease;
-    filter:drop-shadow(0 0 10px rgba(255,220,170,.35)) drop-shadow(0 5px 9px rgba(0,0,0,.55)); }
-  .tv-dim.sil-on .tvd-sil3d { opacity:.94; }
-  .tv-dim.sil-on .tvd-script { filter:brightness(.4); }
+  .tvd-sil3d { position:absolute; left:50%; top:50%; z-index:2; width:74%; opacity:0; pointer-events:none;
+    transform:translate(-50%,-50%); transition:opacity .35s ease; }
+  .tv-dim.sil-on .tvd-sil3d { opacity:.97; }
+  .tv-dim.sil-on .tvd-script { filter:brightness(.45); transform:rotate(-9deg) translateY(-2.2em); }
   .tv-dim.sil-on .tvd-rings { filter:brightness(1.35); }
 
   .tvd-feet { display:flex; justify-content:space-between; padding:0 16%; }
@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.19 &bull; xdz 3d model</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.20 &bull; xdz clean stage</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2142,30 +2142,91 @@ let chaseMood = 'insane';
     function box(w,h,d,m){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m); }
     function ball(r,m,w,hh){ return new THREE.Mesh(new THREE.SphereGeometry(r, w||8, hh||6), m); }
     function tube(rt,rb,h,m,seg){ return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||7), m); }
+    /* retro textures: tiny 32x32 pixel canvases, nearest-neighbor = chunky SM64 texels */
+    function noiseDots(g, col, n, sz){ g.fillStyle = col; for(let i = 0; i < n; i++) g.fillRect(Math.floor(Math.random()*32), Math.floor(Math.random()*32), sz||1, sz||1); }
+    function makeTex(base, paint, smooth){
+      const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+      const g = c.getContext('2d');
+      g.fillStyle = base; g.fillRect(0, 0, 32, 32);
+      if(paint) paint(g);
+      const t = new THREE.CanvasTexture(c);
+      t.magFilter = smooth ? THREE.LinearFilter : THREE.NearestFilter;
+      t.minFilter = smooth ? THREE.LinearFilter : THREE.NearestFilter;
+      return t;
+    }
+    function texMat(t, sh){ return new THREE.MeshPhongMaterial({ map:t, flatShading:true, shininess:sh||12 }); }
 
     function build(){
       scene = new THREE.Scene();
-      cam = new THREE.PerspectiveCamera(42, 4/3, 0.1, 20);
-      cam.position.set(0, 0.70, 1.85);
-      cam.lookAt(0, 0.55, 0);
+      cam = new THREE.PerspectiveCamera(40, 4/3, 0.1, 20);
+      cam.position.set(0, 0.62, 2.6);
+      cam.lookAt(0, 0.42, 0);
 
-      scene.add(new THREE.AmbientLight(0x55555c, 1.0));
+      scene.add(new THREE.AmbientLight(0x4a4a52, 1.0));
+      scene.add(new THREE.HemisphereLight(0xfff2d9, 0x23232b, 0.55));
       const key = new THREE.DirectionalLight(0xfff2d9, 1.05); key.position.set(-1.4, 1.6, 1.2); scene.add(key);
       const rim = new THREE.DirectionalLight(0xff9a5c, 0.85); rim.position.set(1.7, 0.5, 0.5); scene.add(rim);
       const back = new THREE.PointLight(0xffc47a, 0.9, 6); back.position.set(0, 0.8, -1.1); scene.add(back);
+
+      // ---- clean stage: dark void backdrop + ground + soft contact shadow ----
+      const TX = {
+        ov: makeTex('#b3ff00', function(g){
+          g.fillStyle = '#8fcc00';
+          for(let y = 0; y < 32; y += 4) g.fillRect(0, y, 32, 1);
+          for(let x = 0; x < 32; x += 8) g.fillRect(x, 0, 1, 32);
+          noiseDots(g, '#7cb800', 26, 1);
+        }),
+        shirt: makeTex('#00FF7F', function(g){
+          g.fillStyle = '#00d968';
+          for(let y = 1; y < 32; y += 3) g.fillRect(0, y, 32, 1);
+          noiseDots(g, '#00c65e', 18, 1);
+        }),
+        skin: makeTex('#f6c99f', function(g){ noiseDots(g, '#e5b48a', 40, 1); noiseDots(g, '#ffe3c4', 22, 1); }),
+        hat: makeTex('#00FF7F', function(g){ noiseDots(g, '#00d968', 30, 1); noiseDots(g, '#2bff97', 16, 1); }),
+        bg: makeTex('#141419', function(g){
+          const grd = g.createRadialGradient(16, 16, 2, 16, 16, 17);
+          grd.addColorStop(0, 'rgba(26,26,33,1)');
+          grd.addColorStop(0.55, 'rgba(15,15,19,1)');
+          grd.addColorStop(1, 'rgba(10,10,13,0)');
+          g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+        }, true),
+        ground: makeTex('#101014', function(g){
+          const grd = g.createRadialGradient(16, 16, 1, 16, 16, 17);
+          grd.addColorStop(0, '#1d1d25');
+          grd.addColorStop(0.7, '#111116');
+          grd.addColorStop(1, '#0b0b0e');
+          g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+        }, true),
+        blob: makeTex('#000000', function(g){
+          const grd = g.createRadialGradient(16, 16, 1, 16, 16, 16);
+          grd.addColorStop(0, 'rgba(0,0,0,0.55)');
+          grd.addColorStop(0.6, 'rgba(0,0,0,0.28)');
+          grd.addColorStop(1, 'rgba(0,0,0,0)');
+          g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+        }, true)
+      };
+      const bg = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 4.0),
+        new THREE.MeshBasicMaterial({ map:TX.bg, transparent:true, depthWrite:false }));
+      bg.position.set(0, 0.35, -1.6); scene.add(bg);
+      const ground = new THREE.Mesh(new THREE.CircleGeometry(0.95, 24),
+        new THREE.MeshBasicMaterial({ map:TX.ground }));
+      ground.rotation.x = -Math.PI/2; ground.position.y = -0.452; scene.add(ground);
+      const blob = new THREE.Mesh(new THREE.CircleGeometry(0.40, 20),
+        new THREE.MeshBasicMaterial({ map:TX.blob, transparent:true, depthWrite:false }));
+      blob.rotation.x = -Math.PI/2; blob.position.set(0, -0.448, 0.10); scene.add(blob);
 
       const root = new THREE.Group();
       root.position.set(0, 0.05, 0.10);
       scene.add(root);
 
       // pelvis
-      const hips = tube(0.26, 0.235, 0.18, mat(COL.ov), 8); hips.position.y = 0.09; root.add(hips);
+      const hips = tube(0.26, 0.235, 0.18, texMat(TX.ov), 8); hips.position.y = 0.09; root.add(hips);
 
       // chest: shirt torso + overalls bib + straps + gold buttons
       const chest = new THREE.Group(); chest.position.y = 0.30; root.add(chest);
-      const torso = tube(0.195, 0.26, 0.30, mat(COL.shirt), 8); torso.position.y = 0.02; chest.add(torso);
-      const bib = box(0.34, 0.22, 0.07, mat(COL.ov)); bib.position.set(0, -0.03, 0.235); chest.add(bib);
-      const strapL = box(0.085, 0.28, 0.06, mat(COL.ov)); strapL.position.set(-0.12, 0.10, 0.22); strapL.rotation.x = 0.06; chest.add(strapL);
+      const torso = tube(0.195, 0.26, 0.30, texMat(TX.shirt), 8); torso.position.y = 0.02; chest.add(torso);
+      const bib = box(0.34, 0.22, 0.07, texMat(TX.ov)); bib.position.set(0, -0.03, 0.235); chest.add(bib);
+      const strapL = box(0.085, 0.28, 0.06, texMat(TX.ov)); strapL.position.set(-0.12, 0.10, 0.22); strapL.rotation.x = 0.06; chest.add(strapL);
       const strapR = strapL.clone(); strapR.position.x = 0.12; chest.add(strapR);
       const btnL = ball(0.034, mat(COL.btn), 6, 5); btnL.position.set(-0.12, -0.06, 0.285); chest.add(btnL);
       const btnR = btnL.clone(); btnR.position.x = 0.12; chest.add(btnR);
@@ -2173,9 +2234,10 @@ let chaseMood = 'insane';
       // legs: hip -> knee -> chunky black shoe
       function leg(sx){
         const hip = new THREE.Group(); hip.position.set(sx*0.135, 0, 0); root.add(hip);
-        const thigh = tube(0.095, 0.085, 0.22, mat(COL.ov), 7); thigh.position.y = -0.11; hip.add(thigh);
+        const thigh = tube(0.095, 0.085, 0.22, texMat(TX.ov), 7); thigh.position.y = -0.11; hip.add(thigh);
         const knee = new THREE.Group(); knee.position.y = -0.22; hip.add(knee);
         const shin = tube(0.082, 0.075, 0.18, mat(COL.ovDark), 7); shin.position.y = -0.09; knee.add(shin);
+        const cuff = tube(0.092, 0.088, 0.05, texMat(TX.ov), 7); cuff.position.y = -0.155; knee.add(cuff);
         const shoe = ball(0.105, mat(COL.shoe), 8, 5);
         shoe.scale.set(1, 0.72, 1.55); shoe.position.set(0, -0.20, 0.05); knee.add(shoe);
         return hip;
@@ -2184,9 +2246,9 @@ let chaseMood = 'insane';
 
       // head: big faceted SM64 skull
       const headG = new THREE.Group(); headG.position.y = 0.52; chest.add(headG);
-      const skull = ball(0.28, mat(COL.skin), 9, 7); headG.add(skull);
+      const skull = ball(0.28, texMat(TX.skin), 9, 7); headG.add(skull);
       // cap: dome + brim + white emblem with green X
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.295, 9, 5, 0, Math.PI*2, 0, Math.PI*0.55), mat(COL.hat));
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.295, 9, 5, 0, Math.PI*2, 0, Math.PI*0.55), texMat(TX.hat));
       cap.position.y = 0.012; headG.add(cap);
       const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.23, 0.045, 9), mat(COL.hatDark));
       brim.scale.set(1.15, 1, 1.45); brim.position.set(0, 0.10, 0.19); headG.add(brim);
@@ -2196,7 +2258,7 @@ let chaseMood = 'insane';
       // gold sideburns + ears
       const burnL = box(0.05, 0.13, 0.09, mat(COL.hair)); burnL.position.set(-0.25, -0.02, 0.05); headG.add(burnL);
       const burnR = burnL.clone(); burnR.position.x = 0.25; headG.add(burnR);
-      const earL = ball(0.055, mat(COL.skin), 6, 5); earL.scale.set(0.55, 1, 0.8); earL.position.set(-0.28, -0.03, 0.02); headG.add(earL);
+      const earL = ball(0.055, texMat(TX.skin), 6, 5); earL.scale.set(0.55, 1, 0.8); earL.position.set(-0.28, -0.03, 0.02); headG.add(earL);
       const earR = earL.clone(); earR.position.x = 0.28; headG.add(earR);
       // terrified blue eyes
       function eye(sx){
@@ -2216,7 +2278,7 @@ let chaseMood = 'insane';
       }
       const browL = brow(-1), browR = brow(1);
       // big SM64 nose
-      const nose = ball(0.08, mat(COL.skin), 8, 6); nose.position.set(0, -0.04, 0.27); headG.add(nose);
+      const nose = ball(0.08, texMat(TX.skin), 8, 6); nose.position.set(0, -0.04, 0.27); headG.add(nose);
       // black scalloped mustache: bead arc
       const stache = new THREE.Group(); stache.position.set(0, -0.095, 0.25); headG.add(stache);
       for(let i = 0; i < 6; i++){
@@ -2233,9 +2295,10 @@ let chaseMood = 'insane';
       // arms: shoulder -> elbow -> navy glove
       function arm(sx){
         const sh = new THREE.Group(); sh.position.set(sx*0.28, 0.17, 0); chest.add(sh);
-        const up = tube(0.075, 0.068, 0.24, mat(COL.shirt), 7); up.position.y = -0.12; sh.add(up);
+        const up = tube(0.075, 0.068, 0.24, texMat(TX.shirt), 7); up.position.y = -0.12; sh.add(up);
+        const sleeve = ball(0.09, texMat(TX.shirt), 7, 5); sleeve.scale.set(1.15, 0.7, 1.05); sleeve.position.y = -0.035; sh.add(sleeve);
         const el = new THREE.Group(); el.position.y = -0.24; sh.add(el);
-        const fore = tube(0.065, 0.058, 0.20, mat(COL.skin), 7); fore.position.y = -0.10; el.add(fore);
+        const fore = tube(0.065, 0.058, 0.20, texMat(TX.skin), 7); fore.position.y = -0.10; el.add(fore);
         const hand = ball(0.085, mat(COL.glove), 7, 6); hand.position.y = -0.24; el.add(hand);
         const glint = ball(0.026, mat(COL.gloveHi), 5, 4); glint.position.set(sx*-0.03, -0.20, 0.05); el.add(glint);
         return { sh:sh, el:el, hand:hand };
