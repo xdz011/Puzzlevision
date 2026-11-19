@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.22 &bull; xdz punch fix</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.23 &bull; xdz fluid motion</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2183,18 +2183,19 @@ let chaseMood = 'insane';
         }),
         skin: makeTex('#f6c99f', function(g){ noiseDots(g, '#e5b48a', 40, 1); noiseDots(g, '#ffe3c4', 22, 1); }),
         hat: makeTex('#00FF7F', function(g){ noiseDots(g, '#00d968', 30, 1); noiseDots(g, '#2bff97', 16, 1); }),
-        bg: makeTex('#141419', function(g){
+        bg: makeTex('#060606', function(g){
           const grd = g.createRadialGradient(16, 16, 2, 16, 16, 17);
-          grd.addColorStop(0, 'rgba(26,26,33,1)');
-          grd.addColorStop(0.55, 'rgba(15,15,19,1)');
-          grd.addColorStop(1, 'rgba(10,10,13,0)');
+          grd.addColorStop(0, 'rgba(6,6,6,0.95)');
+          grd.addColorStop(0.45, 'rgba(6,6,6,0.6)');
+          grd.addColorStop(0.8, 'rgba(6,6,6,0.15)');
+          grd.addColorStop(1, 'rgba(6,6,6,0)');
           g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
         }, true),
-        ground: makeTex('#101014', function(g){
+        ground: makeTex('#0a0a0d', function(g){
           const grd = g.createRadialGradient(16, 16, 1, 16, 16, 17);
-          grd.addColorStop(0, '#1d1d25');
-          grd.addColorStop(0.7, '#111116');
-          grd.addColorStop(1, '#0b0b0e');
+          grd.addColorStop(0, 'rgba(10,10,13,0.9)');
+          grd.addColorStop(0.55, 'rgba(8,8,11,0.55)');
+          grd.addColorStop(1, 'rgba(8,8,11,0)');
           g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
         }, true),
         blob: makeTex('#000000', function(g){
@@ -2209,7 +2210,7 @@ let chaseMood = 'insane';
         new THREE.MeshBasicMaterial({ map:TX.bg, transparent:true, depthWrite:false }));
       bg.position.set(0, 0.35, -1.6); scene.add(bg);
       const ground = new THREE.Mesh(new THREE.CircleGeometry(0.95, 24),
-        new THREE.MeshBasicMaterial({ map:TX.ground }));
+        new THREE.MeshBasicMaterial({ map:TX.ground, transparent:true, depthWrite:false }));
       ground.rotation.x = -Math.PI/2; ground.position.y = -0.452; scene.add(ground);
       const blob = new THREE.Mesh(new THREE.CircleGeometry(0.40, 20),
         new THREE.MeshBasicMaterial({ map:TX.blob, transparent:true, depthWrite:false }));
@@ -2325,56 +2326,66 @@ let chaseMood = 'insane';
       return 1 - x*x*(3-2*x);
     }
 
+    /* 2nd-order spring smoother: targets are never reached rigidly — joints
+       overshoot, flex back and settle, which is what kills the stiffness */
+    const SV = {};
+    function spring(name, target, dt, freq, damp){
+      const s = SV[name] || (SV[name] = { x:target, v:0 });
+      const w = 2*Math.PI*freq;
+      s.v += ((target - s.x)*w*w - 2*damp*w*s.v) * dt;
+      s.x += s.v * dt;
+      return s.x;
+    }
+
     function pose(now){
       const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000)); prevNow = now;
       const t = now / 1000;
-      const k = knockEnv(now - hitT);
-      const breathe = Math.sin(t*2.2)*0.018;
+      const p = now - hitT;
+      const k = knockEnv(p);
+      const breathe = Math.sin(t*2.2)*0.02;
+      const shift = Math.sin(t*0.9);                       // slow weight shift
 
-      // body: sway idle; springy lunge at the glass on impact
-      R.root.position.z = 0.10 + k*0.16;
-      R.root.position.y = 0.05 + breathe - k*0.045;
-      R.root.rotation.z = Math.sin(t*1.7)*0.02 + k*0.05;
-      R.root.rotation.x = k*0.06;
+      // body: idle sway + springy lunge at the glass on impact
+      R.root.position.z = spring('rz', 0.10 + k*0.17, dt, 2.4, 0.6);
+      R.root.position.y = spring('ry', 0.05 + breathe*1.4 - k*0.05, dt, 2.0, 0.7);
+      R.root.rotation.z = spring('rrz', shift*0.035 + k*0.05, dt, 1.6, 0.8);
+      R.root.rotation.x = spring('rrx', k*0.06, dt, 2.6, 0.7);
+      R.root.rotation.y = Math.sin(t*0.7)*0.04;            // slow alive turn
 
-      // chest + head follow through with lagged smoothing (motion reads fluid)
-      const chT = -0.06 + k*0.16;
-      chXs += (chT - chXs) * Math.min(1, dt*14);
-      R.chest.rotation.x = chXs;
-      R.chest.rotation.z = -k*0.05;
+      // chest: leads the punch, counter-twists with the weight shift
+      R.chest.rotation.x = spring('chx', -0.06 + k*0.18, dt, 2.8, 0.65);
+      R.chest.rotation.y = spring('chy', -shift*0.06, dt, 2.2, 0.8);
+      R.chest.rotation.z = spring('chz', -k*0.06 + shift*0.02, dt, 2.5, 0.75);
 
-      const hdT = -0.08 - k*0.30;
-      hdXs += (hdT - hdXs) * Math.min(1, dt*11);
-      const hdZT = Math.sin(t*2.6)*0.05 - k*0.10;
-      hdZs += (hdZT - hdZs) * Math.min(1, dt*13);
-      R.headG.rotation.x = hdXs;
-      R.headG.rotation.z = hdZs;
+      // head: springy bobble — recoils, glances around, never locked
+      R.headG.rotation.x = spring('hdx', -0.08 - k*0.32 + Math.sin(t*1.3)*0.03, dt, 3.1, 0.6);
+      R.headG.rotation.y = spring('hdy', Math.sin(t*0.9)*0.10 - k*0.06, dt, 2.6, 0.6);
+      R.headG.rotation.z = spring('hdz', Math.sin(t*2.1)*0.06 - k*0.10, dt, 3.0, 0.6);
 
       // scream gapes wider on impact; occasional terrified blink
       const blink = (t % 3.7) < 0.09 ? 0.12 : 1;
-      R.mouthG.scale.y = 1 + k*1.4;
+      R.mouthG.scale.y = 1 + k*1.5;
       const es = 1 + k*0.15;
       R.eyeL.scale.set(es, es*blink, es);
       R.eyeR.scale.set(es, es*blink, es);
 
-      // RIGHT arm — knocker: a real punch cycle. Coil = shoulder relaxed down,
-      // elbow folded so the fist rises in front of the chest; whip = the whole
-      // arm uncoils straight at the glass (shoulder AND elbow swing forward).
-      R.armR.sh.rotation.x = lerp(-0.50, -1.75, k) + Math.sin(t*1.9)*0.03;
-      R.armR.sh.rotation.z = 0.15 + Math.sin(t*2.3)*0.03;   // stays on HIS right side
-      R.armR.el.rotation.x = lerp(-2.20, -0.15, k);
+      // RIGHT arm — knocker: envelope drives the target, the spring does the
+      // motion — the whip overshoots, flexes back and settles. Never rigid.
+      R.armR.sh.rotation.x = spring('arsx', lerp(-0.50, -1.80, k), dt, 3.0, 0.5);
+      R.armR.sh.rotation.z = spring('arsz', 0.15, dt, 2.0, 0.8);
+      R.armR.el.rotation.x = spring('arel', lerp(-2.20, -0.10, k), dt, 3.4, 0.45);
       R.armR.hand.scale.y = 1 - k*0.25;            // knuckle squash on the bang
 
-      // LEFT arm — braced on the glass, trembling under stress
-      R.armL.sh.rotation.x = -2.3;
-      R.armL.sh.rotation.z = 0.35 + Math.sin(t*27)*0.02*(burst ? 1 : 0);
-      R.armL.el.rotation.x = -0.25 + Math.sin(t*5.3)*0.04;
+      // LEFT arm — braced on the glass, presses harder on impact, trembles
+      R.armL.sh.rotation.x = spring('alsx', -2.3 + k*0.12, dt, 2.4, 0.7);
+      R.armL.sh.rotation.z = spring('alsz', 0.35 + Math.sin(t*2.0)*0.05 + Math.sin(t*27)*0.02*(burst ? 1 : 0), dt, 3.5, 0.6);
+      R.armL.el.rotation.x = spring('alel', -0.25 + k*0.35 + Math.sin(t*5.3)*0.05, dt, 3.0, 0.6);
 
-      // legs: flail for purchase — two-joint motion, knees bend
-      R.legL.hip.rotation.x = 0.15 + Math.sin(t*3.1)*0.03 + k*0.18;
-      R.legR.hip.rotation.x = -0.10 - Math.sin(t*2.7)*0.03 + k*0.22;
-      R.legL.knee.rotation.x = -0.12 - k*0.45 - Math.sin(t*3.1)*0.06;
-      R.legR.knee.rotation.x = 0.08 + k*0.30 + Math.sin(t*2.7)*0.05;
+      // legs: pedal for purchase — phase-offset, knees bend, springs carry it
+      R.legL.hip.rotation.x = spring('lghl', 0.15 + Math.sin(t*3.4)*0.10 + k*0.22, dt, 2.6, 0.7);
+      R.legR.hip.rotation.x = spring('lghr', -0.10 - Math.sin(t*3.4 + 2.1)*0.10 + k*0.26, dt, 2.6, 0.7);
+      R.legL.knee.rotation.x = spring('lkn1', -0.12 - k*0.50 - Math.sin(t*3.4)*0.14, dt, 3.0, 0.65);
+      R.legR.knee.rotation.x = spring('lkn2', 0.08 + k*0.34 + Math.sin(t*3.4 + 2.1)*0.12, dt, 3.0, 0.65);
     }
 
     function loop(){
