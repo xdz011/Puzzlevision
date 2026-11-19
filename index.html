@@ -647,7 +647,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.35 &bull; gameover theme</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.36 &bull; rating theme</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -737,6 +737,7 @@
 
   <div class="fx-flash" id="fxFlash"></div>
 
+  <audio id="ratingTheme" src="rating_theme.mp3" preload="auto" loop></audio>
   <audio id="tvdTheme" src="puzzles_theme.mp3" preload="auto" loop></audio>
   <div class="tv-dim" id="tvDim">
     <div class="tvd-room">
@@ -2453,6 +2454,7 @@ let chaseMood = 'insane';
     gv.tvdRetry.style.display = 'none';
     gv.tvdBack.style.display = 'none';
     gv.tvDim.classList.add('on');
+    pauseRatingTheme();
     XDZ3D.start();
     scheduleSil();
     themeAudio = themeAudio || document.getElementById('tvdTheme');
@@ -2483,6 +2485,27 @@ let chaseMood = 'insane';
       }
     }catch(e){}
   });
+
+  /* ---------- rating-screen theme ---------- */
+  let ratingAudio = null;
+  function ratingScreenUp(){
+    return !gv.game.classList.contains('playing') &&
+           !gv.tvDim.classList.contains('on') &&
+           !gv.end.classList.contains('on');
+  }
+  function playRatingTheme(){
+    try{
+      ratingAudio = ratingAudio || document.getElementById('ratingTheme');
+      if(!ratingAudio || !ratingScreenUp()) return;
+      ratingAudio.volume = 0.7;
+      const p = ratingAudio.play();
+      if(p && p.catch) p.catch(function(){});
+    }catch(e){}
+  }
+  function pauseRatingTheme(){ try{ if(ratingAudio) ratingAudio.pause(); }catch(e){} }
+  /* start on first interaction (autoplay policy), keep alive on menu/intro */
+  document.addEventListener('click', function(){ playRatingTheme(); });
+  document.addEventListener('keydown', function(){ playRatingTheme(); });
   function onStruggle(){
     struggleCount++;
     gv.tvDim.classList.add('shake');
@@ -3634,6 +3657,7 @@ if(d.id === 'slingshot'){
       gv.sub.textContent = 'PAUSED';
       gv.start.textContent = 'CLICK TO RESUME';
       gv.warn.textContent = 'He is still in there with you.';
+      playRatingTheme();
       keys = {};
     }
   }
@@ -3682,6 +3706,7 @@ if(d.id === 'slingshot'){
     gv.warn.textContent = warn;
     gv.start.textContent = 'CLICK TO ENTER';
     gv.intro.style.display = 'flex';
+    playRatingTheme();
     gv.end.classList.remove('on');
     gv.game.classList.add('on');
     document.body.style.overflow = 'hidden';
@@ -3699,6 +3724,7 @@ if(d.id === 'slingshot'){
     gv.sub.textContent = 'TRY AGAIN';
     gv.start.textContent = 'CLICK TO ENTER';
     gv.warn.textContent = '';
+    playRatingTheme();
     started = false; running = false; paused = false; caught = false; escaped = false;
     scarePhase = null; scareT = 0;
     buildWithSize(pendingN);
@@ -3747,6 +3773,7 @@ if(d.id === 'slingshot'){
     paused = false;
     running = true;
     gv.game.classList.add('playing');
+    pauseRatingTheme();
     hideTVDim();
     gv.intro.style.display = 'none';
     gv.end.classList.remove('on');
@@ -3770,6 +3797,7 @@ if(d.id === 'slingshot'){
       try{ audio._drone.o1.stop(); audio._drone.o2.stop(); }catch(e){}
       audio._drone = null;
     }
+    playRatingTheme();
   }
 
   /* ---------- hunter ---------- */
@@ -3944,6 +3972,7 @@ if(d.id === 'slingshot'){
   function showEnd(title, text){
     gv.endTitle.textContent = title;
     gv.endText.textContent = text;
+    pauseRatingTheme();
     gv.end.classList.add('on');
   }
 
