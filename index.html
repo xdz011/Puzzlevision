@@ -542,6 +542,12 @@
   .ad-fine { font-size:9px; text-align:center; color:#6b5a00; padding:0 10px 8px; }
   .adware.gone { animation:adGone .35s forwards; }
   @keyframes adGone { to { opacity:0; transform:rotate(6deg) scale(.6) translateY(30px); } }
+  .adware.pop { animation:adPop .45s cubic-bezier(.34,1.56,.64,1) 1; }
+  @keyframes adPop {
+    0%{ transform:scale(.15) rotate(-18deg); opacity:0; }
+    60%{ transform:scale(1.08) rotate(4deg); opacity:1; }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
   @media(max-width:520px){ .adware{ width:250px; right:10px; bottom:10px; } }
 
   /* ---------- CORRUPTED SITE ---------- */
@@ -669,7 +675,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.39 &bull; mascot two-shot</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.40 &bull; roaming adware</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -4531,6 +4537,19 @@ if(d.id === 'slingshot'){
     mascotEl.classList.toggle('tv-mode', adTv);
   }, 4200);
 
+  /* respawn the ad somewhere random on screen (adware never learns) */
+  function adRandomPos(){
+    const w = ad.offsetWidth || 300;
+    const h = ad.offsetHeight || 430;
+    const m = 14;
+    const x = m + Math.random() * Math.max(1, window.innerWidth - w - m*2);
+    const y = m + Math.random() * Math.max(1, window.innerHeight - h - m*2);
+    ad.style.left = x.toFixed(0) + 'px';
+    ad.style.top = y.toFixed(0) + 'px';
+    ad.style.right = 'auto';
+    ad.style.bottom = 'auto';
+  }
+
   document.getElementById('adClose').addEventListener('click', function(){
     /* closing it never works for long: it pops back up, adware style */
     ad.classList.add('gone');
@@ -4539,9 +4558,14 @@ if(d.id === 'slingshot'){
       setTimeout(function(){
         secs = 599; stock = 3;
         stockEl.textContent = stock;
+        ad.style.visibility = 'hidden';
         ad.style.display = '';
+        adRandomPos();
+        ad.style.visibility = '';
         ad.classList.remove('gone');
-      }, 18000 + Math.random() * 22000);
+        ad.classList.add('pop');
+        setTimeout(function(){ ad.classList.remove('pop'); }, 500);
+      }, 10000);
     }, 380);
   });
 
