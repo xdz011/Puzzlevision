@@ -318,9 +318,9 @@
     color:#8a8a8a; cursor:pointer; text-decoration:underline; }
   .gi-leave:hover { color:#fff; }
 
-  .game-end { position:absolute; inset:0; z-index:9; display:none; flex-direction:column;
+.game-end { position:absolute; inset:0; z-index:9; display:none; flex-direction:column;
     align-items:center; justify-content:center; gap:14px; text-align:center;
-    background:radial-gradient(circle at center, rgba(60,0,0,.85), rgba(0,0,0,.97)); }
+    background:linear-gradient(180deg, #2a2a2a, #111111); }
   .game-end.on { display:flex; }
   .ge-title { font-family:'Bungee'; font-size:clamp(34px,8vw,76px); letter-spacing:4px; color:#ff1a1a;
     text-shadow:0 0 40px rgba(255,0,0,.9); animation:glitchTitle .25s steps(2) infinite; }
@@ -337,41 +337,200 @@
 .fx-flash.on { animation: flashBang .45s ease-out forwards; }
 @keyframes flashBang { 0%{opacity:0} 30%{opacity:.55} 65%{opacity:.92} 100%{opacity:1} }
 
-  /* ---------- INSIDE THE TV DIMENSION ---------- */
+  /* ---------- INSIDE THE TV DIMENSION — a lonely gray room ---------- */
   .tv-dim { position:absolute; inset:0; z-index:70; display:none; overflow:hidden;
-    background:#05040a; }
+    background:#08080a; }
   .tv-dim.on { display:block; }
-  .tvd-bg { position:absolute; inset:-40%;
-    background:conic-gradient(from 0deg, #ffe600, #35e8dc, #7dff4f, #ff6ed1, #ff2222, #3b9bff, #ffe600);
-    filter:blur(60px) saturate(1.2); opacity:.55; animation: tvdSpin 14s linear infinite; }
-  @keyframes tvdSpin { to { transform: rotate(360deg); } }
-  .tvd-scan { position:absolute; inset:0; pointer-events:none;
+
+  /* the room: grim gray walls, a cold corner, concrete floor */
+  .tvd-room { position:absolute; inset:0; overflow:hidden; }
+  .tvd-wall { position:absolute; }
+  .tvd-back { left:13%; right:13%; top:7%; bottom:23%;
+    background:linear-gradient(180deg,#48484c 0%,#3b3b3f 50%,#2d2d30 100%);
+    box-shadow: inset 0 0 130px rgba(0,0,0,.8); }
+  .tvd-back::before { content:''; position:absolute; inset:0; opacity:.55;
     background:
-      repeating-linear-gradient(0deg, rgba(0,0,0,.55) 0 2px, transparent 2px 4px),
-      radial-gradient(circle at center, transparent 30%, rgba(0,0,0,.85) 100%);
-    mix-blend-mode:multiply; }
-  .tvd-scan::after { content:''; position:absolute; inset:0; opacity:.18;
+      radial-gradient(ellipse 26% 20% at 18% 28%, rgba(0,0,0,.5), transparent 70%),
+      radial-gradient(ellipse 22% 28% at 78% 58%, rgba(0,0,0,.45), transparent 70%),
+      radial-gradient(ellipse 40% 16% at 50% 10%, rgba(0,0,0,.4), transparent 70%),
+      radial-gradient(ellipse 18% 12% at 42% 78%, rgba(0,0,0,.35), transparent 70%); }
+  .tvd-left { left:0; width:14%; top:0; bottom:0;
+    background:linear-gradient(90deg,#1c1c1f,#323236); }
+  .tvd-right { right:0; width:14%; top:0; bottom:0;
+    background:linear-gradient(-90deg,#1c1c1f,#323236); }
+  .tvd-floor { position:absolute; left:0; right:0; bottom:0; height:23%;
+    background:linear-gradient(180deg,#26262a,#101013);
+    box-shadow: inset 0 16px 34px rgba(0,0,0,.75); }
+  .tvd-vig { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 52%, transparent 26%, rgba(0,0,0,.84) 100%); }
+
+  /* the TV — Mr. Puzzles' TV head, parked in the dark corner */
+  .tvd-tv { position:absolute; left:24%; bottom:22%; transform:translateX(-50%);
+    width:min(42vw, 380px); z-index:2;
+    filter:drop-shadow(0 16px 26px rgba(0,0,0,.85)); }
+  .tvd-ant { position:absolute; left:18%; bottom:96%; width:30%; height:0; }
+  .tvd-ant::before, .tvd-ant::after { content:''; position:absolute; bottom:0; left:50%;
+    width:2.5px; height:44px; background:#2a2824; transform-origin:bottom; border-radius:2px; }
+  .tvd-ant::before { transform:rotate(-32deg); }
+  .tvd-ant::after { transform:rotate(28deg); }
+  .tvd-ant .ab { position:absolute; width:8px; height:8px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #6b675e, #2a2824 70%); }
+  .tvd-ant .ab.l { left:calc(50% - 27px); top:-42px; }
+  .tvd-ant .ab.r { left:calc(50% + 17px); top:-42px; }
+  .tvd-body { position:relative; padding:5.5% 16% 9% 6%;
+    background:linear-gradient(180deg,#f2f0ea,#d8d5cd 55%,#a8a49a 85%,#87837a);
+    border-radius:16px 16px 12px 12px; border:2px solid #2a2824;
+    box-shadow: inset 0 2px 3px rgba(255,255,255,.7), inset 0 -6px 14px rgba(0,0,0,.35),
+      inset -8px 0 12px rgba(0,0,0,.14); }
+  .tvd-vent { position:absolute; left:50%; transform:translateX(-50%); top:-3px; width:42%; height:5px;
+    background:repeating-linear-gradient(90deg,#5a564d 0 3px, transparent 3px 7px);
+    border-radius:2px; opacity:.8; }
+  .tvd-grill { position:absolute; right:4%; bottom:3%; width:9%; height:11%;
+    background:repeating-linear-gradient(0deg, #5a564d 0 2px, transparent 2px 5px);
+    border-radius:3px; opacity:.7; }
+  .tvd-tag { position:absolute; left:6.5%; bottom:3%; font-family:'Bungee';
+    font-size:clamp(5px,.9vw,9px); letter-spacing:2px; color:#a02418; opacity:.85; }
+  .tvd-scr { position:relative; aspect-ratio:4/3; overflow:hidden;
+    border-radius:12%/11% 11% 13% 13%;
+    background:#0a0202;
+    box-shadow: inset 0 0 44px rgba(0,0,0,.92), 0 0 0 3px #23252a;
+    display:flex; align-items:center; justify-content:center; }
+  /* the classic ending card: red rings contracting into a black center */
+  .tvd-rings { position:absolute; left:50%; top:50%; width:172%; aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle,
+      #060606 0%, #060606 15%,
+      #c22312 15.5%, #8c1108 23%, #d63a12 30%, #93170a 37%,
+      #e04a14 44%, #7a0d06 51%, #a8210e 58%, #5a0a05 66%,
+      #300604 78%, #120303 100%);
+    animation:tvdRings 5.5s ease-in-out infinite; }
+  @keyframes tvdRings { 0%,100%{transform:translate(-50%,-50%) scale(1)}
+    50%{transform:translate(-50%,-50%) scale(1.07)} }
+  .tvd-script { position:relative; z-index:2; transform:rotate(-9deg);
+    font-family:'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;
+    font-style:italic; font-weight:700; white-space:nowrap;
+    font-size:clamp(15px,3.4vw,34px); color:#fdfdf6;
+    text-shadow:0 2px 4px rgba(0,0,0,.75), 0 0 14px rgba(255,120,60,.35);
+    animation:tvdFlick 4.4s steps(1) infinite; }
+  @keyframes tvdFlick { 0%,88%,100%{opacity:1} 89%{opacity:.45} 90%{opacity:.95} 95%{opacity:.7} 96%{opacity:1} }
+  .tvd-static { position:absolute; inset:0; opacity:.08; z-index:3; pointer-events:none;
     background-image:repeating-conic-gradient(#fff 0% 25%, #000 0% 50%);
-    background-size:4px 4px; animation: staticMove .3s steps(2) infinite; }
+    background-size:3px 3px; animation:staticMove .3s steps(2) infinite; }
+  .tvd-scr::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; z-index:4;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 2px, transparent 2px 4px); }
+  /* his dials, on the side of his head */
+  .tvd-dials { position:absolute; right:4%; top:12%; bottom:26%; width:9%;
+    display:flex; flex-direction:column; justify-content:space-evenly; align-items:center; }
+  .tvd-dials i { width:100%; aspect-ratio:1; border-radius:50%; display:block;
+    background:radial-gradient(circle at 35% 30%, #eceef0, #9a9ea3 55%, #55585c 100%);
+    border:1.5px solid #2a2c30; box-shadow:0 1px 2px rgba(0,0,0,.5); position:relative; }
+  .tvd-dials i::after { content:''; position:absolute; left:50%; top:8%; width:2px; height:42%;
+    background:#23252a; transform:translateX(-50%); border-radius:2px; }
 
-  .tvd-face { position:absolute; left:50%; top:44%; transform:translate(-50%,-50%);
-    width:min(62vw, 620px); aspect-ratio:4/3; opacity:.92;
-    filter: contrast(1.15) saturate(1.1) drop-shadow(0 0 60px rgba(255,0,0,.6));
-    animation: tvdFloat 5s ease-in-out infinite; }
-  .tvd-face svg { width:100%; height:100%; display:block; }
-  @keyframes tvdFloat {
-    0%,100% { transform:translate(-50%,-50%) scale(1) rotate(-1deg); }
-    50% { transform:translate(-50%,-52%) scale(1.05) rotate(1.5deg); }
+  /* cracked screen + mysterious black goo */
+  .tvd-crack { position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; }
+  .tvd-crack svg { width:100%; height:100%; display:block; }
+  .tv-dim.cracked .tvd-crack { opacity:1; animation:crackIn .16s steps(2) 3; }
+  @keyframes crackIn { 0%{opacity:.2; transform:scale(1.05)} 100%{opacity:1; transform:scale(1)} }
+  .tv-dim.cracked .tvd-scr { animation:tvdDie 1.4s steps(4) forwards; }
+  @keyframes tvdDie { 0%{filter:none} 25%{filter:brightness(1.7) contrast(1.5)}
+    55%{filter:brightness(.35) saturate(.5)} 75%{filter:brightness(1.1)}
+    100%{filter:brightness(.55) saturate(.75)} }
+  .tvd-goo-in { position:absolute; left:-8%; right:-8%; bottom:-16%; height:52%; z-index:1; opacity:0;
+    background:radial-gradient(ellipse at 50% 100%, #000 52%, transparent 74%); }
+  .tv-dim.cracked .tvd-goo-in { opacity:.92; animation:gooRise 2.6s ease-out forwards; }
+  @keyframes gooRise { from{transform:translateY(34%)} to{transform:translateY(0)} }
+  .tvd-goo { position:absolute; inset:0; z-index:5; pointer-events:none; opacity:0; }
+  .tv-dim.cracked .tvd-goo { opacity:1; }
+  .tvd-goo .goo-drip2 { position:absolute; width:7%; top:83%; transform-origin:top center;
+    background:linear-gradient(180deg,#0c0c10,#000 65%);
+    border-radius:46% 46% 58% 58% / 10% 10% 62% 62%;
+    box-shadow: inset 2px 2px 3px rgba(110,110,150,.28), 0 0 8px rgba(0,0,0,.65);
+    animation:gooLeak 3.4s ease-in-out .35s both; }
+  @keyframes gooLeak { 0%{transform:scaleY(.06)} 55%{transform:scaleY(1)} 100%{transform:scaleY(1) translateY(5px)} }
+  .goo-d1 { left:15%; height:26%; }
+  .goo-d2 { left:27%; height:18%; animation-delay:.9s; }
+  .goo-d3 { left:50%; height:23%; animation-delay:1.5s; }
+  .tvd-goo .goo-pool { position:absolute; left:4%; right:4%; bottom:-16%; height:9%; border-radius:50%;
+    background:radial-gradient(ellipse at 50% 42%, #0d0d12, #000 72%);
+    box-shadow:0 6px 18px rgba(0,0,0,.7);
+    transform-origin:center; animation:poolGrow 3s ease-out .5s both; }
+  @keyframes poolGrow { 0%{transform:scale(.08,.08); opacity:0} 25%{opacity:1}
+    70%{transform:scale(1.05,.9)} 100%{transform:scale(1,.92)} }
+
+  /* XDZ inside, banging to get out — articulated limbs */
+  .tvd-sil { position:absolute; left:50%; top:50%; z-index:2; width:58%; opacity:0; pointer-events:none;
+    transform:translate(-50%,-50%); }
+  .tvd-sil svg { width:100%; display:block;
+    filter:drop-shadow(0 0 10px rgba(255,220,170,.35)) drop-shadow(0 5px 9px rgba(0,0,0,.55)); }
+  .limb { transform-box: view-box; }
+  .knock-arm { transform-origin:76px 52px; }
+  .knock-fore { transform-origin:100px 32px; }
+  .arm-l { transform-origin:44px 52px; }
+  .fore-l { transform-origin:20px 32px; }
+  .shin-l { transform-origin:46px 120px; }
+  .shin-r { transform-origin:74px 120px; }
+
+  .tv-dim.sil-on .tvd-sil { opacity:.92; animation:silBang .43s ease-in-out infinite; }
+  /* impact lands on the downbeat, where the thump sounds fire */
+  @keyframes silBang {
+    0%{transform:translate(-50%,-50%) scale(1.06) rotate(-1.2deg)}
+    38%{transform:translate(-51%,-51%) scale(.97) rotate(1.4deg)}
+    72%{transform:translate(-50.4%,-50.2%) scale(1.03) rotate(.4deg)}
+    100%{transform:translate(-50%,-50%) scale(1.06) rotate(-1.2deg)}
   }
+  .tv-dim.sil-on .tvd-script { filter:brightness(.4); }
+  .tv-dim.sil-on .tvd-rings { filter:brightness(1.35); }
+  /* shoulder + elbow articulate the knock */
+  .tv-dim.sil-on .knock-arm { animation:silKnock .43s ease-in-out infinite; }
+  @keyframes silKnock {
+    0%{transform:rotate(-10deg)}
+    38%{transform:rotate(17deg)}
+    72%{transform:rotate(-7deg)}
+    100%{transform:rotate(-10deg)}
+  }
+  .tv-dim.sil-on .knock-fore { animation:silFore .43s ease-in-out infinite; }
+  @keyframes silFore {
+    0%{transform:rotate(-8deg)}
+    38%{transform:rotate(26deg)}
+    72%{transform:rotate(-5deg)}
+    100%{transform:rotate(-8deg)}
+  }
+  /* bracing arm trembles; legs kick for purchase */
+  .tv-dim.sil-on .arm-l { animation:silBrace .86s ease-in-out infinite; }
+  @keyframes silBrace {
+    0%,100%{transform:rotate(0deg)}
+    30%{transform:rotate(-3.5deg)}
+    65%{transform:rotate(2deg)}
+  }
+  .tv-dim.sil-on .fore-l { animation:silBraceF .86s ease-in-out infinite; }
+  @keyframes silBraceF {
+    0%,100%{transform:rotate(0deg)}
+    30%{transform:rotate(4deg)}
+    65%{transform:rotate(-2.5deg)}
+  }
+  .tv-dim.sil-on .shin-l { animation:silKick .86s ease-in-out infinite; }
+  .tv-dim.sil-on .shin-r { animation:silKick .86s ease-in-out -.43s infinite; }
+  @keyframes silKick {
+    0%,100%{transform:rotate(0deg)}
+    30%{transform:rotate(-9deg)}
+    62%{transform:rotate(6deg)}
+  }
+  .tvd-feet { display:flex; justify-content:space-between; padding:0 16%; }
+  .tvd-feet i { width:12%; height:8px; background:#33363a; border-radius:0 0 4px 4px; display:block; }
 
-  .tvd-panel { position:absolute; left:0; right:0; bottom:0; z-index:2;
+  /* the only light in the room comes from the screen */
+  .tvd-glow { position:absolute; left:24%; bottom:21%; transform:translateX(-50%);
+    width:min(70vw, 620px); height:44%; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 58%, rgba(255,110,60,.14), transparent 62%);
+    mix-blend-mode:screen; animation:tvdGlow 4.4s ease-in-out infinite; }
+  @keyframes tvdGlow { 0%,88%,100%{opacity:1} 89%{opacity:.5} 96%{opacity:1} }
+
+  .tvd-panel { position:absolute; left:0; right:0; bottom:0; z-index:3;
     display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;
     padding:24px 20px 34px;
-    background:linear-gradient(180deg, transparent, rgba(0,0,0,.85) 40%); }
-  .tvd-title { font-family:'Bungee'; font-size:clamp(20px,4.4vw,46px); letter-spacing:3px; color:#fff;
-    text-shadow:2px 0 #ff2222, -2px 0 #00e5ff, 0 0 40px rgba(255,0,0,.8);
-    animation: glitchTitle .22s steps(2) infinite; }
-  .tvd-sub { font-family:'Consolas',monospace; color:#e8e8e8; font-size:13px; max-width:620px; line-height:1.6; }
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.88) 40%); }
+  .tvd-sub { font-family:'Consolas',monospace; color:#b9b9bd; font-size:13px; max-width:620px; line-height:1.6; }
   .tvd-count { font-family:'Consolas',monospace; color:#ff6b6b; font-size:12px; letter-spacing:2px; min-height:16px; }
 
   /* ---------- ADWARE POPUP ---------- */
@@ -468,14 +627,13 @@
     box-shadow:0 0 30px rgba(160,0,0,.7); animation:toastIn .5s ease-out, toastOut .6s ease-in 5s forwards; }
   @keyframes toastIn { from{opacity:0; transform:translate(-50%,-16px)} to{opacity:1; transform:translate(-50%,0)} }
   @keyframes toastOut { to{opacity:0; transform:translate(-50%,-16px)} }
-  .tv-dim.shake .tvd-face { animation:tvdShake .25s steps(2) 4; }
-  .tv-dim.shake .tvd-bg { filter:blur(40px) saturate(1.8) brightness(1.25); }
+  .tv-dim.shake .tvd-tv { animation:tvdShake .25s steps(2) 4; }
+  .tv-dim.shake .tvd-scr { filter:brightness(1.5) contrast(1.3); }
   @keyframes tvdShake {
-    0%{transform:translate(-50%,-50%) scale(1)}
-    25%{transform:translate(-52%,-49%) scale(1.06) rotate(-3deg)}
-    50%{transform:translate(-50%,-50%) scale(1.03) rotate(0deg)}
-    75%{transform:translate(-48%,-51%) scale(1.04) rotate(3deg)}
-    100%{transform:translate(-50%,-50%) scale(1)}
+    0%,100%{transform:translateX(-50%)}
+    25%{transform:translateX(-52.5%) rotate(-1.4deg)}
+    50%{transform:translateX(-50%)}
+    75%{transform:translateX(-47.5%) rotate(1.4deg)}
   }
 </style>
 </head>
@@ -537,7 +695,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.7 &bull; studio hitboxes</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.18 &bull; model fixes</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -619,7 +777,7 @@
   </div>
 
   <div class="game-end" id="gameEnd">
-    <div class="ge-title" id="geTitle">CAUGHT</div>
+    <div class="ge-title" id="geTitle">THAT'S ALL FOLKS!</div>
     <div class="ge-text" id="geText"></div>
     <button class="ge-btn" id="geRetry">TRY AGAIN</button>
     <button class="ge-btn alt" id="geExit">BACK</button>
@@ -628,12 +786,229 @@
   <div class="fx-flash" id="fxFlash"></div>
 
   <div class="tv-dim" id="tvDim">
-    <div class="tvd-bg"></div>
-    <div class="tvd-scan"></div>
-    <div class="tvd-face" id="tvdFace"></div>
+    <div class="tvd-room">
+      <div class="tvd-wall tvd-left"></div>
+      <div class="tvd-wall tvd-right"></div>
+      <div class="tvd-wall tvd-back"></div>
+      <div class="tvd-floor"></div>
+      <div class="tvd-glow"></div>
+      <div class="tvd-tv">
+        <div class="tvd-ant"><i class="ab l"></i><i class="ab r"></i></div>
+        <div class="tvd-body">
+          <div class="tvd-vent"></div>
+          <div class="tvd-scr">
+            <div class="tvd-rings"></div>
+            <div class="tvd-goo-in"></div>
+            <div class="tvd-script">That's all Folks!</div>
+            <div class="tvd-sil">
+              <svg viewBox="0 0 120 140">
+                <defs>
+                  <radialGradient id="tvdGHead" cx="38%" cy="28%" r="82%">
+                    <stop offset="0%" stop-color="#ffdcae"/>
+                    <stop offset="45%" stop-color="#f6c99f"/>
+                    <stop offset="78%" stop-color="#e2a979"/>
+                    <stop offset="100%" stop-color="#c98f5d"/>
+                  </radialGradient>
+                  <radialGradient id="tvdGNose" cx="36%" cy="30%" r="82%">
+                    <stop offset="0%" stop-color="#ffe3ba"/>
+                    <stop offset="55%" stop-color="#f6c99f"/>
+                    <stop offset="100%" stop-color="#cf9159"/>
+                  </radialGradient>
+                  <radialGradient id="tvdGIris" cx="40%" cy="35%" r="82%">
+                    <stop offset="0%" stop-color="#4d8dff"/>
+                    <stop offset="60%" stop-color="#0f52ba"/>
+                    <stop offset="100%" stop-color="#062a66"/>
+                  </radialGradient>
+                  <radialGradient id="tvdGGlove" cx="35%" cy="30%" r="88%">
+                    <stop offset="0%" stop-color="#2f4fc0"/>
+                    <stop offset="55%" stop-color="#000080"/>
+                    <stop offset="100%" stop-color="#000045"/>
+                  </radialGradient>
+                  <radialGradient id="tvdGShoe" cx="35%" cy="30%" r="88%">
+                    <stop offset="0%" stop-color="#4a4a4a"/>
+                    <stop offset="60%" stop-color="#111111"/>
+                    <stop offset="100%" stop-color="#000000"/>
+                  </radialGradient>
+                  <linearGradient id="tvdGCap" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#66ffb0"/>
+                    <stop offset="50%" stop-color="#00FF7F"/>
+                    <stop offset="100%" stop-color="#00b359"/>
+                  </linearGradient>
+                  <linearGradient id="tvdGBrim" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00c96b"/>
+                    <stop offset="100%" stop-color="#008a47"/>
+                  </linearGradient>
+                  <linearGradient id="tvdGShirt" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4dffa0"/>
+                    <stop offset="55%" stop-color="#00FF7F"/>
+                    <stop offset="100%" stop-color="#00c268"/>
+                  </linearGradient>
+                  <linearGradient id="tvdGOv" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ccff55"/>
+                    <stop offset="55%" stop-color="#b3ff00"/>
+                    <stop offset="100%" stop-color="#8fcc00"/>
+                  </linearGradient>
+                  <linearGradient id="tvdGLimb" gradientUnits="userSpaceOnUse" x1="8" y1="20" x2="112" y2="80">
+                    <stop offset="0%" stop-color="#5cffae"/>
+                    <stop offset="100%" stop-color="#00a254"/>
+                  </linearGradient>
+                  <filter id="tvdSoft" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="1.7"/>
+                  </filter>
+                </defs>
+
+                <!-- LEGS: hip -> knee -> shoe -->
+                <g class="leg-l limb">
+                  <path d="M49 106 L46 120" stroke="#2e5a1f" stroke-width="16.4" stroke-linecap="round" fill="none"/>
+                  <path d="M49 106 L46 120" stroke="url(#tvdGLimb)" stroke-width="15" stroke-linecap="round" fill="none"/>
+                  <g class="shin-l limb">
+                    <path d="M46 120 L45 132" stroke="#2e5a1f" stroke-width="14.3" stroke-linecap="round" fill="none"/>
+                    <path d="M46 120 L45 132" stroke="url(#tvdGLimb)" stroke-width="13" stroke-linecap="round" fill="none"/>
+                    <path d="M34 136 Q34 131.5 40 131.5 L50 131.5 Q56 131.5 56 136 Q56 140 50 140 L38 140 Q34 140 34 136 Z" fill="url(#tvdGShoe)" stroke="#000000" stroke-width=".8"/>
+                    <path d="M38 133.8 Q43 132.4 48 133.2" stroke="#9a9a9a" stroke-width=".9" opacity=".45" fill="none"/>
+                  </g>
+                </g>
+                <g class="leg-r limb">
+                  <path d="M71 106 L74 120" stroke="#2e5a1f" stroke-width="16.4" stroke-linecap="round" fill="none"/>
+                  <path d="M71 106 L74 120" stroke="url(#tvdGLimb)" stroke-width="15" stroke-linecap="round" fill="none"/>
+                  <g class="shin-r limb">
+                    <path d="M74 120 L75 132" stroke="#2e5a1f" stroke-width="14.3" stroke-linecap="round" fill="none"/>
+                    <path d="M74 120 L75 132" stroke="url(#tvdGLimb)" stroke-width="13" stroke-linecap="round" fill="none"/>
+                    <path d="M64 136 Q64 131.5 70 131.5 L80 131.5 Q86 131.5 86 136 Q86 140 80 140 L68 140 Q64 140 64 136 Z" fill="url(#tvdGShoe)" stroke="#000000" stroke-width=".8"/>
+                    <path d="M68 133.8 Q73 132.4 78 133.2" stroke="#9a9a9a" stroke-width=".9" opacity=".45" fill="none"/>
+                  </g>
+                </g>
+                <!-- overalls hips -->
+                <path d="M39 78 Q60 84 81 78 C83 88 83 98 81 106 Q60 112 39 106 C37 98 37 88 39 78 Z" fill="url(#tvdGOv)" stroke="#5a7a10" stroke-width=".8"/>
+                <!-- shirt -->
+                <path d="M40 62 C48 55 72 55 80 62 C82 68 82 76 81 80 Q60 86 39 80 C38 74 38 68 40 62 Z" fill="url(#tvdGShirt)" stroke="#1d7a44" stroke-width=".8"/>
+                <!-- collar shadow where head meets shirt -->
+                <ellipse cx="60" cy="63.5" rx="13" ry="4" fill="#003d20" opacity=".38" filter="url(#tvdSoft)"/>
+                <!-- fabric wrinkle hints -->
+                <path d="M46 72 Q54 74.5 62 73" stroke="#008a47" stroke-width=".8" opacity=".5" fill="none"/>
+                <path d="M64 74 Q70 73.5 74 71.5" stroke="#008a47" stroke-width=".8" opacity=".4" fill="none"/>
+                <!-- straps -->
+                <path d="M50 62 L50 78" stroke="#2e5a1f" stroke-width="9" stroke-linecap="round"/>
+                <path d="M50 62 L50 78" stroke="url(#tvdGOv)" stroke-width="7.5" stroke-linecap="round"/>
+                <path d="M70 62 L70 78" stroke="#2e5a1f" stroke-width="9" stroke-linecap="round"/>
+                <path d="M70 62 L70 78" stroke="url(#tvdGOv)" stroke-width="7.5" stroke-linecap="round"/>
+                <circle cx="50" cy="73" r="2.8" fill="#ffd400" stroke="#8a6d00" stroke-width=".7"/>
+                <circle cx="49.2" cy="72.2" r=".8" fill="#fff7cc"/>
+                <circle cx="70" cy="73" r="2.8" fill="#ffd400" stroke="#8a6d00" stroke-width=".7"/>
+                <circle cx="69.2" cy="72.2" r=".8" fill="#fff7cc"/>
+                <!-- head -->
+                <ellipse cx="60" cy="33" rx="18" ry="19.5" fill="url(#tvdGHead)" stroke="#7a4a26" stroke-width="1.1"/>
+                <!-- eye-socket + cheek shading -->
+                <ellipse cx="52.5" cy="39" rx="6.6" ry="6.6" fill="#b97b4d" opacity=".35" filter="url(#tvdSoft)"/>
+                <ellipse cx="67.5" cy="39" rx="6.6" ry="6.6" fill="#b97b4d" opacity=".35" filter="url(#tvdSoft)"/>
+                <ellipse cx="47" cy="46" rx="4.4" ry="3" fill="#e8925f" opacity=".4" filter="url(#tvdSoft)"/>
+                <ellipse cx="73" cy="46" rx="4.4" ry="3" fill="#e8925f" opacity=".4" filter="url(#tvdSoft)"/>
+                <!-- ears -->
+                <path d="M42.5 30 L39.5 33 L41 39 L44.5 37.5 L44 31 Z" fill="url(#tvdGHead)" stroke="#7a4a26" stroke-width=".8"/>
+                <path d="M42.5 31.5 L41 33.5 L42 37 L43.5 35.5 Z" fill="#d99e6b"/>
+                <path d="M77.5 30 L80.5 33 L79 39 L75.5 37.5 L76 31 Z" fill="url(#tvdGHead)" stroke="#7a4a26" stroke-width=".8"/>
+                <path d="M77.5 31.5 L79 33.5 L78 37 L76.5 35.5 Z" fill="#d99e6b"/>
+                <!-- golden sideburns -->
+                <ellipse cx="45.5" cy="35" rx="2.1" ry="4" fill="#FFD700"/>
+                <ellipse cx="74.5" cy="35" rx="2.1" ry="4" fill="#FFD700"/>
+                <!-- cap -->
+                <path d="M42.5 25 Q42.5 11.5 60 11.5 Q77.5 11.5 77.5 25 L77.5 27 L42.5 27 Z" fill="url(#tvdGCap)" stroke="#0d6b38" stroke-width="1"/>
+                <path d="M41 27 L83 27 Q87 30 80 31.5 L41 31.5 Q39 29 41 27 Z" fill="url(#tvdGBrim)" stroke="#0d6b38" stroke-width=".8"/>
+                <path d="M60 12 L60 27" stroke="#00a854" stroke-width="1" opacity=".8"/>
+                <circle cx="60" cy="19" r="4.6" fill="#ffffff" stroke="#0d6b38" stroke-width=".7"/>
+                <path d="M57.8 16.8 L62.2 21.2 M62.2 16.8 L57.8 21.2" stroke="#00b359" stroke-width="1.4"/>
+                <!-- soft cap shadow across forehead -->
+                <path d="M42 28 Q60 34 78 28 L78 31 Q60 37 42 31 Z" fill="#8a5a30" opacity=".3" filter="url(#tvdSoft)"/>
+                <!-- black Mario eyebrows, raised in fear -->
+                <path d="M47 35 Q52.5 32 57.5 34.5" stroke="#111111" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                <path d="M62.5 34.5 Q67.5 32 73 35" stroke="#111111" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                <!-- terrified blue eyes -->
+                <ellipse cx="52.5" cy="39.5" rx="4.9" ry="5.5" fill="#ffffff" stroke="#8a8a8a" stroke-width=".5"/>
+                <ellipse cx="67.5" cy="39.5" rx="4.9" ry="5.5" fill="#ffffff" stroke="#8a8a8a" stroke-width=".5"/>
+                <path d="M47.8 37.5 Q52.5 34.8 57.2 37.5" stroke="#2b2b2b" stroke-width="1.1" fill="none"/>
+                <path d="M62.8 37.5 Q67.5 34.8 72.2 37.5" stroke="#2b2b2b" stroke-width="1.1" fill="none"/>
+                <circle cx="53.4" cy="40.6" r="2.4" fill="url(#tvdGIris)"/>
+                <circle cx="66.6" cy="40.6" r="2.4" fill="url(#tvdGIris)"/>
+                <circle cx="53.4" cy="40.6" r="1" fill="#031838"/>
+                <circle cx="66.6" cy="40.6" r="1" fill="#031838"/>
+                <circle cx="52.6" cy="39.4" r=".8" fill="#ffffff"/>
+                <circle cx="65.8" cy="39.4" r=".8" fill="#ffffff"/>
+                <circle cx="54.4" cy="42" r=".4" fill="#bcd7ff" opacity=".8"/>
+                <circle cx="67.6" cy="42" r=".4" fill="#bcd7ff" opacity=".8"/>
+                <!-- nose -->
+                <circle cx="60" cy="43" r="6.4" fill="url(#tvdGNose)" stroke="#8a5a30" stroke-width=".9"/>
+                <ellipse cx="57.6" cy="39.8" rx="1.6" ry="1.1" fill="#fff4e0" opacity=".9" transform="rotate(-24 57.6 39.8)"/>
+                <path d="M60 49.3 A6.4 6.4 0 0 0 66.3 45" stroke="#a86a34" stroke-width="1" opacity=".55" fill="none"/>
+                <!-- black scalloped mustache -->
+                <path d="M46 46.5 Q49 50 52 48 Q54 50.5 57 49 Q60 51 63 49 Q66 50.5 68 48 Q71 50 74 46.5 Q70 53.5 60 52 Q50 53.5 46 46.5 Z" fill="#111111"/>
+                <path d="M47.5 47.5 Q54 50.5 60 48.8 Q66 50.5 72.5 47.5" stroke="#3d3d3d" stroke-width=".8" opacity=".7" fill="none"/>
+                <!-- screaming mouth with teeth -->
+                <ellipse cx="60" cy="50.8" rx="5.2" ry="2.4" fill="#611414"/>
+                <path d="M55.6 50 Q60 49.2 64.4 50 L64.4 51 Q60 50.2 55.6 51 Z" fill="#ffffff"/>
+                <!-- sweat -->
+                <path d="M39 30.5 q-2.5 4 0 6 q2.5 -2 0 -6 Z" fill="#9fd8ff"/>
+                <circle cx="38.2" cy="32.2" r=".5" fill="#ffffff" opacity=".9"/>
+                <path d="M81 30.5 q2.5 4 0 6 q-2.5 -2 0 -6 Z" fill="#9fd8ff"/>
+                <circle cx="81.8" cy="32.2" r=".5" fill="#ffffff" opacity=".9"/>
+                <!-- CRT rim light: warm from the screen glow (left), red bounce (right) -->
+                <path d="M45 15 Q40 24 42 36" stroke="#fff2d9" stroke-width="1.6" opacity=".75" filter="url(#tvdSoft)" fill="none"/>
+                <path d="M78 20 Q82.5 30 79 42" stroke="#ff9a5c" stroke-width="1.6" opacity=".55" filter="url(#tvdSoft)" fill="none"/>
+                <path d="M39.5 66 Q38 76 40 86" stroke="#fff2d9" stroke-width="1.3" opacity=".35" filter="url(#tvdSoft)" fill="none"/>
+                <!-- LEFT ARM: shoulder -> elbow -> hand braced on the glass -->
+                <g class="arm-l limb">
+                  <path d="M44 52 L20 32" stroke="#2e5a1f" stroke-width="12.4" stroke-linecap="round" fill="none"/>
+                  <path d="M44 52 L20 32" stroke="url(#tvdGLimb)" stroke-width="11" stroke-linecap="round" fill="none"/>
+                  <g class="fore-l limb">
+                    <path d="M20 32 L10 23" stroke="#2e5a1f" stroke-width="11.4" stroke-linecap="round" fill="none"/>
+                    <path d="M20 32 L10 23" stroke="url(#tvdGLimb)" stroke-width="10" stroke-linecap="round" fill="none"/>
+                    <circle cx="10" cy="23" r="7.8" fill="url(#tvdGGlove)" stroke="#000020" stroke-width=".8"/>
+                    <circle cx="7.6" cy="20.4" r="2" fill="#4d6bff" opacity=".5"/>
+                  </g>
+                </g>
+                <!-- KNOCKING ARM: shoulder -> elbow -> fist -->
+                <g class="knock-arm limb">
+                  <path d="M76 52 L100 32" stroke="#2e5a1f" stroke-width="12.4" stroke-linecap="round" fill="none"/>
+                  <path d="M76 52 L100 32" stroke="url(#tvdGLimb)" stroke-width="11" stroke-linecap="round" fill="none"/>
+                  <g class="knock-fore limb">
+                    <path d="M100 32 L110 23" stroke="#2e5a1f" stroke-width="11.4" stroke-linecap="round" fill="none"/>
+                    <path d="M100 32 L110 23" stroke="url(#tvdGLimb)" stroke-width="10" stroke-linecap="round" fill="none"/>
+                    <circle cx="110" cy="23" r="7.8" fill="url(#tvdGGlove)" stroke="#000020" stroke-width=".8"/>
+                    <circle cx="107.6" cy="20.4" r="2" fill="#4d6bff" opacity=".5"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="tvd-static"></div>
+            <div class="tvd-crack">
+              <svg viewBox="0 0 400 300" preserveAspectRatio="none">
+                <g fill="none" stroke="#dfe9ee" stroke-linecap="round">
+                  <g stroke-opacity=".3" stroke-width="4">
+                    <path d="M200 150 L60 40 M200 150 L30 140 M200 150 L80 270 M200 150 L180 292 M200 150 L330 280 M200 150 L372 168 M200 150 L340 50 M200 150 L262 18"/>
+                  </g>
+                  <g stroke-opacity=".8" stroke-width="1.6">
+                    <path d="M200 150 L60 40 M200 150 L30 140 M200 150 L80 270 M200 150 L180 292 M200 150 L330 280 M200 150 L372 168 M200 150 L340 50 M200 150 L262 18"/>
+                    <path d="M130 95 L155 62 M130 95 L110 78 M265 84 L300 96 M265 84 L245 60 M140 210 L112 232 M140 210 L168 236 M290 215 L318 240 M290 215 L262 244"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div class="tvd-dials"><i></i><i></i><i></i></div>
+          <div class="tvd-grill"></div>
+          <div class="tvd-tag">PUZZLEVISION</div>
+        </div>
+        <div class="tvd-feet"><i></i><i></i></div>
+        <div class="tvd-goo">
+          <div class="goo-drip2 goo-d1"></div>
+          <div class="goo-drip2 goo-d2"></div>
+          <div class="goo-drip2 goo-d3"></div>
+          <div class="goo-pool"></div>
+        </div>
+      </div>
+      <div class="tvd-vig"></div>
+    </div>
     <div class="tvd-panel">
-      <div class="tvd-title">YOU ARE IN PUZZLEVISION</div>
-      <div class="tvd-sub">He grabbed you. The glass swallowed you whole. This is his dimension now — no doors, no sky, just static and colours forever.</div>
+      <div class="tvd-sub">He put you in his show. Now you're inside the TV — a cold gray room with no doors, no sky, no one else. Just the corner, the static, and his screen talking to you forever.</div>
       <button class="ge-btn" id="tvdStruggle">STRUGGLE</button>
       <div class="tvd-count" id="tvdCount"></div>
       <button class="ge-btn alt" id="tvdRetry" style="display:none">TRY AGAIN</button>
@@ -1338,7 +1713,6 @@ function playAlarm(){
     accept: document.getElementById('acceptBtn'),
     flash: document.getElementById('fxFlash'),
     tvDim: document.getElementById('tvDim'),
-    tvdFace: document.getElementById('tvdFace'),
     tvdStruggle: document.getElementById('tvdStruggle'),
     tvdCount: document.getElementById('tvdCount'),
     tvdRetry: document.getElementById('tvdRetry'),
@@ -1978,18 +2352,44 @@ let chaseMood = 'insane';
 
   /* ---------- inside the TV dimension ---------- */
   let struggleCount = 0;
+  let silTimer = null;
+  function scheduleSil(){
+    if(silTimer) clearTimeout(silTimer);
+    silTimer = setTimeout(function(){
+      if(gv.tvDim.classList.contains('on')) bangSil();
+      scheduleSil();
+    }, 8000 + Math.random() * 9000);
+  }
+  function bangSil(){
+    gv.tvDim.classList.add('sil-on');
+    let hits = 0;
+    const iv = setInterval(function(){
+      if(!gv.tvDim.classList.contains('on')){ clearInterval(iv); return; }
+      noiseHit(0.14, 0.24, 140);
+      tone(55 + Math.random() * 25, 0.12, 'square', 0.06, 45);
+      hits++;
+      if(hits >= 5){
+        clearInterval(iv);
+        setTimeout(function(){ gv.tvDim.classList.remove('sil-on'); }, 500);
+      }
+    }, 430);
+  }
   function showTVDimension(){
     struggleCount = 0;
-    gv.tvdFace.innerHTML = FACES.insane();
+    gv.tvDim.classList.remove('cracked');
+    gv.tvDim.classList.remove('sil-on');
     gv.tvdCount.textContent = '';
     gv.tvdStruggle.style.display = '';
     gv.tvdStruggle.textContent = 'STRUGGLE';
     gv.tvdRetry.style.display = 'none';
     gv.tvdBack.style.display = 'none';
     gv.tvDim.classList.add('on');
+    scheduleSil();
   }
   function hideTVDim(){
+    if(silTimer){ clearTimeout(silTimer); silTimer = null; }
     gv.tvDim.classList.remove('on');
+    gv.tvDim.classList.remove('sil-on');
     gv.flash.classList.remove('on');
     gv.flash.style.opacity = '0';
   }
@@ -2000,7 +2400,10 @@ let chaseMood = 'insane';
     tone(180 + Math.random() * 60, 0.18, 'square', 0.08, 90);
     noiseHit(0.2, 0.12, 900);
     if(struggleCount >= 3){
-      gv.tvdCount.textContent = 'The glass cracks... something is pulling you out.';
+      gv.tvDim.classList.add('cracked');
+      noiseHit(0.6, 0.3, 2600);
+      tone(70, 0.7, 'sawtooth', 0.09, 40);
+      gv.tvdCount.textContent = 'His screen SHATTERS! Black goo is leaking out — something is pulling you back.';
       gv.tvdStruggle.style.display = 'none';
       gv.tvdRetry.style.display = '';
       gv.tvdBack.style.display = '';
@@ -2325,9 +2728,11 @@ let chaseMood = 'insane';
     // fluorescent panels: real geometry, hung just under the grid on an 8-unit pitch
     (function(){
       const placed = [];
-      for(let z = 2; z < H - 2; z += 4){
+for(let z = 2; z < H - 2; z += 4){
         for(let x = 2; x < W - 2; x += 4){
           if(grid[z][x] !== 0) continue;
+          // avoid clipping into walls
+          if(grid[z-1][x]===1 || grid[z+1][x]===1 || grid[z][x-1]===1 || grid[z][x+1]===1) continue;
           placed.push([x, z]);
         }
       }
@@ -2341,8 +2746,14 @@ let chaseMood = 'insane';
         pm4.multiply(prx);
         pim.setMatrixAt(idx, pm4);
       });
-      pim.instanceMatrix.needsUpdate = true;
-      world.add(pim);
+pim.instanceMatrix.needsUpdate = true;
+world.add(pim);
+// ceiling panels act as real lights
+placed.forEach(function(pc){
+  const pl = new THREE.PointLight(0xeef4ff, 1.1, 16, 2);
+  pl.position.set(gwv(pc[0]), WALL_H - 0.6, gwv(pc[1]));
+  world.add(pl);
+});
       // one unlucky panel flickers
       const flick = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 1.25), new THREE.MeshBasicMaterial({ color: 0xbcd3ff, transparent: true }));
       const fc = placed[(Math.random() * placed.length) | 0];
@@ -2728,8 +3139,8 @@ let chaseMood = 'insane';
         const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.14, 0.44), BLACK);
         shoe.position.set(0, -0.5, 0.07);
         knee.add(shoe);
-        const toe = new THREE.Mesh(new THREE.BoxGeometry(0.27, 0.15, 0.18), SKIN);
-        toe.position.set(0, -0.47, 0.22);
+        const toe = new THREE.Mesh(new THREE.BoxGeometry(0.27, 0.15, 0.18), BLACK);
+        toe.position.set(0, -0.5, 0.26);
         knee.add(toe);
         hip.userData.knee = knee;
         hunterCore.add(hip);
@@ -3049,10 +3460,10 @@ let chaseMood = 'insane';
     const speed = 62;
     const dir = toH.clone();
     let mesh;
-    if(d.id === 'slingshot'){
-      mesh = new THREE.Mesh(new THREE.SphereGeometry(0.055, 5, 4), new THREE.MeshBasicMaterial({ color: 0x9aa0a6 }));
+if(d.id === 'slingshot'){
+      mesh = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 6), new THREE.MeshLambertMaterial({ color: 0x9aa0a6 }));
     } else {
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.025, 0.6), new THREE.MeshBasicMaterial({ color: 0xfff0a8 }));
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.7), new THREE.MeshLambertMaterial({ color: 0xfff0a8, emissive: 0x665500 }));
       mesh.lookAt(origin.clone().add(dir));
     }
     mesh.position.copy(origin);
@@ -3384,11 +3795,11 @@ let chaseMood = 'insane';
     if(gv.hpFill) gv.hpFill.style.width = Math.max(0, hunterHP / hunterHPMax * 100) + '%';
     noiseHit(0.16, 0.2, 1900);
     tone(140 + Math.random() * 80, 0.12, 'square', 0.12, 60);
-    // he staggers back and the screen flickers on his glass
+    // he staggers back and the screen flickers on his glass (never into a wall)
     if(hunter.position){
       const push = new THREE.Vector3(player.x - hunter.position.x, 0, player.z - hunter.position.z).normalize();
-      hunter.position.x -= push.x * 0.35;
-      hunter.position.z -= push.z * 0.35;
+      const nx = hunter.position.x - push.x * 0.35, nz = hunter.position.z - push.z * 0.35;
+      if(!solidAt(nx, nz)){ hunter.position.x = nx; hunter.position.z = nz; }
     }
     if(hunterHP <= 0) defeatHunter();
   }

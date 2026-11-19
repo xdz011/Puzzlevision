@@ -150,7 +150,7 @@ on the rating screen.
 
 ## Build
 
-Current build string is shown in the footer of the page: **`BUILD v4.6`**.
+Current build string is shown in the footer of the page: **`BUILD v4.18 • model fixes`**.
 
 If the footer shows an older version after an update, close every tab of the site and
 re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.
