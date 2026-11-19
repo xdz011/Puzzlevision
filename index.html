@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.21 &bull; xdz limbs + smooth rig</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.22 &bull; xdz punch fix</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2317,24 +2317,18 @@ let chaseMood = 'insane';
 
     let prevNow = 0, hdXs = -0.08, hdZs = 0, chXs = -0.06;
 
-    /* damped spring: instant whip on impact, smooth overshoot decay (no hard snaps) */
-    function springK(ms){
-      const x = ms / IMPACT_MS;
-      if(x <= 0 || x >= 1) return 0;
-      const rise = Math.min(1, x / 0.22);
-      const r2 = rise*rise*(3 - 2*rise);
-      const d = x - 0.22;
-      if(d <= 0) return r2;
-      return r2 * Math.exp(-d*4.2) * (1 + 0.2*Math.sin(d*24)*Math.exp(-d*3));
+    /* knock cycle envelope: fast whip out (~120ms), smooth recover (~310ms) */
+    function knockEnv(p){
+      if(p <= 0) return 0;
+      if(p < 120){ const x = p/120; return 1 - Math.pow(1-x, 3); }
+      const x = Math.min(1, (p-120)/310);
+      return 1 - x*x*(3-2*x);
     }
 
     function pose(now){
       const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000)); prevNow = now;
       const t = now / 1000;
-      const k = springK(now - hitT);
-      /* re-coil phase between thumps (430ms apart): 0 = just hit, 1 = coiled again */
-      const rec = Math.min(1, Math.max(0, (now - hitT) / 430));
-      const rc = rec*rec*(3 - 2*rec);
+      const k = knockEnv(now - hitT);
       const breathe = Math.sin(t*2.2)*0.018;
 
       // body: sway idle; springy lunge at the glass on impact
@@ -2363,10 +2357,12 @@ let chaseMood = 'insane';
       R.eyeL.scale.set(es, es*blink, es);
       R.eyeR.scale.set(es, es*blink, es);
 
-      // RIGHT arm — knocker: continuously re-coils between thumps, whips on impact
-      R.armR.sh.rotation.x = lerp(-2.1, -1.55, rc) - k*0.25;
-      R.armR.sh.rotation.z = -0.25 + Math.sin(t*1.9)*0.03;
-      R.armR.el.rotation.x = lerp(-0.30, 0.95, rc) + k*0.55;
+      // RIGHT arm — knocker: a real punch cycle. Coil = shoulder relaxed down,
+      // elbow folded so the fist rises in front of the chest; whip = the whole
+      // arm uncoils straight at the glass (shoulder AND elbow swing forward).
+      R.armR.sh.rotation.x = lerp(-0.50, -1.75, k) + Math.sin(t*1.9)*0.03;
+      R.armR.sh.rotation.z = 0.15 + Math.sin(t*2.3)*0.03;   // stays on HIS right side
+      R.armR.el.rotation.x = lerp(-2.20, -0.15, k);
       R.armR.hand.scale.y = 1 - k*0.25;            // knuckle squash on the bang
 
       // LEFT arm — braced on the glass, trembling under stress
@@ -2374,7 +2370,7 @@ let chaseMood = 'insane';
       R.armL.sh.rotation.z = 0.35 + Math.sin(t*27)*0.02*(burst ? 1 : 0);
       R.armL.el.rotation.x = -0.25 + Math.sin(t*5.3)*0.04;
 
-      // legs: flail for purchase — two-joint motion, knees now bend
+      // legs: flail for purchase — two-joint motion, knees bend
       R.legL.hip.rotation.x = 0.15 + Math.sin(t*3.1)*0.03 + k*0.18;
       R.legR.hip.rotation.x = -0.10 - Math.sin(t*2.7)*0.03 + k*0.22;
       R.legL.knee.rotation.x = -0.12 - k*0.45 - Math.sin(t*3.1)*0.06;
