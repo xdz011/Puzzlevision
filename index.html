@@ -676,7 +676,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.42 &bull; retro flesh texels</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.43 &bull; audio fixes</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -1361,6 +1361,7 @@ document.getElementById('speech').addEventListener('click', function(){
 function voiceBlip(mood){
   try{
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
     o.type = 'square';
@@ -1473,6 +1474,7 @@ let audioCtx=null;
 function playBlip(star){
   try{
     audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
     o.type = star<=2 ? 'sawtooth' : 'square';
@@ -1485,6 +1487,7 @@ function playBlip(star){
 function playAlarm(){
   try{
     audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     [440,620,440,620].forEach((f,i)=>{
       const o=audioCtx.createOscillator(), g=audioCtx.createGain();
       o.connect(g); g.connect(audioCtx.destination);
@@ -2484,6 +2487,7 @@ let chaseMood = 'insane';
     gv.tvdBack.style.display = 'none';
     gv.tvDim.classList.add('on');
     pauseRatingTheme();
+    stopDrone();
     XDZ3D.start();
     scheduleSil();
     themeAudio = themeAudio || document.getElementById('tvdTheme');
@@ -3444,9 +3448,17 @@ placed.forEach(function(pc){
     }catch(e){ audio = null; }
   }
 
+  function stopDrone(){
+    if(audio && audio._drone){
+      try{ audio._drone.o1.stop(); audio._drone.o2.stop(); }catch(e){}
+      audio._drone = null;
+    }
+  }
+
   function tone(freq, dur, type, vol, slideTo){
     if(!audio) return;
     try{
+      if(audio.state === 'suspended') audio.resume();
       const o = audio.createOscillator(), g = audio.createGain();
       o.type = type || 'sine';
       o.frequency.setValueAtTime(freq, audio.currentTime);
@@ -3461,6 +3473,7 @@ placed.forEach(function(pc){
   function noiseHit(dur, vol, lpFreq){
     if(!audio) return;
     try{
+      if(audio.state === 'suspended') audio.resume();
       const len = Math.floor(audio.sampleRate * dur);
       const buf = audio.createBuffer(1, len, audio.sampleRate);
       const d = buf.getChannelData(0);
@@ -3687,6 +3700,7 @@ if(d.id === 'slingshot'){
       gv.start.textContent = 'CLICK TO RESUME';
       gv.warn.textContent = 'He is still in there with you.';
       playRatingTheme();
+      stopDrone();
       keys = {};
     }
   }
@@ -3822,10 +3836,7 @@ if(d.id === 'slingshot'){
     document.body.style.overflow = '';
     if(document.exitPointerLock) { try{ document.exitPointerLock(); }catch(e){} }
     if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
-    if(audio && audio._drone){
-      try{ audio._drone.o1.stop(); audio._drone.o2.stop(); }catch(e){}
-      audio._drone = null;
-    }
+    stopDrone();
     playRatingTheme();
   }
 
@@ -4002,6 +4013,7 @@ if(d.id === 'slingshot'){
     gv.endTitle.textContent = title;
     gv.endText.textContent = text;
     pauseRatingTheme();
+    stopDrone();
     gv.end.classList.add('on');
   }
 
