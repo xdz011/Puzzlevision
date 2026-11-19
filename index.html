@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.20 &bull; xdz clean stage</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.21 &bull; xdz limbs + smooth rig</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2230,17 +2230,20 @@ let chaseMood = 'insane';
       const strapR = strapL.clone(); strapR.position.x = 0.12; chest.add(strapR);
       const btnL = ball(0.034, mat(COL.btn), 6, 5); btnL.position.set(-0.12, -0.06, 0.285); chest.add(btnL);
       const btnR = btnL.clone(); btnR.position.x = 0.12; chest.add(btnR);
+      // neck: connects skull to torso (head used to float)
+      const neck = tube(0.105, 0.12, 0.11, texMat(TX.skin), 7); neck.position.y = 0.21; chest.add(neck);
 
       // legs: hip -> knee -> chunky black shoe
       function leg(sx){
         const hip = new THREE.Group(); hip.position.set(sx*0.135, 0, 0); root.add(hip);
-        const thigh = tube(0.095, 0.085, 0.22, texMat(TX.ov), 7); thigh.position.y = -0.11; hip.add(thigh);
+        const thigh = tube(0.10, 0.09, 0.22, texMat(TX.ov), 7); thigh.position.y = -0.11; hip.add(thigh);
         const knee = new THREE.Group(); knee.position.y = -0.22; hip.add(knee);
-        const shin = tube(0.082, 0.075, 0.18, mat(COL.ovDark), 7); shin.position.y = -0.09; knee.add(shin);
-        const cuff = tube(0.092, 0.088, 0.05, texMat(TX.ov), 7); cuff.position.y = -0.155; knee.add(cuff);
+        const kneecap = ball(0.096, texMat(TX.ov), 7, 5); knee.add(kneecap);
+        const shin = tube(0.088, 0.08, 0.18, texMat(TX.ov), 7); shin.position.y = -0.09; knee.add(shin);
+        const cuff = tube(0.098, 0.092, 0.05, texMat(TX.ov), 7); cuff.position.y = -0.155; knee.add(cuff);
         const shoe = ball(0.105, mat(COL.shoe), 8, 5);
         shoe.scale.set(1, 0.72, 1.55); shoe.position.set(0, -0.20, 0.05); knee.add(shoe);
-        return hip;
+        return { hip:hip, knee:knee };
       }
       const legL = leg(-1), legR = leg(1);
 
@@ -2253,7 +2256,7 @@ let chaseMood = 'insane';
       const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.23, 0.045, 9), mat(COL.hatDark));
       brim.scale.set(1.15, 1, 1.45); brim.position.set(0, 0.10, 0.19); headG.add(brim);
       const emblem = ball(0.07, mat(COL.white), 7, 5); emblem.scale.set(1, 1, 0.45); emblem.position.set(0, 0.18, 0.22); headG.add(emblem);
-      const exA = box(0.012, 0.07, 0.02, mat(COL.emblemX)); exA.rotation.z = 0.78; exA.position.set(0, 0.18, 0.255); headG.add(exA);
+      const exA = box(0.012, 0.07, 0.02, mat(COL.emblemX)); exA.rotation.z = 0.78; exA.position.set(0, 0.18, 0.262); headG.add(exA);
       const exB = exA.clone(); exB.rotation.z = -0.78; headG.add(exB);
       // gold sideburns + ears
       const burnL = box(0.05, 0.13, 0.09, mat(COL.hair)); burnL.position.set(-0.25, -0.02, 0.05); headG.add(burnL);
@@ -2290,15 +2293,16 @@ let chaseMood = 'insane';
       // screaming mouth: dark cavity + teeth strip
       const mouthG = new THREE.Group(); mouthG.position.set(0, -0.145, 0.24); headG.add(mouthG);
       const cav = box(0.12, 0.055, 0.05, mat(COL.mouth)); mouthG.add(cav);
-      const teethM = box(0.115, 0.016, 0.052, mat(COL.teeth)); teethM.position.y = 0.03; mouthG.add(teethM);
+      const teethM = box(0.115, 0.016, 0.052, mat(COL.teeth)); teethM.position.y = 0.02; mouthG.add(teethM);
 
       // arms: shoulder -> elbow -> navy glove
       function arm(sx){
-        const sh = new THREE.Group(); sh.position.set(sx*0.28, 0.17, 0); chest.add(sh);
-        const up = tube(0.075, 0.068, 0.24, texMat(TX.shirt), 7); up.position.y = -0.12; sh.add(up);
+        const sh = new THREE.Group(); sh.position.set(sx*0.26, 0.17, 0); chest.add(sh);
+        const del = ball(0.105, texMat(TX.shirt), 7, 5); del.scale.set(1, 0.9, 0.95); sh.add(del);
+        const up = tube(0.082, 0.072, 0.24, texMat(TX.shirt), 7); up.position.y = -0.12; sh.add(up);
         const sleeve = ball(0.09, texMat(TX.shirt), 7, 5); sleeve.scale.set(1.15, 0.7, 1.05); sleeve.position.y = -0.035; sh.add(sleeve);
         const el = new THREE.Group(); el.position.y = -0.24; sh.add(el);
-        const fore = tube(0.065, 0.058, 0.20, texMat(TX.skin), 7); fore.position.y = -0.10; el.add(fore);
+        const fore = tube(0.072, 0.064, 0.20, texMat(TX.skin), 7); fore.position.y = -0.10; el.add(fore);
         const hand = ball(0.085, mat(COL.glove), 7, 6); hand.position.y = -0.24; el.add(hand);
         const glint = ball(0.026, mat(COL.gloveHi), 5, 4); glint.position.set(sx*-0.03, -0.20, 0.05); el.add(glint);
         return { sh:sh, el:el, hand:hand };
@@ -2311,42 +2315,70 @@ let chaseMood = 'insane';
 
     function lerp(a,b,t){ return a + (b-a)*t; }
 
+    let prevNow = 0, hdXs = -0.08, hdZs = 0, chXs = -0.06;
+
+    /* damped spring: instant whip on impact, smooth overshoot decay (no hard snaps) */
+    function springK(ms){
+      const x = ms / IMPACT_MS;
+      if(x <= 0 || x >= 1) return 0;
+      const rise = Math.min(1, x / 0.22);
+      const r2 = rise*rise*(3 - 2*rise);
+      const d = x - 0.22;
+      if(d <= 0) return r2;
+      return r2 * Math.exp(-d*4.2) * (1 + 0.2*Math.sin(d*24)*Math.exp(-d*3));
+    }
+
     function pose(now){
+      const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000)); prevNow = now;
       const t = now / 1000;
-      const imp = Math.max(0, 1 - (now - hitT) / IMPACT_MS);
-      const k = imp*imp*(3 - 2*imp);            // smoothstep punch
+      const k = springK(now - hitT);
+      /* re-coil phase between thumps (430ms apart): 0 = just hit, 1 = coiled again */
+      const rec = Math.min(1, Math.max(0, (now - hitT) / 430));
+      const rc = rec*rec*(3 - 2*rec);
       const breathe = Math.sin(t*2.2)*0.018;
 
-      // body: sway idle; lunge at the glass on impact
+      // body: sway idle; springy lunge at the glass on impact
       R.root.position.z = 0.10 + k*0.16;
       R.root.position.y = 0.05 + breathe - k*0.045;
       R.root.rotation.z = Math.sin(t*1.7)*0.02 + k*0.05;
       R.root.rotation.x = k*0.06;
 
-      R.chest.rotation.x = -0.06 + k*0.16;
+      // chest + head follow through with lagged smoothing (motion reads fluid)
+      const chT = -0.06 + k*0.16;
+      chXs += (chT - chXs) * Math.min(1, dt*14);
+      R.chest.rotation.x = chXs;
+      R.chest.rotation.z = -k*0.05;
 
-      // head recoil on impact, terrified shiver otherwise
-      R.headG.rotation.x = -0.08 - k*0.30;
-      R.headG.rotation.z = Math.sin(t*2.6)*0.05 - k*0.10;
+      const hdT = -0.08 - k*0.30;
+      hdXs += (hdT - hdXs) * Math.min(1, dt*11);
+      const hdZT = Math.sin(t*2.6)*0.05 - k*0.10;
+      hdZs += (hdZT - hdZs) * Math.min(1, dt*13);
+      R.headG.rotation.x = hdXs;
+      R.headG.rotation.z = hdZs;
 
-      // scream gapes wider on impact
-      R.mouthG.scale.y = 1 + k*1.6;
-      R.eyeL.scale.setScalar(1 + k*0.15);
-      R.eyeR.scale.setScalar(1 + k*0.15);
+      // scream gapes wider on impact; occasional terrified blink
+      const blink = (t % 3.7) < 0.09 ? 0.12 : 1;
+      R.mouthG.scale.y = 1 + k*1.4;
+      const es = 1 + k*0.15;
+      R.eyeL.scale.set(es, es*blink, es);
+      R.eyeR.scale.set(es, es*blink, es);
 
-      // RIGHT arm — the knocker: coiled between hits, whips the glass
-      R.armR.sh.rotation.x = lerp(-1.55, -2.1, k);
-      R.armR.sh.rotation.z = -0.25;
-      R.armR.el.rotation.x = lerp(0.95, -0.30, k);
+      // RIGHT arm — knocker: continuously re-coils between thumps, whips on impact
+      R.armR.sh.rotation.x = lerp(-2.1, -1.55, rc) - k*0.25;
+      R.armR.sh.rotation.z = -0.25 + Math.sin(t*1.9)*0.03;
+      R.armR.el.rotation.x = lerp(-0.30, 0.95, rc) + k*0.55;
+      R.armR.hand.scale.y = 1 - k*0.25;            // knuckle squash on the bang
 
-      // LEFT arm — braced on the glass, trembling
+      // LEFT arm — braced on the glass, trembling under stress
       R.armL.sh.rotation.x = -2.3;
       R.armL.sh.rotation.z = 0.35 + Math.sin(t*27)*0.02*(burst ? 1 : 0);
-      R.armL.el.rotation.x = -0.25;
+      R.armL.el.rotation.x = -0.25 + Math.sin(t*5.3)*0.04;
 
-      // legs kick for purchase
-      R.legL.rotation.x = 0.15 + Math.sin(t*3.1)*0.03 + k*0.18;
-      R.legR.rotation.x = -0.10 - Math.sin(t*2.7)*0.03 + k*0.22;
+      // legs: flail for purchase — two-joint motion, knees now bend
+      R.legL.hip.rotation.x = 0.15 + Math.sin(t*3.1)*0.03 + k*0.18;
+      R.legR.hip.rotation.x = -0.10 - Math.sin(t*2.7)*0.03 + k*0.22;
+      R.legL.knee.rotation.x = -0.12 - k*0.45 - Math.sin(t*3.1)*0.06;
+      R.legR.knee.rotation.x = 0.08 + k*0.30 + Math.sin(t*2.7)*0.05;
     }
 
     function loop(){
