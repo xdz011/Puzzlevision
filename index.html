@@ -647,7 +647,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.30 &bull; brow fix</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.31 &bull; xdz hat/eye fix</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2234,11 +2234,12 @@ let chaseMood = 'insane';
       // head: big faceted SM64 skull
       const headG = new THREE.Group(); headG.position.y = 0.52; chest.add(headG);
       const skull = ball(0.28, texMat(TX.skin), 9, 7); headG.add(skull);
-      // cap: dome + brim + white emblem with green X
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.295, 9, 5, 0, Math.PI*2, 0, Math.PI*0.55), texMat(TX.hat));
+      // cap: dome + brim + white emblem with green X (dome stops above the brows —
+      // at 0.55π its edge dipped below eye level and the shell covered the eyes)
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.295, 9, 5, 0, Math.PI*2, 0, Math.PI*0.40), texMat(TX.hat));
       cap.position.y = 0.012; headG.add(cap);
       const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.23, 0.045, 9), mat(COL.hatDark));
-      brim.scale.set(1.15, 1, 1.45); brim.position.set(0, 0.10, 0.19); headG.add(brim);
+      brim.scale.set(1.06, 1, 1.18); brim.position.set(0, 0.095, 0.165); headG.add(brim);
       const emblem = ball(0.07, mat(COL.white), 7, 5); emblem.scale.set(1, 1, 0.45); emblem.position.set(0, 0.18, 0.22); headG.add(emblem);
       const exA = box(0.012, 0.07, 0.02, mat(COL.emblemX)); exA.rotation.z = 0.78; exA.position.set(0, 0.18, 0.262); headG.add(exA);
       const exB = exA.clone(); exB.rotation.z = -0.78; headG.add(exB);
@@ -2249,7 +2250,7 @@ let chaseMood = 'insane';
       const earR = earL.clone(); earR.position.x = 0.28; headG.add(earR);
       // terrified blue eyes — close-set tall eggs, SM64 Mario proportions
       function eye(sx){
-        const g = new THREE.Group(); g.position.set(sx*0.095, 0.0, 0.235); headG.add(g);
+        const g = new THREE.Group(); g.position.set(sx*0.095, 0.0, 0.247); headG.add(g);
         const w = ball(0.056, mat(COL.white), 7, 6); w.scale.set(0.82, 1.32, 0.5); g.add(w);
         const iris = ball(0.027, mat(COL.iris), 6, 5); iris.scale.set(0.9, 1.1, 0.5); iris.position.z = 0.03; g.add(iris);
         const pup = ball(0.013, mat(COL.pupil), 5, 4); pup.position.z = 0.043; g.add(pup);
@@ -2259,7 +2260,7 @@ let chaseMood = 'insane';
       // worried brows (inner ends up — fear), hugging the new eye line
       function brow(sx){
         const b = box(0.10, 0.026, 0.03, mat(COL.stache));
-        b.position.set(sx*0.095, 0.10, 0.245);
+        b.position.set(sx*0.095, 0.093, 0.25);
         b.rotation.z = sx*0.42;
         headG.add(b); return b;
       }
