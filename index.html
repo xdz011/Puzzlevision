@@ -647,7 +647,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.31 &bull; xdz hat/eye fix</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.32 &bull; slower knocking</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2302,11 +2302,11 @@ let chaseMood = 'insane';
 
     let prevNow = 0, hdXs = -0.08, hdZs = 0, chXs = -0.06;
 
-    /* knock cycle envelope: fast whip out (~120ms), smooth recover (~310ms) */
+    /* knock cycle envelope: fast whip out (~120ms), smooth recover (~580ms) */
     function knockEnv(p){
       if(p <= 0) return 0;
       if(p < 120){ const x = p/120; return 1 - Math.pow(1-x, 3); }
-      const x = Math.min(1, (p-120)/310);
+      const x = Math.min(1, (p-120)/580);
       return 1 - x*x*(3-2*x);
     }
 
@@ -2439,7 +2439,7 @@ let chaseMood = 'insane';
           if(XDZ3D.ok()) XDZ3D.burst(false);
         }, 500);
       }
-    }, 430);
+    }, 700);
   }
   function showTVDimension(){
     struggleCount = 0;
