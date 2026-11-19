@@ -505,7 +505,7 @@
     background:radial-gradient(circle at 50% 38%, #35100f, #120404 80%); }
   .ad-mascot svg { height:142px; width:auto; filter:drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
   .ad-mascot .adk-wrap { position:relative; width:100%; height:100%; }
-  .ad-mascot .adk-board { position:absolute; left:7%; top:7%; width:86%; transform:rotate(-4deg); }
+  .ad-mascot .adk-board { position:absolute; left:3%; top:4%; width:94%; transform:rotate(-4deg); }
   .ad-mascot .adk-board svg { width:100%; height:auto; display:block;
     filter:drop-shadow(0 6px 10px rgba(0,0,0,.55)); }
   .ad-mascot .adk-tvguy { position:absolute; left:2%; bottom:-1%; width:72px;
@@ -656,7 +656,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.37 &bull; adware keyboard</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.38 &bull; keyboard keys</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -4428,36 +4428,50 @@ if(d.id === 'slingshot'){
       '</g>';
     }
     let keys = '';
-    [[7,0],[8,10],[8,4],[7,12],[6,2]].forEach(function(row, r){
-      const n = row[0], off = row[1], y = 76 + r * 17.5;
-      for(let i = 0; i < n; i++){
-        const x = 60 + off + i * 27.5;
-        const c = cols[(r * 3 + i * 5) % cols.length];
-        const d = -(((r * 7 + i * 3) % 9) * 0.31).toFixed(2);
-        keys += '<g class="adk-key" style="animation-delay:' + d + 's">' +
-          '<rect x="' + x + '" y="' + y + '" width="23" height="13.5" rx="4" fill="#0d0d11" stroke="#000000" stroke-width="1.4"/>' +
-          '<rect x="' + (x + 6) + '" y="' + (y + 4.5) + '" width="11" height="4.5" rx="2.2" fill="' + c + '"/>' +
-        '</g>';
-      }
+    function key(x, y, w, h, r, i){
+      const c = cols[(r * 3 + i * 5) % cols.length];
+      const d = -(((r * 7 + i * 3) % 9) * 0.31).toFixed(2);
+      keys += '<g class="adk-key" style="animation-delay:' + d + 's">' +
+        '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3.5" fill="#0d0d11" stroke="#000000" stroke-width="1.3"/>' +
+        '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="' + (w - 4) + '" height="' + (h - 5.5) + '" rx="2.5" fill="#1d1d24" stroke="#2b2b33" stroke-width="0.8"/>' +
+        '<rect x="' + (x + w*0.28).toFixed(1) + '" y="' + (y + h*0.34).toFixed(1) + '" width="' + (w*0.44).toFixed(1) + '" height="' + (h*0.3).toFixed(1) + '" rx="1.5" fill="' + c + '"/>' +
+      '</g>';
+    }
+    /* F-row */
+    for(let i = 0; i < 12; i++) key(42 + i*22, 48, 18, 11, 0, i);
+    /* letter rows, real keyboard stagger: wide Tab/Caps/Shift/Enter + spacebar row */
+    [
+      { y:63, ks:[22,16,16,16,16,16,16,16,16,16,16,16,26] },
+      { y:82, ks:[26,16,16,16,16,16,16,16,16,16,16,16,16] },
+      { y:101, ks:[30,16,16,16,16,16,16,16,16,16,16,16,16] },
+      { y:120, ks:[26,18,20,108,20,18,26] }
+    ].forEach(function(row, r){
+      let x = 36;
+      row.ks.forEach(function(w, i){ key(x, row.y, w, 15, r, i); x += w + 4; });
     });
-    keys += '<g class="adk-key" style="animation-delay:-1.2s">' +
-      '<rect x="98" y="164" width="122" height="15" rx="7" fill="#0d0d11" stroke="#000000" stroke-width="1.4"/>' +
-      '<rect x="138" y="169" width="42" height="5" rx="2.5" fill="#18ffff"/>' +
-    '</g>';
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 230" aria-hidden="true">' +
-      '<defs><radialGradient id="adkFlesh" cx="42%" cy="32%" r="78%">' +
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 230" aria-hidden="true">' +
+      '<defs><radialGradient id="adkFlesh" cx="42%" cy="28%" r="80%">' +
         '<stop offset="0%" stop-color="#d64a4a"/><stop offset="55%" stop-color="#a11f1f"/><stop offset="100%" stop-color="#661010"/>' +
       '</radialGradient></defs>' +
+      /* cream spikes hugging the case edge */
       '<g fill="#e9dcb4" stroke="#8a5a28" stroke-width="2.5" stroke-linejoin="round">' +
-        '<path d="M56 58 L26 30 L74 44 Z"/><path d="M38 108 L8 100 L36 128 Z"/>' +
-        '<path d="M52 164 L22 190 L68 180 Z"/><path d="M96 194 L84 220 L118 200 Z"/>' +
-        '<path d="M268 52 L298 26 L250 40 Z"/><path d="M288 104 L316 96 L290 126 Z"/>' +
-        '<path d="M272 162 L300 188 L254 178 Z"/><path d="M226 196 L238 222 L204 202 Z"/>' +
+        '<path d="M60 28 L30 6 L86 22 Z"/><path d="M150 28 L146 0 L178 24 Z"/><path d="M242 28 L270 4 L216 24 Z"/>' +
+        '<path d="M14 80 L2 66 L16 110 Z"/><path d="M14 150 L4 172 L22 166 Z"/>' +
+        '<path d="M328 70 L344 56 L330 102 Z"/><path d="M328 140 L344 154 L328 170 Z"/>' +
+        '<path d="M100 186 L92 214 L130 194 Z"/><path d="M240 186 L252 212 L214 192 Z"/>' +
       '</g>' +
-      '<path d="M58 64 Q130 34 206 46 Q272 56 288 92 Q302 126 284 156 Q258 190 182 194 Q104 198 66 170 Q36 144 42 106 Q46 80 58 64 Z" fill="url(#adkFlesh)" stroke="#54100f" stroke-width="4"/>' +
-      '<g fill="#7a1414" opacity=".5"><ellipse cx="150" cy="60" rx="34" ry="10"/><ellipse cx="230" cy="120" rx="22" ry="9"/><ellipse cx="90" cy="140" rx="26" ry="10"/></g>' +
+      /* coiled flesh cable from the back-left */
+      '<path d="M62 186 Q66 216 92 218 Q116 220 112 200 Q108 184 90 190" fill="none" stroke="#5c1010" stroke-width="10" stroke-linecap="round"/>' +
+      '<path d="M62 186 Q66 216 92 218 Q116 220 112 200 Q108 184 90 190" fill="none" stroke="#a11f1f" stroke-width="4.5" stroke-linecap="round"/>' +
+      /* keyboard case: proper rectangular deck */
+      '<rect x="12" y="26" width="316" height="162" rx="18" fill="url(#adkFlesh)" stroke="#54100f" stroke-width="4"/>' +
+      '<path d="M20 33 Q170 24 320 33" stroke="#e07a7a" stroke-width="2.5" fill="none" opacity=".5"/>' +
+      /* veins on the bezel */
+      '<g fill="#7a1414" opacity=".55"><ellipse cx="170" cy="35" rx="56" ry="4.5"/><ellipse cx="290" cy="160" rx="32" ry="5.5"/><ellipse cx="58" cy="162" rx="22" ry="4.5"/></g>' +
+      /* inset keywell */
+      '<rect x="30" y="44" width="284" height="100" rx="8" fill="#5c1010" stroke="#3a0808" stroke-width="2"/>' +
       keys +
-      adkEye(94, 56, 14) + adkEye(242, 52, 11) + adkEye(258, 148, 9) +
+      adkEye(46, 36, 8) + adkEye(296, 34, 7) + adkEye(321, 96, 7) + adkEye(60, 163, 7) +
     '</svg>';
   }
 
