@@ -647,7 +647,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.34 &bull; straight chase</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.35 &bull; gameover theme</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -737,6 +737,7 @@
 
   <div class="fx-flash" id="fxFlash"></div>
 
+  <audio id="tvdTheme" src="puzzles_theme.mp3" preload="auto" loop></audio>
   <div class="tv-dim" id="tvDim">
     <div class="tvd-room">
       <div class="tvd-wall tvd-left"></div>
@@ -2415,6 +2416,7 @@ let chaseMood = 'insane';
   /* ---------- inside the TV dimension ---------- */
   let struggleCount = 0;
   let silTimer = null;
+  let themeAudio = null;
   function scheduleSil(){
     if(silTimer) clearTimeout(silTimer);
     silTimer = setTimeout(function(){
@@ -2453,15 +2455,34 @@ let chaseMood = 'insane';
     gv.tvDim.classList.add('on');
     XDZ3D.start();
     scheduleSil();
+    themeAudio = themeAudio || document.getElementById('tvdTheme');
+    try{
+      if(themeAudio){
+        themeAudio.volume = 0.8;
+        if(isFinite(themeAudio.duration)) themeAudio.currentTime = 0;
+        const p = themeAudio.play();
+        if(p && p.catch) p.catch(function(){});
+      }
+    }catch(e){}
   }
   function hideTVDim(){
     if(silTimer){ clearTimeout(silTimer); silTimer = null; }
+    try{ if(themeAudio) themeAudio.pause(); }catch(e){}
     gv.tvDim.classList.remove('on');
     gv.tvDim.classList.remove('sil-on');
     XDZ3D.stop();
     gv.flash.classList.remove('on');
     gv.flash.style.opacity = '0';
   }
+  /* autoplay fallback: if the browser blocked the theme, start it on the next click while the screen is up */
+  document.addEventListener('click', function(){
+    try{
+      if(themeAudio && themeAudio.paused && gv.tvDim.classList.contains('on')){
+        const p = themeAudio.play();
+        if(p && p.catch) p.catch(function(){});
+      }
+    }catch(e){}
+  });
   function onStruggle(){
     struggleCount++;
     gv.tvDim.classList.add('shake');
