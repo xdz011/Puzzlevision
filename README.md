@@ -1,4 +1,4 @@
-# (CANCELLED.) PUZZLEVISION — Mr. Puzzles Rate-O-Rama
+# PUZZLEVISION — Mr. Puzzles Rate-O-Rama
 
 A fan-made, single-file browser game built around **Mr. Puzzles** from SMG4 / Puzzlevision.
 
