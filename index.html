@@ -513,6 +513,19 @@
   .ad-mascot .adk-tvguy svg { width:100%; height:auto; display:block; }
   .adk-key { animation:keyFlick 2.4s steps(1) infinite; }
   @keyframes keyFlick { 0%,100%{opacity:1} 41%{opacity:.85} 43%{opacity:.5} 45%{opacity:1} 88%{opacity:.92} 90%{opacity:1} }
+  /* mascot two-shot: keyboard demo <-> TV guy center stage */
+  .ad-mascot .adk-board { transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease; }
+  .ad-mascot .adk-tvguy { transition:left .55s cubic-bezier(.34,1.56,.64,1), bottom .55s cubic-bezier(.34,1.56,.64,1),
+    width .55s cubic-bezier(.34,1.56,.64,1), transform .55s cubic-bezier(.34,1.56,.64,1); }
+  .ad-mascot.tv-mode .adk-board { transform:translateX(135%) rotate(16deg); opacity:0; }
+  .ad-mascot.tv-mode .adk-tvguy { left:50%; bottom:9%; width:118px;
+    transform:translateX(-50%) rotate(3deg); z-index:3;
+    animation:tvguyPop .6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tvguyPop {
+    0%{ transform:translateX(-50%) rotate(-14deg) scale(.6); }
+    60%{ transform:translateX(-50%) rotate(5deg) scale(1.12); }
+    100%{ transform:translateX(-50%) rotate(3deg) scale(1); }
+  }
   .ad-title { font-family:'Bungee'; font-size:15px; text-align:center; color:#1a1a1a; padding:8px 10px 0; }
   .ad-sub { font-size:12px; text-align:center; color:#3a2a00; padding:4px 12px; line-height:1.35; }
   .ad-row { display:flex; align-items:baseline; justify-content:center; gap:8px; padding:6px 0 0; }
@@ -656,7 +669,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.38 &bull; keyboard keys</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.39 &bull; mascot two-shot</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -4493,7 +4506,8 @@ if(d.id === 'slingshot'){
     '</svg>';
   }
 
-  document.getElementById('adMascot').innerHTML =
+  const mascotEl = document.getElementById('adMascot');
+  mascotEl.innerHTML =
     '<div class="adk-wrap">' +
       '<div class="adk-tvguy">' + tvMascotSVG() + '</div>' +
       '<div class="adk-board">' + keyboardSVG() + '</div>' +
@@ -4509,6 +4523,13 @@ if(d.id === 'slingshot'){
     timerEl.textContent = m + ':' + s;
     if(Math.random() < 0.05 && stock > 1){ stock--; stockEl.textContent = stock; }
   }, 1000);
+
+  /* mascot cuts between shots, cheesy commercial style */
+  let adTv = false;
+  const adSwap = setInterval(function(){
+    adTv = !adTv;
+    mascotEl.classList.toggle('tv-mode', adTv);
+  }, 4200);
 
   document.getElementById('adClose').addEventListener('click', function(){
     /* closing it never works for long: it pops back up, adware style */
@@ -4526,6 +4547,7 @@ if(d.id === 'slingshot'){
 
   document.getElementById('adBuy').addEventListener('click', function(){
     clearInterval(tick);
+    clearInterval(adSwap);
     ad.classList.add('gone');
     setTimeout(function(){ ad.remove(); }, 380);
     corruptSite();
