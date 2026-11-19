@@ -647,7 +647,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.32 &bull; slower knocking</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.33 &bull; no more moonwalk</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -3771,7 +3771,7 @@ if(d.id === 'slingshot'){
     }
 
     // actual ground covered this frame - the gait is driven by this, not by a clock
-    let moved = 0;
+    let moved = 0, moveDx = 0, moveDz = 0;
     if(pathIdx < path.length){
       const c = path[pathIdx];
       const tx = gwv(c[0]), tz = gwv(c[1]);
@@ -3780,15 +3780,29 @@ if(d.id === 'slingshot'){
       if(d < 0.3){ pathIdx++; }
       else {
         const step = Math.min(d, hunterSpeed * dt);
-        hunter.position.x += (dx / d) * step;
-        hunter.position.z += (dz / d) * step;
+        moveDx = dx / d; moveDz = dz / d;
+        hunter.position.x += moveDx * step;
+        hunter.position.z += moveDz * step;
         moved = step;
       }
     }
 
-    // face the player
+    // face where he WALKS, eased - snapping yaw at the player every frame made
+    // the body spin while the legs kept stepping (the moonwalk read)
     const pdx = player.x - hunter.position.x, pdz = player.z - hunter.position.z;
-    hunter.rotation.y = Math.atan2(pdx, pdz);
+    const pd = Math.sqrt(pdx * pdx + pdz * pdz);
+    let yawT;
+    if(moved > 0.0004){
+      yawT = Math.atan2(moveDx, moveDz);
+      hunter.userData.faceYaw = yawT;
+    } else if(pd < 3.2 || hunter.userData.faceYaw === undefined){
+      yawT = Math.atan2(pdx, pdz);
+    } else {
+      yawT = hunter.userData.faceYaw;
+    }
+    let dyaw = yawT - hunter.rotation.y;
+    dyaw = Math.atan2(Math.sin(dyaw), Math.cos(dyaw));
+    hunter.rotation.y += dyaw * Math.min(1, dt * 6);
 
     // ---- speed-driven gait: stride AND swing both follow ground speed ----
     // no foot-skate by construction: strideLen = 2 * reach per half-cycle ----
@@ -3797,24 +3811,27 @@ if(d.id === 'slingshot'){
     // 0 = sad trudge, 1 = full sprint (from actual chase speed, not a switch)
     const spdN = Math.max(0, Math.min(1, (hunterSpeed - 0.8) / 3.4));
     const amp = 0.30 + 0.55 * spdN;                    // thigh swing angle
-    const strideLen = Math.max(0.4, 4 * Math.sin(amp)); // world units per full cycle (no-slip)
+    const strideLen = Math.max(0.4, 4.2 * Math.sin(amp)); // world units per full cycle (no-slip, leg ≈1.05)
     // ease stride amplitude in/out when starting or stopping - kills the freeze pop
     const wantAmp = (moved > 0.0005) ? 1 : 0;
     gaitBlend += (wantAmp - gaitBlend) * Math.min(1, dt * 7);
     const a = amp * gaitBlend;
     hunterPhase += (moved / Math.max(strideLen, 0.001)) * Math.PI * 2;
     const sPh = Math.sin(hunterPhase);
-    const kneeWinL = (1 - Math.cos(hunterPhase)) / 2;        // peaks mid-swing L
-    const kneeWinR = (1 + Math.cos(hunterPhase)) / 2;        // peaks mid-swing R
-    const elbWinL = (1 + Math.cos(hunterPhase - 3.63)) / 2;  // lagged fold L
-    const elbWinR = (1 + Math.cos(hunterPhase - 0.49)) / 2;  // lagged fold R
+    // windows locked to the ACTUAL swing phases: legL swings forward while
+    // sin < 0 (phase π..2π, mid at 3π/2), so its knee must bend THEN -
+    // the old cos-windows bent knees during stance (feet slid = moonwalk)
+    const kneeWinL = (1 - Math.sin(hunterPhase)) / 2;        // peaks mid-forward-swing L
+    const kneeWinR = (1 + Math.sin(hunterPhase)) / 2;        // peaks mid-forward-swing R
+    const elbWinL = (1 - Math.sin(hunterPhase - 0.35)) / 2;  // folds as L arm swings forward
+    const elbWinR = (1 + Math.sin(hunterPhase - 0.35)) / 2;
     const bob = (0.5 - 0.5 * Math.cos(hunterPhase * 2));     // smooth double-bounce, no cusp
     if(bodyParts.legL){
       bodyParts.legL.rotation.x = sPh * a;
       bodyParts.legR.rotation.x = -sPh * a;
       if(bodyParts.kneeL){
-        bodyParts.kneeL.rotation.x = 0.06 + kneeWinL * a * 1.1;
-        bodyParts.kneeR.rotation.x = 0.06 + kneeWinR * a * 1.1;
+        bodyParts.kneeL.rotation.x = 0.06 + kneeWinL * a * 1.35;  // bend during swing = foot clears ground
+        bodyParts.kneeR.rotation.x = 0.06 + kneeWinR * a * 1.35;
       }
     }
     if(bodyParts.armL){
@@ -3823,8 +3840,8 @@ if(d.id === 'slingshot'){
       bodyParts.armL.rotation.x = -sPh * armA;
       bodyParts.armR.rotation.x = sPh * armA;
       // running: arms flail out with the bounce; walking: arms hang limp
-      bodyParts.armL.rotation.z = isRun ? -0.30 - 0.25 * bob : 0.07;
-      bodyParts.armR.rotation.z = isRun ? 0.30 + 0.25 * bob : -0.07;
+      bodyParts.armL.rotation.z = isRun ? -0.16 - 0.10 * bob : 0.07;
+      bodyParts.armR.rotation.z = isRun ? 0.16 + 0.10 * bob : -0.07;
       // elbows fold forward, trailing the shoulder swing
       if(bodyParts.elbowL){
         bodyParts.elbowL.rotation.x = -a * 0.55 * elbWinL;
