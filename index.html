@@ -502,8 +502,17 @@
     cursor:pointer; font-weight:900; line-height:1; font-size:14px; }
   .ad-x:hover { background:#ff2222; }
   .ad-mascot { height:150px; display:flex; align-items:center; justify-content:center;
-    background:radial-gradient(circle,#fff,#ffe066); }
+    background:radial-gradient(circle at 50% 38%, #35100f, #120404 80%); }
   .ad-mascot svg { height:142px; width:auto; filter:drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+  .ad-mascot .adk-wrap { position:relative; width:100%; height:100%; }
+  .ad-mascot .adk-board { position:absolute; left:7%; top:7%; width:86%; transform:rotate(-4deg); }
+  .ad-mascot .adk-board svg { width:100%; height:auto; display:block;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.55)); }
+  .ad-mascot .adk-tvguy { position:absolute; left:2%; bottom:-1%; width:72px;
+    transform:rotate(-10deg); z-index:2; }
+  .ad-mascot .adk-tvguy svg { width:100%; height:auto; display:block; }
+  .adk-key { animation:keyFlick 2.4s steps(1) infinite; }
+  @keyframes keyFlick { 0%,100%{opacity:1} 41%{opacity:.85} 43%{opacity:.5} 45%{opacity:1} 88%{opacity:.92} 90%{opacity:1} }
   .ad-title { font-family:'Bungee'; font-size:15px; text-align:center; color:#1a1a1a; padding:8px 10px 0; }
   .ad-sub { font-size:12px; text-align:center; color:#3a2a00; padding:4px 12px; line-height:1.35; }
   .ad-row { display:flex; align-items:baseline; justify-content:center; gap:8px; padding:6px 0 0; }
@@ -647,7 +656,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.36 &bull; rating theme</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.37 &bull; adware keyboard</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -4408,6 +4417,50 @@ if(d.id === 'slingshot'){
     '</svg>';
   }
 
+  function keyboardSVG(){
+    const cols = ['#4fc3ff','#b388ff','#69f0ae','#18ffff','#ff4081','#ffab40','#ffee58','#7c4dff'];
+    function adkEye(x, y, r){
+      return '<g>' +
+        '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (r * 1.5) + '" ry="' + r + '" fill="#f3ead6" stroke="#54100f" stroke-width="2"/>' +
+        '<circle cx="' + x + '" cy="' + (y + r * 0.15) + '" r="' + (r * 0.55) + '" fill="#c62828"/>' +
+        '<circle cx="' + x + '" cy="' + (y + r * 0.15) + '" r="' + (r * 0.28) + '" fill="#0a0a0a"/>' +
+        '<circle cx="' + (x - r * 0.3) + '" cy="' + (y - r * 0.3) + '" r="' + (r * 0.16) + '" fill="#ffffff"/>' +
+      '</g>';
+    }
+    let keys = '';
+    [[7,0],[8,10],[8,4],[7,12],[6,2]].forEach(function(row, r){
+      const n = row[0], off = row[1], y = 76 + r * 17.5;
+      for(let i = 0; i < n; i++){
+        const x = 60 + off + i * 27.5;
+        const c = cols[(r * 3 + i * 5) % cols.length];
+        const d = -(((r * 7 + i * 3) % 9) * 0.31).toFixed(2);
+        keys += '<g class="adk-key" style="animation-delay:' + d + 's">' +
+          '<rect x="' + x + '" y="' + y + '" width="23" height="13.5" rx="4" fill="#0d0d11" stroke="#000000" stroke-width="1.4"/>' +
+          '<rect x="' + (x + 6) + '" y="' + (y + 4.5) + '" width="11" height="4.5" rx="2.2" fill="' + c + '"/>' +
+        '</g>';
+      }
+    });
+    keys += '<g class="adk-key" style="animation-delay:-1.2s">' +
+      '<rect x="98" y="164" width="122" height="15" rx="7" fill="#0d0d11" stroke="#000000" stroke-width="1.4"/>' +
+      '<rect x="138" y="169" width="42" height="5" rx="2.5" fill="#18ffff"/>' +
+    '</g>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 230" aria-hidden="true">' +
+      '<defs><radialGradient id="adkFlesh" cx="42%" cy="32%" r="78%">' +
+        '<stop offset="0%" stop-color="#d64a4a"/><stop offset="55%" stop-color="#a11f1f"/><stop offset="100%" stop-color="#661010"/>' +
+      '</radialGradient></defs>' +
+      '<g fill="#e9dcb4" stroke="#8a5a28" stroke-width="2.5" stroke-linejoin="round">' +
+        '<path d="M56 58 L26 30 L74 44 Z"/><path d="M38 108 L8 100 L36 128 Z"/>' +
+        '<path d="M52 164 L22 190 L68 180 Z"/><path d="M96 194 L84 220 L118 200 Z"/>' +
+        '<path d="M268 52 L298 26 L250 40 Z"/><path d="M288 104 L316 96 L290 126 Z"/>' +
+        '<path d="M272 162 L300 188 L254 178 Z"/><path d="M226 196 L238 222 L204 202 Z"/>' +
+      '</g>' +
+      '<path d="M58 64 Q130 34 206 46 Q272 56 288 92 Q302 126 284 156 Q258 190 182 194 Q104 198 66 170 Q36 144 42 106 Q46 80 58 64 Z" fill="url(#adkFlesh)" stroke="#54100f" stroke-width="4"/>' +
+      '<g fill="#7a1414" opacity=".5"><ellipse cx="150" cy="60" rx="34" ry="10"/><ellipse cx="230" cy="120" rx="22" ry="9"/><ellipse cx="90" cy="140" rx="26" ry="10"/></g>' +
+      keys +
+      adkEye(94, 56, 14) + adkEye(242, 52, 11) + adkEye(258, 148, 9) +
+    '</svg>';
+  }
+
   function realisticEyeSVG(){
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" aria-hidden="true">'+
       '<ellipse cx="100" cy="60" rx="96" ry="54" fill="#2a0808" opacity=".5"/>'+
@@ -4426,7 +4479,11 @@ if(d.id === 'slingshot'){
     '</svg>';
   }
 
-  document.getElementById('adMascot').innerHTML = tvMascotSVG();
+  document.getElementById('adMascot').innerHTML =
+    '<div class="adk-wrap">' +
+      '<div class="adk-tvguy">' + tvMascotSVG() + '</div>' +
+      '<div class="adk-board">' + keyboardSVG() + '</div>' +
+    '</div>';
 
   let secs = 599, stock = 3;
   const timerEl = document.getElementById('adTimer');
@@ -4440,9 +4497,17 @@ if(d.id === 'slingshot'){
   }, 1000);
 
   document.getElementById('adClose').addEventListener('click', function(){
-    clearInterval(tick);
+    /* closing it never works for long: it pops back up, adware style */
     ad.classList.add('gone');
-    setTimeout(function(){ ad.remove(); }, 380);
+    setTimeout(function(){
+      ad.style.display = 'none';
+      setTimeout(function(){
+        secs = 599; stock = 3;
+        stockEl.textContent = stock;
+        ad.style.display = '';
+        ad.classList.remove('gone');
+      }, 18000 + Math.random() * 22000);
+    }, 380);
   });
 
   document.getElementById('adBuy').addEventListener('click', function(){
