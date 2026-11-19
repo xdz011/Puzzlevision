@@ -368,32 +368,31 @@
   .tvd-tv { position:absolute; left:24%; bottom:22%; transform:translateX(-50%);
     width:min(42vw, 380px); z-index:2;
     filter:drop-shadow(0 16px 26px rgba(0,0,0,.85)); }
-  .tvd-ant { position:absolute; left:18%; bottom:96%; width:30%; height:0; }
+  .tvd-ant { position:absolute; left:18%; bottom:96%; width:34%; height:0; }
   .tvd-ant::before, .tvd-ant::after { content:''; position:absolute; bottom:0; left:50%;
-    width:2.5px; height:44px; background:#2a2824; transform-origin:bottom; border-radius:2px; }
-  .tvd-ant::before { transform:rotate(-32deg); }
-  .tvd-ant::after { transform:rotate(28deg); }
-  .tvd-ant .ab { position:absolute; width:8px; height:8px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #6b675e, #2a2824 70%); }
-  .tvd-ant .ab.l { left:calc(50% - 27px); top:-42px; }
-  .tvd-ant .ab.r { left:calc(50% + 17px); top:-42px; }
-  .tvd-body { position:relative; padding:5.5% 16% 9% 6%;
-    background:linear-gradient(180deg,#f2f0ea,#d8d5cd 55%,#a8a49a 85%,#87837a);
-    border-radius:16px 16px 12px 12px; border:2px solid #2a2824;
-    box-shadow: inset 0 2px 3px rgba(255,255,255,.7), inset 0 -6px 14px rgba(0,0,0,.35),
-      inset -8px 0 12px rgba(0,0,0,.14); }
-  .tvd-vent { position:absolute; left:50%; transform:translateX(-50%); top:-3px; width:42%; height:5px;
-    background:repeating-linear-gradient(90deg,#5a564d 0 3px, transparent 3px 7px);
-    border-radius:2px; opacity:.8; }
-  .tvd-grill { position:absolute; right:4%; bottom:3%; width:9%; height:11%;
-    background:repeating-linear-gradient(0deg, #5a564d 0 2px, transparent 2px 5px);
-    border-radius:3px; opacity:.7; }
-  .tvd-tag { position:absolute; left:6.5%; bottom:3%; font-family:'Bungee';
-    font-size:clamp(5px,.9vw,9px); letter-spacing:2px; color:#a02418; opacity:.85; }
+    width:3px; height:48px; background:linear-gradient(180deg,#3c3f46,#23252b); transform-origin:bottom; border-radius:2px; }
+  .tvd-ant::before { transform:rotate(-38deg); }
+  .tvd-ant::after { transform:rotate(34deg); }
+  .tvd-ant .ab { position:absolute; width:9px; height:9px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #63666d, #23252b 70%); }
+  .tvd-ant .ab.l { left:calc(50% - 30px); top:-46px; }
+  .tvd-ant .ab.r { left:calc(50% + 20px); top:-46px; }
+  .tvd-body { position:relative; padding:5.5% 20% 10% 6.5%;
+    background:linear-gradient(180deg,#5f6269 0%,#484b52 34%,#33363c 68%,#26282d 100%);
+    border-radius:26px 26px 30px 30px / 30px 30px 36px 36px; border:2px solid #131418;
+    box-shadow: inset 0 3px 4px rgba(255,255,255,.16), inset 0 -8px 16px rgba(0,0,0,.5),
+      inset -10px 0 14px rgba(0,0,0,.28), inset 10px 0 14px rgba(0,0,0,.28); }
+  .tvd-grill { position:absolute; right:4.5%; bottom:3%; width:10%; height:12%;
+    background:repeating-linear-gradient(52deg, #141519 0 4px, transparent 4px 9px);
+    border-radius:4px; opacity:.85;
+    clip-path:polygon(14% 0, 100% 0, 86% 100%, 0 100%); }
+  .tvd-tag { position:absolute; left:50%; transform:translateX(-50%); bottom:1.5%;
+    font-family:'Brush Script MT','Segoe Script','Lucida Handwriting',cursive; font-style:italic; font-weight:700;
+    font-size:clamp(8px,1.5vw,15px); letter-spacing:1px; color:#141519; opacity:.9; white-space:nowrap; }
   .tvd-scr { position:relative; aspect-ratio:4/3; overflow:hidden;
-    border-radius:12%/11% 11% 13% 13%;
+    border-radius:14%/13% 13% 15% 15%;
     background:#0a0202;
-    box-shadow: inset 0 0 44px rgba(0,0,0,.92), 0 0 0 3px #23252a;
+    box-shadow: inset 0 0 44px rgba(0,0,0,.92), 0 0 0 5px #1a1c20, 0 0 0 6px #3a3d43;
     display:flex; align-items:center; justify-content:center; }
   /* the classic ending card: red rings contracting into a black center */
   .tvd-rings { position:absolute; left:50%; top:50%; width:172%; aspect-ratio:1;
@@ -419,14 +418,15 @@
     background-size:3px 3px; animation:staticMove .3s steps(2) infinite; }
   .tvd-scr::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; z-index:4;
     background:repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 2px, transparent 2px 4px); }
-  /* his dials, on the side of his head */
-  .tvd-dials { position:absolute; right:4%; top:12%; bottom:26%; width:9%;
+  /* his knobs, on the side of his head — big, dark, chunky like the show */
+  .tvd-dials { position:absolute; right:4.5%; top:10%; bottom:24%; width:12%;
     display:flex; flex-direction:column; justify-content:space-evenly; align-items:center; }
-  .tvd-dials i { width:100%; aspect-ratio:1; border-radius:50%; display:block;
-    background:radial-gradient(circle at 35% 30%, #eceef0, #9a9ea3 55%, #55585c 100%);
-    border:1.5px solid #2a2c30; box-shadow:0 1px 2px rgba(0,0,0,.5); position:relative; }
-  .tvd-dials i::after { content:''; position:absolute; left:50%; top:8%; width:2px; height:42%;
-    background:#23252a; transform:translateX(-50%); border-radius:2px; }
+  .tvd-dials i { width:100%; max-width:52px; aspect-ratio:1; border-radius:50%; display:block;
+    background:radial-gradient(circle at 36% 30%, #5c5f66, #383b41 58%, #1c1e22 100%);
+    border:2px solid #131418; box-shadow:0 2px 4px rgba(0,0,0,.6), inset 0 2px 3px rgba(255,255,255,.12);
+    position:relative; }
+  .tvd-dials i::after { content:''; position:absolute; left:50%; top:9%; width:3px; height:40%;
+    background:#0e0f12; transform:translateX(-50%); border-radius:2px; }
 
   /* cracked screen + mysterious black goo */
   .tvd-crack { position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; }
@@ -466,8 +466,8 @@
   .tv-dim.sil-on .tvd-script { filter:brightness(.45); transform:rotate(-9deg) translateY(-2.2em); }
   .tv-dim.sil-on .tvd-rings { filter:brightness(1.35); }
 
-  .tvd-feet { display:flex; justify-content:space-between; padding:0 16%; }
-  .tvd-feet i { width:12%; height:8px; background:#33363a; border-radius:0 0 4px 4px; display:block; }
+  .tvd-feet { display:flex; justify-content:space-between; padding:0 20%; }
+  .tvd-feet i { width:9%; aspect-ratio:1; background:radial-gradient(circle at 38% 32%, #464950, #17181c 72%); border-radius:50%; display:block; }
 
   /* the only light in the room comes from the screen */
   .tvd-glow { position:absolute; left:24%; bottom:21%; transform:translateX(-50%);
@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.26 &bull; mario eyes + free legs</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.27 &bull; puzzles tv head</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -745,7 +745,6 @@
       <div class="tvd-tv">
         <div class="tvd-ant"><i class="ab l"></i><i class="ab r"></i></div>
         <div class="tvd-body">
-          <div class="tvd-vent"></div>
           <div class="tvd-scr">
             <div class="tvd-rings"></div>
             <div class="tvd-goo-in"></div>
@@ -766,9 +765,9 @@
               </svg>
             </div>
           </div>
-          <div class="tvd-dials"><i></i><i></i><i></i></div>
+          <div class="tvd-dials"><i></i><i></i></div>
           <div class="tvd-grill"></div>
-          <div class="tvd-tag">PUZZLEVISION</div>
+          <div class="tvd-tag">puzzlevision</div>
         </div>
         <div class="tvd-feet"><i></i><i></i></div>
         <div class="tvd-goo">
