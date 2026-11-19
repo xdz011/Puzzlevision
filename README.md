@@ -150,7 +150,7 @@ on the rating screen.
 
 ## Build
 
-Current build string is shown in the footer of the page: **`BUILD v4.23 • xdz fluid motion`**.
+Current build string is shown in the footer of the page: **`BUILD v4.24 • brace pose fix`**.
 
 If the footer shows an older version after an update, close every tab of the site and
 re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.

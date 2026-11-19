@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.23 &bull; xdz fluid motion</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.24 &bull; brace pose fix</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2376,10 +2376,11 @@ let chaseMood = 'insane';
       R.armR.el.rotation.x = spring('arel', lerp(-2.20, -0.10, k), dt, 3.4, 0.45);
       R.armR.hand.scale.y = 1 - k*0.25;            // knuckle squash on the bang
 
-      // LEFT arm — braced on the glass, presses harder on impact, trembles
-      R.armL.sh.rotation.x = spring('alsx', -2.3 + k*0.12, dt, 2.4, 0.7);
-      R.armL.sh.rotation.z = spring('alsz', 0.35 + Math.sin(t*2.0)*0.05 + Math.sin(t*27)*0.02*(burst ? 1 : 0), dt, 3.5, 0.6);
-      R.armL.el.rotation.x = spring('alel', -0.25 + k*0.35 + Math.sin(t*5.3)*0.05, dt, 3.0, 0.6);
+      // LEFT arm — braced palm-flat on the glass: elbow out to his side,
+      // forearm horizontal, hand pressed at chest height (NOT raised skyward)
+      R.armL.sh.rotation.x = spring('alsx', -0.45 + k*0.10, dt, 2.4, 0.7);
+      R.armL.sh.rotation.z = spring('alsz', -0.50 + Math.sin(t*2.0)*0.05 + Math.sin(t*27)*0.02*(burst ? 1 : 0), dt, 3.5, 0.6);
+      R.armL.el.rotation.x = spring('alel', -1.15 + k*0.20 + Math.sin(t*5.3)*0.05, dt, 3.0, 0.6);
 
       // legs: pedal for purchase — phase-offset, knees bend, springs carry it
       R.legL.hip.rotation.x = spring('lghl', 0.15 + Math.sin(t*3.4)*0.10 + k*0.22, dt, 2.6, 0.7);
