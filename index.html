@@ -645,7 +645,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.24 &bull; brace pose fix</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.25 &bull; rings backdrop</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2183,35 +2183,17 @@ let chaseMood = 'insane';
         }),
         skin: makeTex('#f6c99f', function(g){ noiseDots(g, '#e5b48a', 40, 1); noiseDots(g, '#ffe3c4', 22, 1); }),
         hat: makeTex('#00FF7F', function(g){ noiseDots(g, '#00d968', 30, 1); noiseDots(g, '#2bff97', 16, 1); }),
-        bg: makeTex('#060606', function(g){
-          const grd = g.createRadialGradient(16, 16, 2, 16, 16, 17);
-          grd.addColorStop(0, 'rgba(6,6,6,0.95)');
-          grd.addColorStop(0.45, 'rgba(6,6,6,0.6)');
-          grd.addColorStop(0.8, 'rgba(6,6,6,0.15)');
-          grd.addColorStop(1, 'rgba(6,6,6,0)');
-          g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
-        }, true),
-        ground: makeTex('#0a0a0d', function(g){
-          const grd = g.createRadialGradient(16, 16, 1, 16, 16, 17);
-          grd.addColorStop(0, 'rgba(10,10,13,0.9)');
-          grd.addColorStop(0.55, 'rgba(8,8,11,0.55)');
-          grd.addColorStop(1, 'rgba(8,8,11,0)');
-          g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
-        }, true),
         blob: makeTex('#000000', function(g){
           const grd = g.createRadialGradient(16, 16, 1, 16, 16, 16);
-          grd.addColorStop(0, 'rgba(0,0,0,0.55)');
-          grd.addColorStop(0.6, 'rgba(0,0,0,0.28)');
+          grd.addColorStop(0, 'rgba(0,0,0,0.5)');
+          grd.addColorStop(0.6, 'rgba(0,0,0,0.25)');
           grd.addColorStop(1, 'rgba(0,0,0,0)');
           g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
         }, true)
       };
-      const bg = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 4.0),
-        new THREE.MeshBasicMaterial({ map:TX.bg, transparent:true, depthWrite:false }));
-      bg.position.set(0, 0.35, -1.6); scene.add(bg);
-      const ground = new THREE.Mesh(new THREE.CircleGeometry(0.95, 24),
-        new THREE.MeshBasicMaterial({ map:TX.ground, transparent:true, depthWrite:false }));
-      ground.rotation.x = -Math.PI/2; ground.position.y = -0.452; scene.add(ground);
+      // NO fake stage planes: he stands directly in the rings' black center —
+      // only a soft contact shadow grounds him (flat gray plates read as a
+      // pasted-on blob over the Looney Tunes card, which is worse than none)
       const blob = new THREE.Mesh(new THREE.CircleGeometry(0.40, 20),
         new THREE.MeshBasicMaterial({ map:TX.blob, transparent:true, depthWrite:false }));
       blob.rotation.x = -Math.PI/2; blob.position.set(0, -0.448, 0.10); scene.add(blob);
