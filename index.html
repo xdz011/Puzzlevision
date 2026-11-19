@@ -676,7 +676,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.44 &bull; clean eyes</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.45 &bull; eye lid fix</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -4508,6 +4508,20 @@ if(d.id === 'slingshot'){
   }
 
   function realisticEyeSVG(){
+    /* generated vein network from the corners toward the iris */
+    let veins = '';
+    for(let i = 0; i < 14; i++){
+      const side = (i % 2 === 0) ? 1 : -1;
+      const x0 = 100 + side * (58 + Math.random() * 32);
+      const y0 = 26 + Math.random() * 66;
+      const x1 = 100 + side * (28 + Math.random() * 22);
+      const y1 = 38 + Math.random() * 44;
+      veins += '<path d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1) +
+        ' Q' + ((x0 + x1) / 2 + side * 8).toFixed(1) + ' ' + ((y0 + y1) / 2 + (Math.random() * 22 - 11)).toFixed(1) +
+        ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) +
+        '" stroke-width="' + (0.7 + Math.random() * 1.5).toFixed(1) +
+        '" opacity="' + (0.35 + Math.random() * 0.45).toFixed(2) + '"/>';
+    }
     /* iris fiber striations */
     let fibers = '';
     for(let i = 0; i < 12; i++){
@@ -4540,6 +4554,7 @@ if(d.id === 'slingshot'){
       '<path d="M12 38 Q100 6 188 38 Q100 26 12 38 Z" fill="#574434" opacity=".75" filter="url(#reSoft)"/>'+
       /* glass dome sheen across the whole eyeball */
       '<ellipse cx="100" cy="30" rx="64" ry="13" fill="#ffffff" opacity=".14" filter="url(#reSoft)"/>'+
+      '<g stroke="#a83226" fill="none" stroke-linecap="round">' + veins + '</g>'+
       /* caruncle + inner-corner occlusion */
       '<ellipse cx="17" cy="60" rx="6.5" ry="8.5" fill="#c25a52" opacity=".85"/>'+
       '<ellipse cx="22" cy="62" rx="9" ry="10" fill="#4a0808" opacity=".35" filter="url(#reSoft)"/>'+
@@ -4554,13 +4569,13 @@ if(d.id === 'slingshot'){
         '<circle cx="100" cy="60" r="30" fill="none" stroke="#120804" stroke-width="4.5"/>'+
         '<circle cx="100" cy="60" r="12.5" fill="#050202"/>'+
         '<circle cx="100" cy="60" r="13" fill="none" stroke="#3a2410" stroke-width="1" opacity=".65"/>'+
+        '<circle cx="100" cy="60" r="30.5" fill="none" stroke="#7a1410" stroke-width="1.3" opacity=".8"/>'+
         /* speculars: big soft window reflection + crisp hotspot + wet lower arc */
         '<ellipse cx="87" cy="45" rx="10" ry="6.5" fill="#ffffff" opacity=".85" filter="url(#reSoft)"/>'+
         '<circle cx="85" cy="43" r="3.2" fill="#ffffff"/>'+
         '<path d="M94 85 Q106 90 118 83" stroke="#ffd9c9" stroke-width="2.2" fill="none" opacity=".6" stroke-linecap="round"/>'+
       '</g>'+
-      /* wet lower lid */
-      '<path d="M6 60 Q100 130 194 60" stroke="#170707" stroke-width="8" fill="none"/>'+
+      /* wet lower lid (highlight only; thick lid line removed) */
       '<path d="M30 74 Q100 112 170 74" stroke="#e8b0a4" stroke-width="2" fill="none" opacity=".5"/>'+
     '</svg>';
   }
