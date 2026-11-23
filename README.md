@@ -150,7 +150,7 @@ on the rating screen.
 
 ## Build
 
-Current build string is shown in the footer of the page: **BUILD v4.47 • grounded knock animation**.
+Current build string is shown in the footer of the page: **BUILD v4.46 • torn flesh masses**.
 
 If the footer shows an older version after an update, close every tab of the site and
 re-open the file with `Ctrl + F5` — browsers cache local pages aggressively.
