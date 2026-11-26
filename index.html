@@ -675,7 +675,7 @@
   <section class="shows" id="shows"></section>
 </main>
 
-<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.47 &bull; grounded knock animation</div></footer>
+<footer>Fan-made. Mr. Puzzles / SMG4 belong to SMG4 / Glitch. Save your Mr. Puzzles pic as <b>mr-puzzles.png</b> next to this file.<div class="build-tag" id="buildTag">BUILD v4.48 &bull; human knock cycle</div></footer>
 
 <!-- ================= ADWARE POPUP ================= -->
 <div class="adware" id="adware" role="dialog" aria-label="Advertisement">
@@ -2170,7 +2170,7 @@ let chaseMood = 'insane';
     let inited = false, failed = false, running = false;
     let renderer = null, scene = null, cam = null, raf = 0;
     let R = null;                       // rig
-    let hitT = -1e9, burst = false;
+    let hitT = -1e9, burst = false, hitStrength = 1;
 
     function mat(c){ return new THREE.MeshPhongMaterial({ color:c, flatShading:true, shininess:12 }); }
     function box(w,h,d,m){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m); }
@@ -2335,17 +2335,20 @@ let chaseMood = 'insane';
 
     let prevNow = 0, hdXs = -0.08, hdZs = 0, chXs = -0.06;
 
-    /* Small contact recoil; the arm then draws back and returns to the glass
-       over the actual 700ms interval between knocks. */
+    /* One knock = one 700ms cycle measured FROM the thud (hit()).
+       The fist recoils, draws back by the ear, then drives forward so it meets
+       the glass exactly as the NEXT thud fires — no wiggling around a fixed pose. */
     function smooth01(x){ x = Math.max(0, Math.min(1, x)); return x*x*(3-2*x); }
-    function knockEnv(p){
-      if(p < 0 || p > 240) return 0;
-      const x = p / 240;
-      return Math.sin(x*Math.PI) * Math.exp(-x*2.8);
+    function strikeAmt(p){
+      if(p < 0) return 1;
+      if(p < 110) return 1 - 0.62*smooth01(p/110);          // bounce off the glass
+      if(p < 430) return 0.38 - 0.31*smooth01((p-110)/320); // slow, deliberate draw-back
+      if(p < 640) return 0.07 + 0.93*smooth01((p-430)/210); // fast elbow-led strike
+      return 1;                                             // fist resting on glass
     }
-    function windupEnv(p){
-      if(p < 70 || p > 700) return 0;
-      return smooth01((p-70)/310) * (1-smooth01((p-390)/300));
+    function contactImp(p){
+      if(p < 0 || p > 220) return 0;
+      return Math.exp(-p/65);
     }
 
     /* 2nd-order spring smoother: targets are never reached rigidly — joints
@@ -2363,58 +2366,62 @@ let chaseMood = 'insane';
       const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000)); prevNow = now;
       const t = now / 1000;
       const p = now - hitT;
-      const k = knockEnv(p);
-      const wind = windupEnv(p);
+      const s = strikeAmt(p);                    // 0 = wound up, 1 = fist on glass
+      const c = contactImp(p) * hitStrength;     // sharp jolt at the thud
+      const w = 1 - s;                           // wind-up amount
       const breathe = Math.sin(t*2.2)*0.02;
-      const shift = Math.sin(t*0.9);                       // slow weight shift
+      const shift = Math.sin(t*0.9);             // slow weight shift
 
-      // Body stays close to the glass; impact travels through the torso subtly.
-      R.root.position.z = spring('rz', 0.10 + k*0.025, dt, 2.4, 0.8);
-      R.root.position.y = spring('ry', 0.05 + breathe*0.8 - k*0.008, dt, 2.0, 0.8);
-      R.root.rotation.z = spring('rrz', shift*0.018 + k*0.012, dt, 1.6, 0.9);
-      R.root.rotation.x = spring('rrx', k*0.018, dt, 2.6, 0.85);
-      R.root.rotation.y = Math.sin(t*0.7)*0.04;            // slow alive turn
+      // Body: weight loads onto the back foot during the draw-back, then drives
+      // forward into the glass on the strike. Higher-freq springs keep it crisp
+      // without the old stiff "frozen pose + tiny wiggle" look.
+      R.root.position.z = spring('rz', 0.10 + s*0.035 + c*0.02, dt, 4.0, 0.8);
+      R.root.position.y = spring('ry', 0.05 + breathe*0.8 - w*0.012 - c*0.01, dt, 3.0, 0.82);
+      R.root.rotation.z = spring('rrz', shift*0.02 - w*0.01, dt, 3.0, 0.85);
+      R.root.rotation.x = spring('rrx', w*0.03 + c*0.04, dt, 4.0, 0.8);
+      R.root.rotation.y = Math.sin(t*0.7)*0.04 + w*0.03;
 
-      // Chest leads slightly; shoulders and head settle after it.
-      R.chest.rotation.x = spring('chx', -0.06 + k*0.045, dt, 2.8, 0.8);
-      R.chest.rotation.y = spring('chy', -shift*0.035, dt, 2.2, 0.85);
-      R.chest.rotation.z = spring('chz', -k*0.018 + shift*0.012, dt, 2.5, 0.85);
+      // Torso twists and leans into the punch, then relaxes.
+      R.chest.rotation.x = spring('chx', -0.05 + w*0.06 - s*0.05 + c*0.05, dt, 4.5, 0.78);
+      R.chest.rotation.y = spring('chy', -shift*0.03 + w*0.10 - s*0.05, dt, 3.5, 0.8);
+      R.chest.rotation.z = spring('chz', shift*0.01 + w*0.02 - c*0.02, dt, 3.5, 0.82);
 
-      // Head has restrained follow-through instead of a cartoon recoil.
-      R.headG.rotation.x = spring('hdx', -0.08 - k*0.065 + Math.sin(t*1.3)*0.012, dt, 2.7, 0.82);
-      R.headG.rotation.y = spring('hdy', Math.sin(t*0.9)*0.035 - k*0.015, dt, 2.4, 0.82);
-      R.headG.rotation.z = spring('hdz', Math.sin(t*2.1)*0.018 - k*0.025, dt, 2.7, 0.82);
+      // Head trails the body on lag springs and tucks slightly on impact.
+      R.headG.rotation.x = spring('hdx', -0.07 - w*0.06 + Math.sin(t*1.3)*0.012 - c*0.06, dt, 5.0, 0.75);
+      R.headG.rotation.y = spring('hdy', Math.sin(t*0.9)*0.035 + w*0.05, dt, 4.0, 0.78);
+      R.headG.rotation.z = spring('hdz', Math.sin(t*2.1)*0.018 - w*0.03, dt, 4.5, 0.78);
 
-      // Keep the frightened expression; only a slight eye response at contact.
+      // Frightened expression, reacting a little more on each contact.
       const blink = (t % 3.7) < 0.09 ? 0.12 : 1;
-      R.mouthG.scale.y = 1 + k*0.08;
-      const es = 1 + k*0.025;
+      R.mouthG.scale.y = 1 + c*0.14;
+      const es = 1 + c*0.05;
       R.eyeL.scale.set(es, es*blink, es);
       R.eyeR.scale.set(es, es*blink, es);
 
-      // RIGHT arm — compact human knock: slight shoulder draw-back, elbow-led
-      // return, then a short contact. Forearm springs lag behind the shoulder.
-      R.armR.sh.rotation.x = spring('arsx', -0.76 + wind*0.14 - k*0.045, dt, 3.0, 0.86);
-      R.armR.sh.rotation.z = spring('arsz', 0.04 + Math.sin(t*1.3)*0.012, dt, 2.2, 0.9);
-      R.armR.el.rotation.x = spring('arel', -0.58 - wind*0.28 + k*0.10, dt, 3.8, 0.82);
-      R.armR.hand.rotation.x = spring('arwx', -0.04 + wind*0.035 - k*0.035, dt, 4.2, 0.8);
+      // RIGHT arm — the knocker. Fist draws back by the ear (elbow flexes hard),
+      // the elbow leads the forward drive, the wrist snaps straight at contact.
+      // Fast, slightly underdamped springs give crisp motion with follow-through.
+      R.armR.sh.rotation.x = spring('arsx', lerp(-1.00, -0.55, w) - c*0.04, dt, 6.5, 0.74);
+      R.armR.sh.rotation.z = spring('arsz', lerp(0.06, -0.14, w) + Math.sin(t*1.3)*0.012, dt, 5.0, 0.78);
+      R.armR.el.rotation.x = spring('arel', lerp(-0.28, -1.75, w) + c*0.12, dt, 8.0, 0.70);
+      R.armR.hand.rotation.x = spring('arwx', lerp(0.10, -0.30, w) - c*0.18, dt, 9.0, 0.68);
 
-      // LEFT arm — braced palm-flat on the glass: elbow out to his side,
-      // forearm horizontal, hand pressed at chest height (NOT raised skyward)
-      R.armL.sh.rotation.x = spring('alsx', -0.45 + k*0.025, dt, 2.4, 0.82);
-      R.armL.sh.rotation.z = spring('alsz', -0.50 + Math.sin(t*2.0)*0.025 + Math.sin(t*27)*0.01*(burst ? 1 : 0), dt, 3.2, 0.82);
-      R.armL.el.rotation.x = spring('alel', -1.15 + k*0.05 + Math.sin(t*5.3)*0.025, dt, 3.0, 0.82);
+      // LEFT arm — flat palm braced on the glass, pressing harder at contact.
+      R.armL.sh.rotation.x = spring('alsx', -0.45 + c*0.04, dt, 4.0, 0.8);
+      R.armL.sh.rotation.z = spring('alsz', -0.50 + Math.sin(t*2.0)*0.025 + Math.sin(t*27)*0.01*(burst ? 1 : 0) + c*0.02, dt, 5.0, 0.8);
+      R.armL.el.rotation.x = spring('alel', -1.15 + c*0.08 + Math.sin(t*5.3)*0.025, dt, 4.5, 0.8);
 
-      // Braced legs absorb the small contact through the knees, not a broad flail.
+      // Legs: knees flex and weight transfers to the back foot on wind-up, then
+      // push into the glass on the strike — a real braced stance, not a rod.
       const phL = t*1.35, phR = t*1.35 + 1.2;
-      R.legL.hip.rotation.x = spring('lghl', 0.04 + Math.sin(phL)*0.035 + k*0.045, dt, 2.2, 0.85);
-      R.legL.hip.rotation.y = spring('lgy1', Math.sin(phL*0.7 + 1.2)*0.035 + shift*0.025, dt, 1.8, 0.9);
-      R.legL.hip.rotation.z = spring('lgz1', -0.025 + Math.sin(phL + 0.8)*0.025 - k*0.02, dt, 2.0, 0.88);
-      R.legL.knee.rotation.x = spring('lkn1', -0.015 + Math.sin(phL + 2.2)*0.07 - k*0.07, dt, 2.5, 0.85);
-      R.legR.hip.rotation.x = spring('lghr', -0.025 + Math.sin(phR)*0.035 + k*0.05, dt, 2.2, 0.85);
-      R.legR.hip.rotation.y = spring('lgy2', Math.sin(phR*0.7 + 1.2)*0.035 + shift*0.025, dt, 1.8, 0.9);
-      R.legR.hip.rotation.z = spring('lgz2', 0.025 + Math.sin(phR + 0.8)*0.025 + k*0.02, dt, 2.0, 0.88);
-      R.legR.knee.rotation.x = spring('lkn2', -0.015 + Math.sin(phR + 2.2)*0.07 - k*0.06, dt, 2.5, 0.85);
+      R.legL.hip.rotation.x = spring('lghl', 0.05 + w*0.07 + Math.sin(phL)*0.03 + c*0.05, dt, 4.0, 0.82);
+      R.legL.hip.rotation.y = spring('lgy1', Math.sin(phL*0.7+1.2)*0.035 + shift*0.025 - w*0.04, dt, 3.0, 0.86);
+      R.legL.hip.rotation.z = spring('lgz1', -0.03 + Math.sin(phL+0.8)*0.025 - w*0.02, dt, 3.5, 0.85);
+      R.legL.knee.rotation.x = spring('lkn1', -0.04 - w*0.20 + Math.sin(phL+2.2)*0.06 - c*0.08, dt, 4.5, 0.82);
+      R.legR.hip.rotation.x = spring('lghr', -0.03 + s*0.06 + Math.sin(phR)*0.03 + c*0.04, dt, 4.0, 0.82);
+      R.legR.hip.rotation.y = spring('lgy2', Math.sin(phR*0.7+1.2)*0.035 + shift*0.025 + w*0.04, dt, 3.0, 0.86);
+      R.legR.hip.rotation.z = spring('lgz2', 0.03 + Math.sin(phR+0.8)*0.025 + w*0.02, dt, 3.5, 0.85);
+      R.legR.knee.rotation.x = spring('lkn2', -0.04 - w*0.10 + Math.sin(phR+2.2)*0.06 - c*0.06, dt, 4.5, 0.82);
     }
 
     function loop(){
@@ -2445,7 +2452,7 @@ let chaseMood = 'insane';
       if(raf){ cancelAnimationFrame(raf); raf = 0; }
       burst = false; hitT = -1e9;
     }
-    function hit(){ hitT = performance.now(); }
+    function hit(){ hitT = performance.now(); hitStrength = 0.85 + Math.random()*0.3; }
     function setBurst(v){ burst = !!v; if(v) hitT = -1e9; }
     return { start:start, stop:stop, hit:hit, burst:setBurst, ok:function(){ return inited && !failed; } };
   })();
